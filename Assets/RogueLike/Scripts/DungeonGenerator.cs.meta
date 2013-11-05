@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: b8bbb214f6272d040ba438cba386be1d
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - mPrefab_wall01: {fileID: 100000, guid: a49b144fe2c3be8498f720a4b1fdef19, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
