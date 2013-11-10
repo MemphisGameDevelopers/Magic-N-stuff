@@ -103,11 +103,11 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 			seed = System.DateTime.Now.Millisecond*1000 + System.DateTime.Now.Minute*100;
 			
 			// Camera on middle and looking down
-<<<<<<< HEAD
+//<<<<<<< HEAD
 			//Camera.mainCamera.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
-=======
+//=======
 			Camera.main.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
->>>>>>> origin/dev
+//>>>>>>> origin/dev
 			
 			// Set the randome seed
 			Random.seed = seed;
