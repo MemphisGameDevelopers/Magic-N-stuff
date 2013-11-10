@@ -22,6 +22,8 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 	public int CHANCE_STOP = 5;
 	public int SLICE_TRIES = 10;
 	public int CORRIDOR_WIDTH = 2;
+
+    public int MAX_NUM_BARRIERS = 5;
 	
 	// Tilemap
 	public Tile[,] tiles;
@@ -31,6 +33,9 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 	public GameObject prefabWall01; 
 	public GameObject prefabFloor01;
 	public GameObject meshCombiner;
+    public GameObject barrier;
+    public GameObject exit;
+    public GameObject key;
 	
 	// Player	
 	public GameObject player;
@@ -43,6 +48,10 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 	
 	// List of rooms
 	public List<Room> rooms;
+
+    public List<GameObject> barriers;
+
+    public List<GameObject> keys; 
 	
 	// Auxiliar vars
 //	private GameObject floor;
@@ -62,11 +71,26 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 
 		// List of rooms
 		rooms = new List<Room>();
+
+        barriers = new List<GameObject>();
 	}
 	
 	// On Start
 	void Start () 
 	{
+        // Generate a new Seed
+        seed = System.DateTime.Now.Millisecond * 1000 + System.DateTime.Now.Minute * 100;
+
+        // Camera on middle and looking down
+        Camera.main.transform.position = new Vector3(MAP_WIDTH / 2, 100, MAP_HEIGHT / 2);
+
+        // Set the randome seed
+        Random.seed = seed;
+
+        // Generate Dungeon
+        Debug.Log("Dungeon Generation Started");
+
+        GenerateDungeon(seed);
 	
 	}
 	
@@ -79,7 +103,11 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 			seed = System.DateTime.Now.Millisecond*1000 + System.DateTime.Now.Minute*100;
 			
 			// Camera on middle and looking down
+<<<<<<< HEAD
 			//Camera.mainCamera.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
+=======
+			Camera.main.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
+>>>>>>> origin/dev
 			
 			// Set the randome seed
 			Random.seed = seed;
@@ -93,27 +121,35 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 	}
 	
 	// Clean everything
-	public void ResetDungeon()
-	{
-		// Disable player
-		player.SetActive(false);
-		
-		// Reset tilemap
-		for (int i = 0; i < MAP_HEIGHT; i++) 
-			for (int j = 0; j < MAP_WIDTH; j++) 
-				tiles[i,j] = new Tile(Tile.TILE_EMPTY);
-		
-		// Reset QuadTree
-		quadTree = new QuadTree(new AABB(new XY(MAP_WIDTH/2.0f,MAP_HEIGHT/2.0f),new XY(MAP_WIDTH/2.0f, MAP_HEIGHT/2.0f)));
-		
-		// Reset rooms
-		rooms.Clear();
-		
-		// Destroy tile GameObjects
-		foreach (Transform t in containerRooms.transform) GameObject.Destroy(t.gameObject);
-	}
-	
-	// Generate a new dungeon with the given seed
+    public void ResetDungeon()
+    {
+        // Disable player
+        player.SetActive(false);
+
+        // Reset tilemap
+        for (int i = 0; i < MAP_HEIGHT; i++)
+            for (int j = 0; j < MAP_WIDTH; j++)
+                tiles[i, j] = new Tile(Tile.TILE_EMPTY);
+
+        // Reset QuadTree
+        quadTree =
+            new QuadTree(new AABB(new XY(MAP_WIDTH/2.0f, MAP_HEIGHT/2.0f), new XY(MAP_WIDTH/2.0f, MAP_HEIGHT/2.0f)));
+
+        // Reset rooms
+        rooms.Clear();
+
+        // Destroy tile GameObjects
+        foreach (Transform t in containerRooms.transform) Destroy(t.gameObject);
+
+        foreach (var b in barriers) Destroy(b);
+        barriers.Clear();
+        foreach (var k in keys) Destroy(k);
+        keys.Clear();
+
+        exit.SetActive(false);
+    }
+
+    // Generate a new dungeon with the given seed
 	public void GenerateDungeon(int seed)
 	{
 		Debug.Log ("Generating QuadTree");
@@ -167,16 +203,103 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 		
 		// Instantiate prefabs
 		GenerateGameObjects(quadTree);
-			
-		// Place Player
-		int r = Random.Range(0,rooms.Count-1);
-		Room room = rooms[r];
-		player.SetActive(true);
-		player.transform.position = new Vector3(room.boundary.center.x,1.0f,room.boundary.center.y);
-		
+
+        int r = Random.Range(0, rooms.Count - 1);
+        Room room = rooms[r];
+        exit.SetActive(true);
+        exit.transform.position = new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y);
+        GameObject _barrier = Instantiate(barrier, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+        _barrier.transform.localScale *= Random.Range(ROOM_MIN_SIZE, MAP_HEIGHT / 2);
+	    _barrier.renderer.material.color = Color.red;
+	    _barrier.name = "Barrier 0";
+	    barriers.Add(_barrier);
+
+	    for (int i = 1; i < MAX_NUM_BARRIERS; i++)
+	    {
+            Color barrierType = new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+            _barrier = Instantiate(barrier, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+            _barrier.transform.localScale *= Random.Range(ROOM_MIN_SIZE, MAP_HEIGHT / 2);
+            _barrier.renderer.material.color = barrierType;
+	        _barrier.name = "Barrier " + i;
+            barriers.Add(_barrier);
+	        
+	    }
+
+	    PlaceKeys();
+
+	    //PlacePuzzles(barriers[0]);
+
+	    PlacePlayer();
+
+
 //		GameObject.DestroyImmediate(floor);
-		
+
 	}
+
+    private void PlaceKeys()
+    {
+        for (int i = 0; i < MAX_NUM_BARRIERS; i++)
+        {
+            int r = Random.Range(0, rooms.Count - 1);
+            Room room = rooms[r];
+            if (!barriers[i].collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
+            {
+                GameObject _key = Instantiate(key, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+                keys.Add(_key);
+                keys[i].name = "Key for " + barriers[i].name;
+                keys[i].renderer.material.color = barriers[i].renderer.material.color;
+            }
+        }
+    }
+
+    private void PlacePlayer()
+    {
+        int r = Random.Range(0, rooms.Count - 1);
+        Room room = rooms[r];
+        
+        foreach (var barrier in barriers)
+        {
+            if(barrier.collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
+            {
+                PlacePlayer();
+            }
+        }
+        player.SetActive(true);
+        player.transform.position = new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y);
+    }
+
+    //private void PlacePuzzles(GameObject prevBarrier)
+    //{
+    //    int r = Random.Range(0, rooms.Count - 1);
+    //    Room room = rooms[r];
+    //    Color barrierType = new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+    //    if (prevBarrier.collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
+    //    {
+    //        PlacePuzzles(prevBarrier);
+    //    }
+    //    GameObject _key = Instantiate(key, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+    //    _key.renderer.material.color = prevBarrier.renderer.material.color;
+    //    keys.Add(_key);
+    //    GameObject _barrier = Instantiate(barrier, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+    //    _barrier.transform.localScale *= Random.Range(ROOM_MIN_SIZE, MAP_HEIGHT / 2);
+    //    _barrier.renderer.material.color = barrierType;
+    //    barriers.Add(_barrier);
+    //    prevBarrier = _barrier;
+    //    if (barriers.Count == MAX_NUM_BARRIERS)
+    //    {
+    //        r = Random.Range(0, rooms.Count - 1);
+    //        room = rooms[r];
+    //        if (prevBarrier.collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
+    //        {
+    //            _key = Instantiate(key, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
+    //            _key.renderer.material.color = prevBarrier.renderer.material.color;
+    //            keys.Add(_key);
+    //        }
+    //        return;
+    //    }
+    //    PlacePuzzles(prevBarrier);
+
+    //}
 	
 	// Generate the quadtree system
 	void GenerateQuadTree(ref QuadTree _quadTree)
