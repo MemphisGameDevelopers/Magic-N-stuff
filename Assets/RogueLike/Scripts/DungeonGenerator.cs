@@ -79,7 +79,7 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 			seed = System.DateTime.Now.Millisecond*1000 + System.DateTime.Now.Minute*100;
 			
 			// Camera on middle and looking down
-			Camera.mainCamera.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
+			//Camera.mainCamera.transform.position = new Vector3(MAP_WIDTH/2,100,MAP_HEIGHT/2);
 			
 			// Set the randome seed
 			Random.seed = seed;
@@ -285,7 +285,7 @@ public class DungeonGenerator : MonoSingleton <DungeonGenerator> {
 					}
 					else if (id == Tile.TILE_WALL)
 					{
-						GameObject wall = GameObject.Instantiate(prefabWall01,new Vector3(col,0.0f,row),Quaternion.identity) as GameObject;
+						GameObject wall = GameObject.Instantiate(prefabWall01,new Vector3(col,1.5f,row),Quaternion.identity) as GameObject;
 						wall.transform.parent = container.transform;
 					}
 				}
