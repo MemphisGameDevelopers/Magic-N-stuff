@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 6abe5ebaa5db38247a71b27f1680f836
+=======
+guid: 4705686c5ddcdfd479b1a125222bc6cf
+>>>>>>> converted Adventurer and WizardGirl to Mecanim
 folderAsset: yes
 DefaultImporter:
   userData: 
