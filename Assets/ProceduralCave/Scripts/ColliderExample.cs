@@ -15,7 +15,37 @@ public class ColliderExample : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		
+		
+		bool collision=false;
+		for(int x=0;x<size;x++){
+			for(int y=0;y<size;y++){
+				if(circular){
+					
+					if(Vector2.Distance(new Vector2(x-(size/2),
+					                                y-(size/2)),Vector2.zero)<=(size/3)){
+						
+						if(RemoveBlock(x-(size/2),y-(size/2))){
+							
+							collision=true;
+						}
+						
+					}
+				} else {
+					
+					if(RemoveBlock(x-(size/2),y-(size/2))){
+						
+						collision=true;
+					}
+				}
+				
+			}
+		}
+		if( collision){
+			tScript.update=true;
+			
+		}
+		
 	}
 	
 	bool RemoveBlock(float offsetX, float offsetY){
