@@ -6,6 +6,8 @@ public class StairDismount : MonoBehaviour {
 	float impactEndTime=0;
 	Rigidbody impactTarget=null;
 	Vector3 impact;
+
+    private float impactForce = 1.0f;
 	//Current score
 	public int score;
 	//A prefab for displaying points (floats up, fades out, instantiated by the RagdollPartScript)
@@ -52,7 +54,7 @@ public class StairDismount : MonoBehaviour {
 					impactTarget = hit.rigidbody;
 					
 					//impact direction also according to the ray
-					impact = ray.direction * 2.0f;
+					impact = ray.direction * impactForce;
 					
 					//the impact will be reapplied for the next 250ms
 					//to make the connected objects follow even though the simulated body joints
