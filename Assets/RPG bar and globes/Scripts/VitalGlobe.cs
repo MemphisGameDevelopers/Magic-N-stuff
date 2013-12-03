@@ -16,7 +16,7 @@ public class VitalGlobe : MonoBehaviour {
 	public float minMana;					//Min mana				NOTE! You should replace this value with the one on your player
 	public float maxMana;					//Max mana				NOTE! You should replace this value with the one on your player
 	
-	[HideInInspector]
+	//[HideInInspector]
 	public Rect globeRect;					//Rect that holds the size and position of the globes
 	
 	public bool healthGlobe;				//Is it a healthGlobe?
@@ -36,12 +36,19 @@ public class VitalGlobe : MonoBehaviour {
 	}
 	
 	void Update() {
-		if(healthGlobe)
-			//Set the amount of the bar that's going to be shown based on the min health and max health
-			globeMaterial.SetFloat("_Cutoff", -(minHealth/maxHealth) + 1.05f);
-		else if(manaGlobe)
-			//Set the amount of the bar that's going to be shown based on the min mana and max mana
-			globeMaterial.SetFloat("_Cutoff", -(minMana/maxMana) + 1.05f);
+        if (healthGlobe)
+        {
+            //Set the amount of the bar that's going to be shown based on the min health and max health
+            globeMaterial.SetFloat("_Cutoff", -(minHealth / maxHealth) + 1.05f);
+            //globeRect = Rect(Screen.width * 0.2f, Screen.height - Screen.width * 0.105f, Screen.width * 0.1f, Screen.width * 0.1f);
+        }
+
+        else if (manaGlobe)
+        {
+            //Set the amount of the bar that's going to be shown based on the min mana and max mana
+            globeMaterial.SetFloat("_Cutoff", -(minMana / maxMana) + 1.05f);
+            //globeRect = Rect(Screen.width * 0.65f, Screen.height - Screen.width * 0.105f, Screen.width * 0.1f, Screen.width * 0.1f);
+        }
 	}
 
 	void OnGUI() {

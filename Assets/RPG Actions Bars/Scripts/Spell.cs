@@ -18,7 +18,7 @@ public class Spell : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
 	{
-	    player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player").transform;
 	    anim = player.GetComponent<Animator>();
 
 	}
@@ -29,10 +29,13 @@ public class Spell : MonoBehaviour {
 			cooldownTimer += Time.deltaTime;
 		if(cooldownTimer >= cooldown)
 			onCooldown = false;
+
+        player = GameObject.FindGameObjectWithTag("Player").transform;
 	}
 	
 	public void Use() {
 		//Here you can implement your cool spells like a big tornado or a lightning hitting enemys.. It's all up to you. :)
+        Debug.Log("Player name: " + player.name);
         anim.SetTrigger("Forward");
         Instantiate(spellEffect, player.position + new Vector3(0, 1), Quaternion.LookRotation(player.forward));
 	    cooldownTimer = 0;
