@@ -8,148 +8,56 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using UnityEngine;
+using System;
 
 public class Region : MonoBehaviour
 {
 		public GameObject chunk;
+		public VoxelWorld world;
 		public Chunk[,,] chunks;
 		public int chunkSize = 16;
 		public byte[,,] data;
-		public int regionX = 32;
-		public int regionY = 32;
-		public int regionZ = 32;
-		public int regionXoffset;
-		public int regionZoffset;
-		public Region north, south, east, west, northWest, northEast, southWest, southEast = null;
+		public  int regionX = 32;
+		public   int regionY = 32;
+		public  int regionZ = 32;
+		public int offsetX;
+		public int offsetZ;
+		//public Region north, south, east, west, northWest, northEast, southWest, southEast = null;
 		public float distToLoad;
 		public float distToUnload;
-		public enum Directions
+//		public Region[,] neighbors;
+//		public enum Directions
+//		{
+//				North,
+//				South,
+//				East,
+//				West,
+//				NorthWest,
+//				NorthEast,
+//				SouthWest,
+//				SouthEast}
+//		;
+
+		public int getBlockOffsetX ()
 		{
-				North,
-				South,
-				East,
-				West,
-				NorthWest,
-				NorthEast,
-				SouthWest,
-				SouthEast}
-		;
-
-		void Start ()
-		{
-
-		}
-	
-		public Region getNeighbor (Directions direction)
-		{
-				Region result = null;
-				switch (direction) {
-			
-				case Directions.North:
-						result = north;
-						break;
-				case Directions.South:
-						result = south;
-						break;
-				case Directions.East:
-						result = east;
-						break;
-				case Directions.West:
-						result = west;
-						break;
-				case Directions.NorthWest:
-						result = northWest;
-						break;
-				case Directions.SouthWest:
-						result = southWest;
-						break;
-				case Directions.NorthEast:
-						result = northEast;
-						break;
-				case Directions.SouthEast:
-						result = southEast;
-						break;
-				}
-
-
-				if(result == null){
-
-				}
-
-				return result;
+				return offsetX * regionX;
 		}
 
-		public void setNeighbor (Region neighbor, Directions direction)
+		public int getBlockOffsetZ ()
 		{
-				if(neighbor == null){
-					return;
-				}
-				//Set the link back to the neighbor.
-				switch (direction) {
-				
-				case Directions.North:
-						this.north = neighbor;
-						if (neighbor.south == null) {
-								neighbor.setNeighbor (this, Directions.South);
-						}
-						break;
-				case Directions.South:
-						this.south = neighbor;
-						if (neighbor.north == null) {
-								neighbor.setNeighbor (this, Directions.North);
-						}
-						break;
-				case Directions.East:
-						this.east = neighbor;
-						if (neighbor.west == null) {
-								neighbor.setNeighbor (this, Directions.West);
-						}
-						break;
-				case Directions.West:
-						this.west = neighbor;
-						if (neighbor.east == null) {
-								neighbor.setNeighbor (this, Directions.East);
-						}
-						break;
-				case Directions.NorthEast:
-						this.northEast = neighbor;
-						if (neighbor.southWest == null) {
-								neighbor.setNeighbor (this, Directions.SouthWest);
-						}
-						break;
-				case Directions.NorthWest:
-						this.northWest = neighbor;
-						if (neighbor.southEast == null) {
-								neighbor.setNeighbor (this, Directions.SouthEast);
-						}
-						break;
-				case Directions.SouthEast:
-						this.southEast = neighbor;
-						if (neighbor.northWest == null) {
-								neighbor.setNeighbor (this, Directions.NorthWest);
-						}
-						break;
-				case Directions.SouthWest:
-						this.southWest = neighbor;
-						if (neighbor.northEast == null) {
-								neighbor.setNeighbor (this, Directions.NorthEast);
-						}
-						break;
-				}
-
+				return offsetZ * regionZ;
 		}
 
 		public void createRegionData ()
 		{
-		
 				//create this region's terrain data.
 				data = new byte[regionX, regionY, regionZ];
-		
 				createPerlin ();
-		
 				chunks = new Chunk[Mathf.FloorToInt (regionX / chunkSize),
 		                   Mathf.FloorToInt (regionY / chunkSize),
 		                   Mathf.FloorToInt (regionZ / chunkSize)];
+
+
 		}
 
 		private void createFlatBiome ()
@@ -169,9 +77,9 @@ public class Region : MonoBehaviour
 		{
 				for (int x=0; x<regionX; x++) {
 						for (int z=0; z<regionZ; z++) {
-								int stone = PerlinNoise (this.regionXoffset + x, 0, this.regionZoffset + z, 100, 3, 1.2f);
-								stone += PerlinNoise (this.regionXoffset + x, 700, this.regionZoffset + z, 20, 4, 0) + 10;
-								int dirt = PerlinNoise (this.regionXoffset + x, 100, this.regionZoffset + z, 50, 2, 0);
+								int stone = PerlinNoise (this.getBlockOffsetX () + x, 0, this.getBlockOffsetZ () + z, 100, 20, 1.2f);
+								stone += PerlinNoise (this.getBlockOffsetX () + x, 700, this.getBlockOffsetZ () + z, 20, 4, 0) + 10;
+								int dirt = PerlinNoise (this.getBlockOffsetX () + x, 100, this.getBlockOffsetZ () + z, 50, 2, 0);
 				
 								for (int y=0; y<regionY; y++) {
 										if (y <= stone) {
@@ -191,10 +99,11 @@ public class Region : MonoBehaviour
 			
 						//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
 						GameObject newChunk = Instantiate (chunk,
-			                                   new Vector3 (x * chunkSize - 0.5f + regionXoffset,
+			                                   new Vector3 (x * chunkSize - 0.5f + getBlockOffsetX (),
 			             y * chunkSize + 0.5f,
-			             z * chunkSize - 0.5f + regionZoffset),
+			             z * chunkSize - 0.5f + getBlockOffsetZ ()),
 			                                   new Quaternion (0, 0, 0, 0)) as GameObject;
+				
 						newChunk.transform.parent = this.transform;
 						//Now instead of using a temporary variable for the script assign it
 						//to chunks[x,y,z] and use it instead of the old \"newChunkScript\"
@@ -211,7 +120,7 @@ public class Region : MonoBehaviour
 		public void UnloadColumn (int x, int z)
 		{
 				for (int y=0; y<chunks.GetLength(1); y++) {
-						Object.Destroy (chunks [x, y, z].gameObject);
+						GameObject.Destroy (chunks [x, y, z].gameObject);
 			
 				}
 		}
@@ -228,22 +137,94 @@ public class Region : MonoBehaviour
 		
 				return (int)rValue;
 		}
-	
+
 		public byte Block (int x, int y, int z)
 		{
 		
 				if (x >= regionX || x < 0 || y >= regionY || y < 0 || z >= regionZ || z < 0) {
-						return (byte)1;
+						int worldX = x + this.getBlockOffsetX();
+						int worldZ = z + this.getBlockOffsetZ();
+						Region neighbor = world.getRegionAtCoords(worldX,worldZ);
+						int[] normalizedCoords = normalizeToLocal (x, y, z);
+						return neighbor.Block (normalizedCoords);
+				} else {
+						return data [x, y, z];
 				}
+		}
 		
-				return data [x, y, z];
+		private byte Block (int[] normalizedCoords)
+		{
+				byte block = data [normalizedCoords [0], normalizedCoords [1], normalizedCoords [2]];
+				return block;
+
 		}
 
-		public string hashString()
-	{
-		Debug.Log ("x:"+regionXoffset+" z:"+regionZoffset);
-		return this.regionXoffset +"|"+this.regionZoffset;
-	}
+		private int[] normalizeToLocal (int x, int y, int z)
+		{
+				int[] result = {x,y,z};
+				if (x >= regionX) {
+						result [0] = x - regionX;
+				} else if (x < 0) {
+						result [0] = x + regionX;
+				}
+
+				if (z >= regionZ) {
+						result [2] = z - regionZ;
+				} else if (z < 0) {
+						result [2] = z + regionZ;
+				}
+				if (y >= regionY) {
+						result [1] = regionY - 1;
+				} else if (y < 0) {
+						result [1] = 0;
+				}
+
+				result[0] = result[0] % regionX;
+				return result;
+		}
+
+		public  int[] convertWorldToLocal (int x, int y, int z)
+		{
+				int[] result = {x,y,z};
+				
+				if (x < 0) {
+						result [0] = x - getBlockOffsetX ();
+				} else {
+						result [0] = x % regionX;
+				}
+
+				result [1] = y;
+
+				if (z < 0) {
+						result [2] = z - getBlockOffsetZ ();
+				} else {
+						result [2] = z % regionZ;
+				}
+				return result;
+		}
+
+		public void flagChunkForUpdate (int x, int y, int z)
+		{
+
+				int chunkDim = regionX / chunkSize;
+				if (x >= chunkDim) {
+						world.getRegionAtIndex (this.offsetX+1,this.offsetZ).chunks [x - chunkDim, y, z].update = true;
+				} else if (x < 0) {
+						world.getRegionAtIndex (this.offsetX-1,this.offsetZ).chunks [x + chunkDim, y, z].update = true;
+				} else if (z >= chunkDim) {
+						world.getRegionAtIndex (this.offsetX, this.offsetZ+1).chunks [x, y, z - chunkDim].update = true;
+				} else if (z < 0) {
+						world.getRegionAtIndex (this.offsetX, this.offsetZ-1).chunks [x, y, z + chunkDim].update = true;
+				}else{
+						chunks[x,y,z].update = true;
+				}
+
+		}
+
+		public string hashString ()
+		{
+				return this.offsetX + "|" + this.offsetZ;
+		}
 }
 
 

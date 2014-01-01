@@ -6,38 +6,43 @@ public class VoxelModifyTerrain : MonoBehaviour
 	
 
 		GameObject cameraGO;
+		private GameObject player;
 		public VoxelWorld world;
 		public Region myRegion = null;
-		public float dist = 0;
 		public int distToLoad = 4;
 		public int distToUnload = 8;
-	
 		// Use this for initialization
-		void VoxelModify ()
+		public Region modRegion = null;
+		
+		void Awake ()
 		{
 				cameraGO = GameObject.FindGameObjectWithTag ("MainCamera");
+				player = GameObject.FindGameObjectWithTag ("Player");
+		}
+
+		public void setStartRegion (Region region)
+		{
+				myRegion = region;
 		}
 
 		private void determinePlayerRegion (Vector3 playerPos)
 		{
-				if(world == null){
-					world = gameObject.GetComponent ("VoxelWorld") as VoxelWorld;
-				}
-				if (playerPos.x >= myRegion.regionXoffset + myRegion.regionX && 
-						playerPos.z < myRegion.regionZoffset + myRegion.regionZ) {
-						myRegion = myRegion.getNeighbor (Region.Directions.East);
+
+				if (playerPos.x >= myRegion.getBlockOffsetX () + myRegion.regionX && 
+						playerPos.z < myRegion.getBlockOffsetZ () + myRegion.regionZ) {
+						myRegion = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
 						world.changeFocusRegion (myRegion);
-				} else if (playerPos.z >= myRegion.regionZoffset + myRegion.regionZ && 
-						playerPos.x < myRegion.regionXoffset + myRegion.regionX) {
-						myRegion = myRegion.getNeighbor (Region.Directions.North);
+				} else if (playerPos.z >= myRegion.getBlockOffsetZ () + myRegion.regionZ && 
+						playerPos.x < myRegion.getBlockOffsetX () + myRegion.regionX) {
+						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
 						world.changeFocusRegion (myRegion);
-				} else if (playerPos.x < myRegion.regionXoffset && 
-						playerPos.z >= myRegion.regionZoffset) {	
-						myRegion = myRegion.getNeighbor (Region.Directions.West);
+				} else if (playerPos.x < myRegion.getBlockOffsetX () && 
+						playerPos.z >= myRegion.getBlockOffsetZ ()) {	
+						myRegion = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
 						world.changeFocusRegion (myRegion);
-				} else if (playerPos.z < myRegion.regionZoffset && 
-						playerPos.x >= myRegion.regionXoffset) {		
-						myRegion = myRegion.getNeighbor (Region.Directions.South);
+				} else if (playerPos.z < myRegion.getBlockOffsetZ () && 
+						playerPos.x >= myRegion.getBlockOffsetX ()) {		
+						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
 						world.changeFocusRegion (myRegion);
 				}
 		}
@@ -59,8 +64,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 		private void LoadChunks (Vector3 playerPos)
 		{
 				
-				int playerChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.regionXoffset) / myRegion.chunkSize;
-				int playerChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.regionZoffset) / myRegion.chunkSize;
+				int playerChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.getBlockOffsetX ()) / myRegion.chunkSize;
+				int playerChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.getBlockOffsetZ ()) / myRegion.chunkSize;
 				int x_start = playerChunkx - distToUnload - 2;
 				int x_finish = playerChunkx + distToUnload + 2;
 				int z_start = playerChunkz - distToUnload - 2;
@@ -68,14 +73,14 @@ public class VoxelModifyTerrain : MonoBehaviour
 
 				for (int x = x_start; x < x_finish; x++) {
 						for (int z = z_start; z < z_finish; z++) {
-								dist = Vector2.Distance (new Vector2 (x, z), new Vector2 (playerChunkx, playerChunkz));
+								float dist = Vector2.Distance (new Vector2 (x, z), new Vector2 (playerChunkx, playerChunkz));
 
 								if (dist <= distToLoad) {
 										if (x >= 0 && z >= 0 && x < myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
 												genRegionColumn (myRegion, x, z);
 										} else if (x < 0 && z < 0) {
 												//southwest
-												Region region = myRegion.getNeighbor (Region.Directions.SouthWest);
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ - 1);
 												if (region == null) {
 														continue;
 												}
@@ -85,7 +90,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, newZ);
 										} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
 												//northeast
-												Region region = myRegion.getNeighbor (Region.Directions.NorthEast);
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ + 1);
 												if (region == null) {
 														continue;
 												}
@@ -94,7 +99,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
 												//southeast
-												Region region = myRegion.getNeighbor (Region.Directions.SouthEast);
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ - 1);
 												if (region == null) {
 														continue;
 												}
@@ -103,7 +108,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, newZ);
 										} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
 												//northwest
-												Region region = myRegion.getNeighbor (Region.Directions.NorthWest);
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ + 1);
 												if (region == null) {
 														continue;
 												}
@@ -112,7 +117,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= 0) {
 												//south
-												Region region = myRegion.getNeighbor (Region.Directions.South);
+												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
 												if (region == null) {
 														continue;
 												}
@@ -121,7 +126,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 
 										} else if (x < 0 && z >= 0) {
 												//west
-												Region region = myRegion.getNeighbor (Region.Directions.West);
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
 												if (region == null) {
 														continue;
 												}
@@ -129,7 +134,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, z);
 										} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
 												//east
-												Region region = myRegion.getNeighbor (Region.Directions.East);
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
 												if (region == null) {
 														continue;
 												}
@@ -137,7 +142,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												genRegionColumn (region, newX, z);
 										} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
 												//north
-												Region region = myRegion.getNeighbor (Region.Directions.North);
+												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
 												if (region == null) {
 														continue;
 												}
@@ -151,72 +156,55 @@ public class VoxelModifyTerrain : MonoBehaviour
 												destroyRegionColumn (myRegion, x, z);
 										} else if (x < 0 && z < 0) {
 												//southwest
-												Region region = myRegion.getNeighbor (Region.Directions.SouthWest);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ - 1);
 						
 												int newX = region.regionX / region.chunkSize + x;
 												int newZ = region.regionZ / region.chunkSize + z;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
 												//northeast
-												Region region = myRegion.getNeighbor (Region.Directions.NorthEast);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ + 1);
+
 												int newX = x - region.regionX / region.chunkSize;
 												int newZ = z - region.regionZ / region.chunkSize;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
 												//southeast
-												Region region = myRegion.getNeighbor (Region.Directions.SouthEast);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ - 1);
+
 												int newX = x - region.regionX / region.chunkSize;
 												int newZ = region.regionZ / region.chunkSize + z;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
 												//northwest
-												Region region = myRegion.getNeighbor (Region.Directions.NorthWest);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ + 1);
+
 												int newX = region.regionX / region.chunkSize + x;
 												int newZ = z - region.regionZ / region.chunkSize;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= 0) {
 												//south
-												Region region = myRegion.getNeighbor (Region.Directions.South);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
+
 												int newZ = region.regionZ / region.chunkSize + z;
 												destroyRegionColumn (region, x, newZ);
 						
 										} else if (x < 0 && z >= 0) {
 												//west
-												Region region = myRegion.getNeighbor (Region.Directions.West);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
+
 												int newX = region.regionX / region.chunkSize + x;
 												destroyRegionColumn (region, newX, z);
 										} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
 												//east
-												Region region = myRegion.getNeighbor (Region.Directions.East);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
+
 												int newX = x - region.regionX / region.chunkSize;
 												destroyRegionColumn (region, newX, z);
 										} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
 												//north
-												Region region = myRegion.getNeighbor (Region.Directions.North);
-												if (region == null) {
-														continue;
-												}
+												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
+
 												int newZ = z - region.regionZ / region.chunkSize;
 												destroyRegionColumn (region, x, newZ);
 										}
@@ -294,7 +282,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 				//removes a block at these impact coordinates, you can raycast against the terrain and call this with the hit.point
 				Vector3 position = hit.point;
 				position += (hit.normal * -0.5f);
-		
+				
+				//Need to reduce this position to a region local position.
 				SetBlockAt (position, block);
 		}
 	
@@ -307,61 +296,68 @@ public class VoxelModifyTerrain : MonoBehaviour
 				SetBlockAt (position, block);
 		}
 	
-		public void SetBlockAt (Vector3 position, byte block)
+		private void SetBlockAt (Vector3 position, byte block)
 		{
 				//sets the specified block at these coordinates
 		
 				int x = Mathf.RoundToInt (position.x);
 				int y = Mathf.RoundToInt (position.y);
 				int z = Mathf.RoundToInt (position.z);
+
+
 		
 				SetBlockAt (x, y, z, block);
 		}
 	
-		public void SetBlockAt (int x, int y, int z, byte block)
+		private void SetBlockAt (int x, int y, int z, byte block)
 		{
+				//Block could be part of the neighbor region.
 				//adds the specified block at these coordinates
-				myRegion.data [x, y, z] = block;
-				UpdateChunkAt (x, y, z);
+
+				modRegion = world.getRegionAtCoords (x, z);
+				int[] localCoords = modRegion.convertWorldToLocal (x, y, z);
+				print ("Set block at world(" + x + "," + y + "," + z + ") local(" + localCoords [0] + "," + localCoords [1] + "," + localCoords [2] + ")");
+				modRegion.data [localCoords [0], localCoords [1], localCoords [2]] = block;
+				UpdateChunkAt (modRegion, localCoords [0], localCoords [1], localCoords [2]);
 		}
 	
 		//To do: add a way to just flag the chunk for update then it update it in lateupdate
-		private void UpdateChunkAt (int x, int y, int z)
+		private void UpdateChunkAt (Region region, int x, int y, int z)
 		{
 				//Updates the chunk containing this block
 		
-				int updateX = Mathf.FloorToInt (x / myRegion.chunkSize);
-				int updateY = Mathf.FloorToInt (y / myRegion.chunkSize);
-				int updateZ = Mathf.FloorToInt (z / myRegion.chunkSize);
+				int updateX = Mathf.FloorToInt (x / region.chunkSize);
+				int updateY = Mathf.FloorToInt (y / region.chunkSize);
+				int updateZ = Mathf.FloorToInt (z / region.chunkSize);
 		
-				//print ("Updating: " + updateX + "," + updateY + ", " + updateZ);
+				print ("Updating: " + updateX + "," + updateY + ", " + updateZ);
 		
 				//Update the chunk's mesh
-				myRegion.chunks [updateX, updateY, updateZ].update = true;
+				region.chunks [updateX, updateY, updateZ].update = true;
 		
-				//Update neighbor meshes as neccessary.
-				if (x - (myRegion.chunkSize * updateX) == 0 && updateX != 0) {
-						myRegion.chunks [updateX - 1, updateY, updateZ].update = true;
+				//Update neighbor chunks as neccessary.
+				if (x - (region.chunkSize * updateX) == 0) {
+						region.flagChunkForUpdate (updateX - 1, updateY, updateZ);
 				}
 		
-				if (x - (myRegion.chunkSize * updateX) == 15 && updateX != myRegion.chunks.GetLength (0) - 1) {
-						myRegion.chunks [updateX + 1, updateY, updateZ].update = true;
+				if (x - (region.chunkSize * updateX) == 15) {
+						region.flagChunkForUpdate (updateX + 1, updateY, updateZ);
 				}
 		
-				if (y - (myRegion.chunkSize * updateY) == 0 && updateY != 0) {
-						myRegion.chunks [updateX, updateY - 1, updateZ].update = true;
+				if (y - (region.chunkSize * updateY) == 0) {
+						region.flagChunkForUpdate (updateX, updateY - 1, updateZ);
 				}
 		
-				if (y - (myRegion.chunkSize * updateY) == 15 && updateY != myRegion.chunks.GetLength (1) - 1) {
-						myRegion.chunks [updateX, updateY + 1, updateZ].update = true;
+				if (y - (region.chunkSize * updateY) == 15) {
+						region.flagChunkForUpdate (updateX, updateY + 1, updateZ);
 				}
 		
-				if (z - (myRegion.chunkSize * updateZ) == 0 && updateZ != 0) {
-						myRegion.chunks [updateX, updateY, updateZ - 1].update = true;
+				if (z - (region.chunkSize * updateZ) == 0) {
+						region.flagChunkForUpdate (updateX, updateY, updateZ - 1);
 				}
 		
-				if (z - (myRegion.chunkSize * updateZ) == 15 && updateZ != myRegion.chunks.GetLength (2) - 1) {
-						myRegion.chunks [updateX, updateY, updateZ + 1].update = true;
+				if (z - (region.chunkSize * updateZ) == 15) {
+						region.flagChunkForUpdate (updateX, updateY, updateZ + 1);
 				}
 		
 		}
@@ -371,8 +367,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 		{
 			
 				if (myRegion != null) {
-						determinePlayerRegion (GameObject.FindGameObjectWithTag ("Player").transform.position);
-						LoadChunks (GameObject.FindGameObjectWithTag ("Player").transform.position);
+						determinePlayerRegion (player.transform.position);
+						LoadChunks (player.transform.position);
 				}
 		}
 }

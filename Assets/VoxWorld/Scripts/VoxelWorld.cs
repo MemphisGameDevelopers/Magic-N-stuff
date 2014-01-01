@@ -8,164 +8,160 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using UnityEngine;
+using System;
+using System.Threading;
 using System.Collections.Generic;
 
 public class VoxelWorld : MonoBehaviour
 {
-	public GameObject regionPrefab;
-	public int regionX = 32;
-	public int regionY = 32;
-	public int regionZ = 32;
-	public int distToLoad;
-	public int distToUnload;
+		public GameObject regionPrefab;
+		public int regionX = 32;
+		public int regionY = 32;
+		public int regionZ = 32;
+		public int distToLoad;
+		public int distToUnload;
+		private Dictionary<string, Region> regions;
+		private VoxelModifyTerrain clientRenderer;
 
-	private Dictionary<string, Region> regions;
-	private VoxelModifyTerrain clientRenderer;
+		void Start ()
+		{
+				regions = new Dictionary<string, Region> ();
+				print ("Creating client region");
+				Region centerRegion = createRegion (0, 0, false);
+				print ("Loading client's neighbor regions.");
+				loadAllNeighbors (centerRegion, false);
 
-	void Start ()
-	{
-		regions = new Dictionary<string, Region>();
-
-		Region centerRegion = createRegion(0,0);
-		loadAllNeighbors(centerRegion, true);
-
-
-
-		clientRenderer = gameObject.AddComponent ("VoxelModifyTerrain") as VoxelModifyTerrain;
-		clientRenderer.myRegion = centerRegion;
-		clientRenderer.distToLoad = this.distToLoad;
-		clientRenderer.distToUnload = this.distToUnload;
-	}
-
-	public void changeFocusRegion(Region newRegion){
-		//Load up region neighbors. Create a new regions as needed.
-		//TODO: Might take a long time. Consider co-routine.
-		loadAllNeighbors(newRegion,true);  
-
-
-	}
-
-	private void loadAllNeighbors(Region region, bool createRegions){
-
-		//North
-		Region neighbor = findRegionNeighbor(region,Region.Directions.North);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset,region.regionZoffset+regionZ);
-			loadAllNeighbors(neighbor,false);
+				print ("Creating client renderer");
+				clientRenderer = gameObject.GetComponent ("VoxelModifyTerrain") as VoxelModifyTerrain;
+				clientRenderer.setStartRegion (centerRegion);
 		}
-		region.setNeighbor(neighbor,Region.Directions.North);
 
-		//South
-		neighbor = findRegionNeighbor(region,Region.Directions.South);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset,region.regionZoffset-regionZ);
-			loadAllNeighbors(neighbor,false);
+		public void changeFocusRegion (Region newRegion)
+		{
+				//Load up region neighbors. Create a new regions as needed.
+				loadAllNeighbors (newRegion, true);  
+
+
 		}
-		region.setNeighbor(neighbor,Region.Directions.South);
 
-		//East
-		neighbor = findRegionNeighbor(region,Region.Directions.East);
-		if(neighbor == null && createRegions ){
-			neighbor = createRegion(region.regionXoffset+regionX,region.regionZoffset);
-			loadAllNeighbors(neighbor,false);
+		/**
+	 * Gets the region at the specified indices in the Dictionary
+	 * 
+	 **/
+		public Region getRegionAtIndex (int x, int z)
+		{
+				string key = x + "|" + z;
+				if (regions.ContainsKey (key)) {
+						Region region = regions [key];
+						return region;
+				} else {
+						return null;
+				}
+
 		}
-		region.setNeighbor(neighbor,Region.Directions.East);
 
-		//West
-		neighbor = findRegionNeighbor(region,Region.Directions.West);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset - regionX,region.regionZoffset);
-			loadAllNeighbors(neighbor,false);
-		}
-		region.setNeighbor(neighbor,Region.Directions.West);
-
-		//NorthWest
-		neighbor = findRegionNeighbor(region,Region.Directions.NorthWest);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset-regionX,region.regionZoffset+regionZ);
-			loadAllNeighbors(neighbor,false);
-		}
-		region.setNeighbor(neighbor,Region.Directions.NorthWest);
-
-		//SouthEast
-		neighbor = findRegionNeighbor(region,Region.Directions.SouthEast);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset+regionX,region.regionZoffset-regionZ);
-			loadAllNeighbors(neighbor,false);
-		}
-		region.setNeighbor(neighbor,Region.Directions.SouthEast);
-
-		//NorthEast
-		neighbor = findRegionNeighbor(region,Region.Directions.NorthEast);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset+regionX,region.regionZoffset+regionZ);
-			loadAllNeighbors(neighbor,false);
-		}
-		region.setNeighbor(neighbor,Region.Directions.NorthEast);
-
-		//SouthWest
-		neighbor = findRegionNeighbor(region,Region.Directions.SouthWest);
-		if(neighbor == null && createRegions){
-			neighbor = createRegion(region.regionXoffset - regionX,region.regionZoffset-regionZ);
-			loadAllNeighbors(neighbor,false);
-		}
-		region.setNeighbor(neighbor,Region.Directions.SouthWest);
-
-	}
-
-	private Region findRegionNeighbor(Region region, Region.Directions direction){
-		int xOffset = region.regionXoffset;
-		int zOffset = region.regionZoffset;
-		string key = null;
-		Region neighbor = null;
-		switch (direction) {
+		/**
+	 * Gets the region containing the specified world cordinates
+	 * 
+	 **/
+		public Region getRegionAtCoords (int x, int z)
+		{
+				if (x < 0) {
+						x = x - regionX + 1;
+				}
+				if (z < 0) {
+						z = z - regionZ + 1;
+				}
 			
-		case Region.Directions.North:
-			key = xOffset+"|"+(zOffset + region.regionZ);
-			break;
-		case Region.Directions.South:
-			key = xOffset+"|"+(zOffset - region.regionZ);
-			break;
-		case Region.Directions.East:
-			key = (xOffset + region.regionX)+"|"+zOffset;
-			break;
-		case Region.Directions.West:
-			key = (xOffset - region.regionX)+"|"+zOffset;
-			break;
-		case Region.Directions.NorthEast:
-			key = (xOffset + region.regionX) +"|"+(zOffset + region.regionZ);
-			break;
-		case Region.Directions.NorthWest:
-			key = (xOffset - region.regionX) +"|"+(zOffset + region.regionZ);
-			break;
-		case Region.Directions.SouthEast:
-			key = (xOffset + region.regionX) +"|"+(zOffset - region.regionZ);
-			break;
-		case Region.Directions.SouthWest:
-			key = (xOffset - region.regionX) +"|"+(zOffset - region.regionZ);
-			break;
+				int regionsX = x / regionX;
+				int regionsZ = z / regionZ;
+		
+				string key = regionsX + "|" + regionsZ;
+				if (regions.ContainsKey (key)) {
+						Region region = regions [key];
+						return region;
+				} else {
+						Debug.LogError ("Region [" + key + "] not found in Dictionary!");
+						Application.Quit ();
+						return null;
+				}
+		
 		}
 
-		if(regions.ContainsKey(key)){
-			neighbor = regions[key];
+		private void loadAllNeighbors (Region region, bool isAsync)
+		{
+
+				//North
+				Region neighbor = getRegionAtIndex (region.offsetX, region.offsetZ + 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX, region.offsetZ + 1, isAsync);
+				}
+
+
+				//South
+				neighbor = getRegionAtIndex (region.offsetX, region.offsetZ - 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX, region.offsetZ - 1, isAsync);
+				}
+
+				//East
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX + 1, region.offsetZ, isAsync);
+				}
+
+				//West
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX - 1, region.offsetZ, isAsync);
+				}
+
+				//NorthWest
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ + 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX - 1, region.offsetZ + 1, isAsync);
+				}
+
+				//SouthEast
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ - 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX + 1, region.offsetZ - 1, isAsync);
+				}
+
+				//NorthEast
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ + 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX + 1, region.offsetZ + 1, isAsync);
+				}
+
+				//SouthWest
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ - 1);
+				if (neighbor == null) {
+						neighbor = createRegion (region.offsetX - 1, region.offsetZ - 1, isAsync);
+				}
+
 		}
-		return neighbor;
 
-	}
-
-	private Region createRegion(int x, int z){
-		GameObject regionGO = Instantiate(regionPrefab,new Vector3(x,0,z),new Quaternion (0, 0, 0, 0)) as GameObject;
-		regionGO.transform.parent = this.transform;
-		Region region = regionGO.GetComponent("Region") as Region;
-		region.regionX = this.regionX;
-		region.regionY = this.regionY;
-		region.regionZ = this.regionZ;
-		region.regionXoffset = (int)regionGO.transform.position.x;
-		region.regionZoffset = (int)regionGO.transform.position.z;
-		region.createRegionData();
-		Debug.Log ("Adding new region at "+region.regionXoffset+","+region.regionZoffset);
-		regions.Add(region.hashString(), region);
-		return region;
-	}
-
+		private Region createRegion (int x, int z, bool isAsync)
+		{
+				GameObject regionGO = Instantiate (regionPrefab, new Vector3 (x * regionX, 0, z * regionX), new Quaternion (0, 0, 0, 0)) as GameObject;
+				regionGO.transform.parent = this.transform;
+				Region region = regionGO.GetComponent ("Region") as Region;
+				region.regionX = this.regionX;
+				region.regionY = this.regionY;
+				region.regionZ = this.regionZ;
+				region.offsetX = x;
+				region.offsetZ = z;
+				region.world = this;
+				if (isAsync) {
+						Thread oThread = new Thread (new ThreadStart (region.createRegionData));
+						oThread.Start ();
+				} else {
+						region.createRegionData ();
+				}
+				
+				regions.Add (region.hashString (), region);
+				return region;
+		}
+	
 }

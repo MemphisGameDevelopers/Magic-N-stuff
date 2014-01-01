@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &400000
 Transform:
@@ -82,7 +82,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 450ba6f00db45f04fbc50763f07feec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldGO: {fileID: 0}
+  regionGO: {fileID: 0}
   chunkSize: 16
   chunkX: 0
   chunkY: 0

@@ -18,7 +18,7 @@ RenderSettings:
   m_FogDensity: .00999999978
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientLight: {r: .242647052, g: 0, b: 0, a: 1}
+  m_AmbientLight: {r: .536764741, g: .53281796, b: .53281796, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: .5
   m_FlareStrength: 1
@@ -198,8 +198,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b51ef36ee9af33428502949ad3f8ecb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distance: 40
-  angle: 5
+  distance: 75
+  angle: 10.21
   height: 75
   minDistance: 5
   maxDistance: 30
@@ -536,7 +536,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leftClickAction: {fileID: 100014, guid: 0172f6b4d19db6a4ba57c77abb52621f, type: 2}
   rightClickAction: {fileID: 100002, guid: 9670f8a955ac189478d92ef8c8784863, type: 2}
-  height: 0
+  terrain: {fileID: 0}
 --- !u!4 &494751172
 Transform:
   m_ObjectHideFlags: 0
@@ -846,6 +846,22 @@ Prefab:
     - target: {fileID: 100000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
       propertyPath: m_Name
       value: World
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: m_TagString
+      value: ground
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: regionY
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: regionX
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: regionZ
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
@@ -1283,9 +1299,10 @@ GameObject:
   m_Component:
   - 4: {fileID: 1047877762}
   - 114: {fileID: 1047877761}
+  - 114: {fileID: 1047877763}
   m_Layer: 0
   m_Name: World
-  m_TagString: Untagged
+  m_TagString: ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1303,9 +1320,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   regionPrefab: {fileID: 100000, guid: 40102c7221257264a917e3fcf5bc3573, type: 2}
-  regionX: 512
-  regionY: 32
-  regionZ: 512
+  regionX: 256
+  regionY: 64
+  regionZ: 256
   distToLoad: 5
   distToUnload: 10
 --- !u!4 &1047877762
@@ -1319,6 +1336,22 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+--- !u!114 &1047877763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1047877760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 466769ac5dd59584696ff13ae5e24372, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  world: {fileID: 1047877761}
+  myRegion: {fileID: 0}
+  distToLoad: 8
+  distToUnload: 12
+  modRegion: {fileID: 0}
 --- !u!1 &1068957106
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,7 +1725,7 @@ Prefab:
       objectReference: {fileID: 1992113623}
     - target: {fileID: 11400000, guid: c6203fd8a4b3a824381f53cb2020f956, type: 2}
       propertyPath: distance
-      value: 40
+      value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c6203fd8a4b3a824381f53cb2020f956, type: 2}
       propertyPath: height
@@ -1712,7 +1745,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c6203fd8a4b3a824381f53cb2020f956, type: 2}
       propertyPath: angle
-      value: 5
+      value: 10.21
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c6203fd8a4b3a824381f53cb2020f956, type: 2}
       propertyPath: threshold
@@ -1758,6 +1791,68 @@ Transform:
   m_Children:
   - {fileID: 908052375}
   m_Father: {fileID: 854739872}
+--- !u!1 &1634409877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1634409879}
+  - 108: {fileID: 1634409878}
+  m_Layer: 0
+  m_Name: Spotlight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!108 &1634409878
+Light:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1634409877}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Type: 0
+  m_Color: {r: .742647052, g: .627408743, b: .25118947, a: 1}
+  m_Intensity: .5
+  m_Range: 341.441254
+  m_SpotAngle: 75.4930573
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_Strength: 1
+    m_Bias: .0500000007
+    m_Softness: 4
+    m_SoftnessFade: 1
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_ActuallyLightmapped: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_Lightmapping: 1
+  m_ShadowSamples: 1
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_IndirectIntensity: 1
+  m_AreaSize: {x: 1, y: 1}
+--- !u!4 &1634409879
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1634409877}
+  m_LocalRotation: {x: .990571618, y: 0, z: 0, w: .136996448}
+  m_LocalPosition: {x: 0, y: 72.1436081, z: 71.4031982}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
 --- !u!1 &1661718508
 GameObject:
   m_ObjectHideFlags: 0
@@ -2253,15 +2348,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78a750f1edd492448ae706ddcf30c4fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 20
-  trotSpeed: 20
-  runSpeed: 20
+  walkSpeed: 10
+  trotSpeed: 0
+  runSpeed: 10
   inAirControlAcceleration: 3
-  jumpHeight: 15
+  jumpHeight: 1
   gravity: 30
   speedSmoothing: 100
   rotateSpeed: 500
-  trotAfterSeconds: 2
+  trotAfterSeconds: 1000
   canJump: 1
 --- !u!143 &1992113626
 CharacterController:
@@ -2273,7 +2368,7 @@ CharacterController:
   serializedVersion: 2
   m_Height: 2
   m_Radius: .189999998
-  m_SlopeLimit: 45
+  m_SlopeLimit: 95
   m_StepOffset: .300000012
   m_SkinWidth: .0799999982
   m_MinMoveDistance: 0
@@ -2369,7 +2464,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: jumpHeight
-      value: 15
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 14300000, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_Radius
@@ -2381,15 +2476,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: walkSpeed
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: trotSpeed
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: runSpeed
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalPosition.x
@@ -2409,7 +2504,11 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: trotAfterSeconds
-      value: 2
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 14300000, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
+      propertyPath: m_SlopeLimit
+      value: 95
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}

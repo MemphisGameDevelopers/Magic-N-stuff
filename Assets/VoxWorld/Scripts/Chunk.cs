@@ -11,9 +11,9 @@ public class Chunk : MonoBehaviour
 		private List<int> newTriangles = new List<int> ();
 		private List<Vector2> newUV = new List<Vector2> ();
 		private float tUnit = 0.25f;
-		private Vector2 tStone = new Vector2 (2, 0);
-		private Vector2 tGrass = new Vector2 (0, 2);
-		private Vector2 tGrassTop = new Vector2 (2, 2);
+		private Vector2 tStone = new Vector2 (0, 1);
+		private Vector2 tGrass = new Vector2 (1, 1);
+		private Vector2 tGrassTop = new Vector2 (1, 0);
 		private Mesh mesh;
 		private MeshCollider col;
 		private int faceCount;
@@ -22,6 +22,9 @@ public class Chunk : MonoBehaviour
 		public int chunkY;
 		public int chunkZ;
 		public bool update;
+
+	private List<GameObject> staticItems;
+	private List<Item> lootItems;
 		// Use this for initialization
 		void Start ()
 		{
@@ -39,6 +42,7 @@ public class Chunk : MonoBehaviour
 		void LateUpdate ()
 		{
 				if (update) {
+			print ("Chunk update at "+transform.position+" at region "+region.hashString());
 						GenerateMesh ();
 						update = false;
 				}
@@ -97,7 +101,7 @@ public class Chunk : MonoBehaviour
 				UpdateMesh ();
 		}
   
-		byte Block (int x, int y, int z)
+		private byte Block (int x, int y, int z)
 		{
 				return region.Block (x + chunkX, y + chunkY, z + chunkZ);
 		}

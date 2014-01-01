@@ -96,6 +96,12 @@ public class CameraController : MonoBehaviour
 								mousePosMark = Input.mousePosition;
 						}
 				}
+
+			//Reset camera
+			if(Input.GetKeyDown("z")){
+				angle = 10.21f;
+				moveCamera ();
+			}
 		}
 	
 		public void changeFocus (GameObject o)
