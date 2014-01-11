@@ -23,7 +23,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 203.335449, y: 76.7849731, z: 277.712677}
+  m_LocalPosition: {x: 17.9995804, y: 29.3742752, z: -263.679291}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -39,14 +39,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunk: {fileID: 100000, guid: 30ad9a69b8c85ec41a50c7e7b9586cbf, type: 2}
+  tree: {fileID: 100000, guid: 43202a31bd1113061100b7a844295342, type: 3}
   chunkSize: 16
   regionX: 32
   regionY: 32
   regionZ: 32
-  regionXoffset: 0
-  regionZoffset: 0
+  offsetX: 0
+  offsetZ: 0
   distToLoad: 2
   distToUnload: 4
+  loadedFromFile: 0
+  isDirty: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

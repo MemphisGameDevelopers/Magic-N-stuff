@@ -9,12 +9,15 @@
 //------------------------------------------------------------------------------
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 public class Region : MonoBehaviour
 {
 		public GameObject chunk;
-		public VoxelWorld world;
+		public GameObject tree;
 		public Chunk[,,] chunks;
+		public LinkedList<Vector3> trees;
 		public int chunkSize = 16;
 		public byte[,,] data;
 		public  int regionX = 32;
@@ -22,21 +25,15 @@ public class Region : MonoBehaviour
 		public  int regionZ = 32;
 		public int offsetX;
 		public int offsetZ;
-		//public Region north, south, east, west, northWest, northEast, southWest, southEast = null;
 		public float distToLoad;
 		public float distToUnload;
-//		public Region[,] neighbors;
-//		public enum Directions
-//		{
-//				North,
-//				South,
-//				East,
-//				West,
-//				NorthWest,
-//				NorthEast,
-//				SouthWest,
-//				SouthEast}
-//		;
+		public bool isDirty;
+		private static VoxelWorld world;
+
+		public static void setWorld (VoxelWorld w)
+		{
+				world = w;
+		}
 
 		public int getBlockOffsetX ()
 		{
@@ -48,19 +45,81 @@ public class Region : MonoBehaviour
 				return offsetZ * regionZ;
 		}
 
-		public void createRegionData ()
+		public void saveRegion ()
 		{
-				//create this region's terrain data.
-				data = new byte[regionX, regionY, regionZ];
-				createPerlin ();
-				chunks = new Chunk[Mathf.FloorToInt (regionX / chunkSize),
-		                   Mathf.FloorToInt (regionY / chunkSize),
-		                   Mathf.FloorToInt (regionZ / chunkSize)];
-
-
+				try {
+						if (!Directory.Exists ("C:/Data/")) {
+								Directory.CreateDirectory ("C:/Data/");
+						}
+						string fileNamePath = "C:/Data/" + this.hashString () + ".dat";
+						print ("Saving to "+fileNamePath);
+						FileStream fs = File.Create (fileNamePath);
+						BinaryWriter writer = new BinaryWriter (fs);
+						for (int x=0; x<regionX; x++) {
+								for (int z=0; z<regionZ; z++) {
+										for (int y=0; y<regionY; y++) {
+														writer.Write (data [x, y, z]);
+										}
+								}
+						}	
+						isDirty = false;
+						writer.Close ();
+				} catch (Exception ex) {
+						Debug.Log (ex.ToString ());
+				}
 		}
 
-		private void createFlatBiome ()
+		public void createRegionData ()
+		{
+				data = new byte[regionX, regionY, regionZ];
+				chunks = new Chunk[Mathf.FloorToInt (regionX / chunkSize),
+		                  Mathf.FloorToInt (regionY / chunkSize),
+		                  Mathf.FloorToInt (regionZ / chunkSize)];
+				trees = new LinkedList<Vector3>();
+//				staticItemChunks = new LinkedList<Item>[Mathf.FloorToInt (regionX / chunkSize),
+//		                   Mathf.FloorToInt (regionY / chunkSize),
+//		                   Mathf.FloorToInt (regionZ / chunkSize)];
+
+				
+				try {
+						string fileNamePath = "C:/Data/" + this.hashString () + ".dat";
+
+						if (File.Exists (fileNamePath)) {
+								//Load in data from file if found
+								FileStream fs = File.OpenRead (fileNamePath);
+								BinaryReader reader = new BinaryReader (fs);
+								for (int x=0; x<regionX; x++) {
+										for (int z=0; z<regionZ; z++) {
+												for (int y=0; y<regionY; y++) {
+															data [x, y, z] = reader.ReadByte();
+												}
+										}
+								}	
+								reader.Close ();
+						} else {
+								//create this region's terrain data.
+								createPerlin();
+
+
+						}
+				} catch (Exception ex) {
+						Debug.Log (ex.ToString ());
+				}
+
+				//create Trees
+				createTrees();
+	}
+
+	private void createTrees(){
+		this.trees = TreePlanter.generateTrees(world,this);
+		foreach(Vector3 position in trees){
+			GameObject newItem = Instantiate (tree,
+			                                  new Vector3 (position.x + getBlockOffsetX(), position.y, position.z + getBlockOffsetZ()),
+			                                  new Quaternion (0, 180, 0, 0)) as GameObject;
+		}
+
+	}
+	private void createFlatBiome ()
 		{
 				for (int x=0; x<regionX; x++) {
 						for (int z=0; z<regionZ; z++) {
@@ -142,9 +201,9 @@ public class Region : MonoBehaviour
 		{
 		
 				if (x >= regionX || x < 0 || y >= regionY || y < 0 || z >= regionZ || z < 0) {
-						int worldX = x + this.getBlockOffsetX();
-						int worldZ = z + this.getBlockOffsetZ();
-						Region neighbor = world.getRegionAtCoords(worldX,worldZ);
+						int worldX = x + this.getBlockOffsetX ();
+						int worldZ = z + this.getBlockOffsetZ ();
+						Region neighbor = world.getRegionAtCoords (worldX, worldZ);
 						int[] normalizedCoords = normalizeToLocal (x, y, z);
 						return neighbor.Block (normalizedCoords);
 				} else {
@@ -179,7 +238,7 @@ public class Region : MonoBehaviour
 						result [1] = 0;
 				}
 
-				result[0] = result[0] % regionX;
+				result [0] = result [0] % regionX;
 				return result;
 		}
 
@@ -208,22 +267,22 @@ public class Region : MonoBehaviour
 
 				int chunkDim = regionX / chunkSize;
 				if (x >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX+1,this.offsetZ).chunks [x - chunkDim, y, z].update = true;
+						world.getRegionAtIndex (this.offsetX + 1, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
 				} else if (x < 0) {
-						world.getRegionAtIndex (this.offsetX-1,this.offsetZ).chunks [x + chunkDim, y, z].update = true;
+						world.getRegionAtIndex (this.offsetX - 1, this.offsetZ).chunks [x + chunkDim, y, z].update = true;
 				} else if (z >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX, this.offsetZ+1).chunks [x, y, z - chunkDim].update = true;
+						world.getRegionAtIndex (this.offsetX, this.offsetZ + 1).chunks [x, y, z - chunkDim].update = true;
 				} else if (z < 0) {
-						world.getRegionAtIndex (this.offsetX, this.offsetZ-1).chunks [x, y, z + chunkDim].update = true;
-				}else{
-						chunks[x,y,z].update = true;
+						world.getRegionAtIndex (this.offsetX, this.offsetZ - 1).chunks [x, y, z + chunkDim].update = true;
+				} else {
+						chunks [x, y, z].update = true;
 				}
 
 		}
 
 		public string hashString ()
 		{
-				return this.offsetX + "|" + this.offsetZ;
+				return this.offsetX + "x" + this.offsetZ;
 		}
 }
 

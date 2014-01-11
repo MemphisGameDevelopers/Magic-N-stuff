@@ -11,8 +11,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 		public Region myRegion = null;
 		public int distToLoad = 4;
 		public int distToUnload = 8;
-		// Use this for initialization
-		public Region modRegion = null;
+		public bool saveLevel = false;
 		
 		void Awake ()
 		{
@@ -314,9 +313,9 @@ public class VoxelModifyTerrain : MonoBehaviour
 				//Block could be part of the neighbor region.
 				//adds the specified block at these coordinates
 
-				modRegion = world.getRegionAtCoords (x, z);
+				Region modRegion = world.getRegionAtCoords (x, z);
 				int[] localCoords = modRegion.convertWorldToLocal (x, y, z);
-				print ("Set block at world(" + x + "," + y + "," + z + ") local(" + localCoords [0] + "," + localCoords [1] + "," + localCoords [2] + ")");
+				//print ("Set block at world(" + x + "," + y + "," + z + ") local(" + localCoords [0] + "," + localCoords [1] + "," + localCoords [2] + ")");
 				modRegion.data [localCoords [0], localCoords [1], localCoords [2]] = block;
 				UpdateChunkAt (modRegion, localCoords [0], localCoords [1], localCoords [2]);
 		}
@@ -325,15 +324,15 @@ public class VoxelModifyTerrain : MonoBehaviour
 		private void UpdateChunkAt (Region region, int x, int y, int z)
 		{
 				//Updates the chunk containing this block
-		
 				int updateX = Mathf.FloorToInt (x / region.chunkSize);
 				int updateY = Mathf.FloorToInt (y / region.chunkSize);
 				int updateZ = Mathf.FloorToInt (z / region.chunkSize);
 		
-				print ("Updating: " + updateX + "," + updateY + ", " + updateZ);
+				//print ("Updating: " + updateX + "," + updateY + ", " + updateZ);
 		
 				//Update the chunk's mesh
 				region.chunks [updateX, updateY, updateZ].update = true;
+				region.isDirty = true;
 		
 				//Update neighbor chunks as neccessary.
 				if (x - (region.chunkSize * updateX) == 0) {
@@ -365,7 +364,10 @@ public class VoxelModifyTerrain : MonoBehaviour
 		// Update is called once per frame
 		void Update ()
 		{
-			
+				if (saveLevel) {
+						world.saveWorld ();
+						saveLevel = false;
+				}
 				if (myRegion != null) {
 						determinePlayerRegion (player.transform.position);
 						LoadChunks (player.transform.position);

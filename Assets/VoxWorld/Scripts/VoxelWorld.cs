@@ -10,6 +10,7 @@
 using UnityEngine;
 using System;
 using System.Threading;
+using System.Collections;
 using System.Collections.Generic;
 
 public class VoxelWorld : MonoBehaviour
@@ -21,10 +22,13 @@ public class VoxelWorld : MonoBehaviour
 		public int distToLoad;
 		public int distToUnload;
 		private Dictionary<string, Region> regions;
+		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
 
 		void Start ()
 		{
+				Debug.Log (Application.persistentDataPath);
+				Region.setWorld (this);
 				regions = new Dictionary<string, Region> ();
 				print ("Creating client region");
 				Region centerRegion = createRegion (0, 0, false);
@@ -34,6 +38,9 @@ public class VoxelWorld : MonoBehaviour
 				print ("Creating client renderer");
 				clientRenderer = gameObject.GetComponent ("VoxelModifyTerrain") as VoxelModifyTerrain;
 				clientRenderer.setStartRegion (centerRegion);
+
+
+				InvokeRepeating ("SaveToDiskEvent", 30f, 30f);
 		}
 
 		public void changeFocusRegion (Region newRegion)
@@ -50,7 +57,7 @@ public class VoxelWorld : MonoBehaviour
 	 **/
 		public Region getRegionAtIndex (int x, int z)
 		{
-				string key = x + "|" + z;
+				string key = x + "x" + z;
 				if (regions.ContainsKey (key)) {
 						Region region = regions [key];
 						return region;
@@ -76,7 +83,7 @@ public class VoxelWorld : MonoBehaviour
 				int regionsX = x / regionX;
 				int regionsZ = z / regionZ;
 		
-				string key = regionsX + "|" + regionsZ;
+				string key = regionsX + "x" + regionsZ;
 				if (regions.ContainsKey (key)) {
 						Region region = regions [key];
 						return region;
@@ -142,6 +149,13 @@ public class VoxelWorld : MonoBehaviour
 
 		}
 
+		public void saveWorld ()
+		{
+				foreach (KeyValuePair<string,Region> kvp in regions) {
+						kvp.Value.saveRegion ();
+				}
+		}
+
 		private Region createRegion (int x, int z, bool isAsync)
 		{
 				GameObject regionGO = Instantiate (regionPrefab, new Vector3 (x * regionX, 0, z * regionX), new Quaternion (0, 0, 0, 0)) as GameObject;
@@ -152,7 +166,7 @@ public class VoxelWorld : MonoBehaviour
 				region.regionZ = this.regionZ;
 				region.offsetX = x;
 				region.offsetZ = z;
-				region.world = this;
+				regions.Add (region.hashString (), region);
 				if (isAsync) {
 						Thread oThread = new Thread (new ThreadStart (region.createRegionData));
 						oThread.Start ();
@@ -160,8 +174,21 @@ public class VoxelWorld : MonoBehaviour
 						region.createRegionData ();
 				}
 				
-				regions.Add (region.hashString (), region);
+				
 				return region;
 		}
-	
+
+		private void SaveToDiskEvent ()
+		{
+				foreach (KeyValuePair<string,Region> kvp in regions) {
+						//TODO: Possible ConcurrentModification here.
+						if (kvp.Value.isDirty) {
+								Thread oThread = new Thread (new ThreadStart (kvp.Value.saveRegion));
+								oThread.Start ();
+						}
+				}
+
+			
+		}
+
 }

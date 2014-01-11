@@ -6,22 +6,23 @@ public class Chunk : MonoBehaviour
 {
 	
 		public GameObject regionGO;
-		private Region region;
-		private List<Vector3> newVertices = new List<Vector3> ();
-		private List<int> newTriangles = new List<int> ();
-		private List<Vector2> newUV = new List<Vector2> ();
-		private float tUnit = 0.25f;
-		private Vector2 tStone = new Vector2 (0, 1);
-		private Vector2 tGrass = new Vector2 (1, 1);
-		private Vector2 tGrassTop = new Vector2 (1, 0);
-		private Mesh mesh;
-		private MeshCollider col;
-		private int faceCount;
 		public int chunkSize = 16;
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;
 		public bool update;
+
+	private Region region;
+	private List<Vector3> newVertices = new List<Vector3> ();
+	private List<int> newTriangles = new List<int> ();
+	private List<Vector2> newUV = new List<Vector2> ();
+	private float tUnit = 0.25f;
+	private Vector2 tStone = new Vector2 (0, 1);
+	private Vector2 tGrass = new Vector2 (1, 1);
+	private Vector2 tGrassTop = new Vector2 (1, 0);
+	private Mesh mesh;
+	private MeshCollider col;
+	private int faceCount;
 
 	private List<GameObject> staticItems;
 	private List<Item> lootItems;

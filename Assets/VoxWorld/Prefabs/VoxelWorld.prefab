@@ -9,9 +9,10 @@ GameObject:
   m_Component:
   - 4: {fileID: 400000}
   - 114: {fileID: 11400000}
+  - 114: {fileID: 11400004}
   m_Layer: 0
   m_Name: VoxelWorld
-  m_TagString: Untagged
+  m_TagString: ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -39,11 +40,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   regionPrefab: {fileID: 100000, guid: 40102c7221257264a917e3fcf5bc3573, type: 2}
-  regionX: 512
-  regionY: 32
-  regionZ: 512
+  regionX: 256
+  regionY: 64
+  regionZ: 256
   distToLoad: 5
   distToUnload: 10
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 466769ac5dd59584696ff13ae5e24372, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  world: {fileID: 11400000}
+  myRegion: {fileID: 0}
+  distToLoad: 8
+  distToUnload: 12
+  saveLevel: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
