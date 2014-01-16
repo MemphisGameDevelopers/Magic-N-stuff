@@ -17,12 +17,11 @@ public class Region : MonoBehaviour
 		public GameObject chunk;
 		public GameObject tree;
 		public Chunk[,,] chunks;
-		public LinkedList<Vector3> trees;
+		public ItemChunk[,,] itemChunks;
 		public int chunkSize = 16;
 		public byte[,,] data;
-		public  int regionX = 32;
+		public  int regionXZ = 32;
 		public   int regionY = 32;
-		public  int regionZ = 32;
 		public int offsetX;
 		public int offsetZ;
 		public float distToLoad;
@@ -37,12 +36,12 @@ public class Region : MonoBehaviour
 
 		public int getBlockOffsetX ()
 		{
-				return offsetX * regionX;
+				return offsetX * regionXZ;
 		}
 
 		public int getBlockOffsetZ ()
 		{
-				return offsetZ * regionZ;
+				return offsetZ * regionXZ;
 		}
 
 		public void saveRegion ()
@@ -52,13 +51,13 @@ public class Region : MonoBehaviour
 								Directory.CreateDirectory ("C:/Data/");
 						}
 						string fileNamePath = "C:/Data/" + this.hashString () + ".dat";
-						print ("Saving to "+fileNamePath);
+						print ("Saving to " + fileNamePath);
 						FileStream fs = File.Create (fileNamePath);
 						BinaryWriter writer = new BinaryWriter (fs);
-						for (int x=0; x<regionX; x++) {
-								for (int z=0; z<regionZ; z++) {
+						for (int x=0; x<regionXZ; x++) {
+								for (int z=0; z<regionXZ; z++) {
 										for (int y=0; y<regionY; y++) {
-														writer.Write (data [x, y, z]);
+												writer.Write (data [x, y, z]);
 										}
 								}
 						}	
@@ -71,14 +70,13 @@ public class Region : MonoBehaviour
 
 		public void createRegionData ()
 		{
-				data = new byte[regionX, regionY, regionZ];
-				chunks = new Chunk[Mathf.FloorToInt (regionX / chunkSize),
+				data = new byte[regionXZ, regionY, regionXZ];
+				chunks = new Chunk[Mathf.FloorToInt (regionXZ / chunkSize),
 		                  Mathf.FloorToInt (regionY / chunkSize),
-		                  Mathf.FloorToInt (regionZ / chunkSize)];
-				trees = new LinkedList<Vector3>();
-//				staticItemChunks = new LinkedList<Item>[Mathf.FloorToInt (regionX / chunkSize),
-//		                   Mathf.FloorToInt (regionY / chunkSize),
-//		                   Mathf.FloorToInt (regionZ / chunkSize)];
+		                  Mathf.FloorToInt (regionXZ / chunkSize)];
+				itemChunks = new ItemChunk[Mathf.FloorToInt (regionXZ / chunkSize),
+		                   Mathf.FloorToInt (regionY / chunkSize),
+		                   Mathf.FloorToInt (regionXZ / chunkSize)];
 
 				
 				try {
@@ -88,17 +86,18 @@ public class Region : MonoBehaviour
 								//Load in data from file if found
 								FileStream fs = File.OpenRead (fileNamePath);
 								BinaryReader reader = new BinaryReader (fs);
-								for (int x=0; x<regionX; x++) {
-										for (int z=0; z<regionZ; z++) {
+								for (int x=0; x<regionXZ; x++) {
+										for (int z=0; z<regionXZ; z++) {
 												for (int y=0; y<regionY; y++) {
-															data [x, y, z] = reader.ReadByte();
+														data [x, y, z] = reader.ReadByte ();
 												}
 										}
 								}	
 								reader.Close ();
 						} else {
 								//create this region's terrain data.
-								createPerlin();
+								createFlatBiome ();
+								//merge (dungeon.tiles, data);
 
 
 						}
@@ -107,22 +106,43 @@ public class Region : MonoBehaviour
 				}
 
 				//create Trees
-				createTrees();
-	}
-
-	private void createTrees(){
-		this.trees = TreePlanter.generateTrees(world,this);
-		foreach(Vector3 position in trees){
-			GameObject newItem = Instantiate (tree,
-			                                  new Vector3 (position.x + getBlockOffsetX(), position.y, position.z + getBlockOffsetZ()),
-			                                  new Quaternion (0, 180, 0, 0)) as GameObject;
+				createTrees ();
 		}
 
-	}
-	private void createFlatBiome ()
+		private void merge (int[,,] source, int[,,] destination)
 		{
-				for (int x=0; x<regionX; x++) {
-						for (int z=0; z<regionZ; z++) {
+		
+				for (int x = 0; x < source.GetLength(0); x++) {
+						for (int y = 0; y < source.GetLength(1); y++) {
+								for (int z = 0; z < source.GetLength(2); z++) {
+										destination [x, y, z] = source [x, y, z];
+								}
+						}
+				}
+		}
+		private void createTrees ()
+		{
+				LinkedList<Vector3> trees = TreePlanter.generateTrees (world, this);
+				foreach (Vector3 position in trees) {
+						int x = ((int)position.x / chunkSize);
+						int y = ((int)position.y / chunkSize);
+						int z = ((int)position.z / chunkSize);
+					
+						if (itemChunks [x, y, z] == null) {
+								ItemChunk itemChunk = new ItemChunk ();
+								itemChunks [x, y, z] = itemChunk;
+						}
+						itemChunks [x, y, z].addItem (position);
+				}
+
+
+
+		}
+	
+		private void createFlatBiome ()
+		{
+				for (int x=0; x<regionXZ; x++) {
+						for (int z=0; z<regionXZ; z++) {
 								for (int y=0; y<regionY; y++) {
 										if (y <= (regionY / 2)) {
 												data [x, y, z] = 1;
@@ -134,8 +154,8 @@ public class Region : MonoBehaviour
 	
 		private void createPerlin ()
 		{
-				for (int x=0; x<regionX; x++) {
-						for (int z=0; z<regionZ; z++) {
+				for (int x=0; x<regionXZ; x++) {
+						for (int z=0; z<regionXZ; z++) {
 								int stone = PerlinNoise (this.getBlockOffsetX () + x, 0, this.getBlockOffsetZ () + z, 100, 20, 1.2f);
 								stone += PerlinNoise (this.getBlockOffsetX () + x, 700, this.getBlockOffsetZ () + z, 20, 4, 0) + 10;
 								int dirt = PerlinNoise (this.getBlockOffsetX () + x, 100, this.getBlockOffsetZ () + z, 50, 2, 0);
@@ -164,14 +184,16 @@ public class Region : MonoBehaviour
 			                                   new Quaternion (0, 0, 0, 0)) as GameObject;
 				
 						newChunk.transform.parent = this.transform;
-						//Now instead of using a temporary variable for the script assign it
-						//to chunks[x,y,z] and use it instead of the old \"newChunkScript\"
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
 						chunks [x, y, z].regionGO = gameObject;
 						chunks [x, y, z].chunkSize = chunkSize;
 						chunks [x, y, z].chunkX = x * chunkSize;
 						chunks [x, y, z].chunkY = y * chunkSize;
 						chunks [x, y, z].chunkZ = z * chunkSize;
+						if (itemChunks [x, y, z] != null) {
+								chunks [x, y, z].itemChunk = itemChunks [x, y, z];
+						}
+						
 			
 				}
 		}
@@ -200,7 +222,7 @@ public class Region : MonoBehaviour
 		public byte Block (int x, int y, int z)
 		{
 		
-				if (x >= regionX || x < 0 || y >= regionY || y < 0 || z >= regionZ || z < 0) {
+				if (x >= regionXZ || x < 0 || y >= regionY || y < 0 || z >= regionXZ || z < 0) {
 						int worldX = x + this.getBlockOffsetX ();
 						int worldZ = z + this.getBlockOffsetZ ();
 						Region neighbor = world.getRegionAtCoords (worldX, worldZ);
@@ -221,16 +243,16 @@ public class Region : MonoBehaviour
 		private int[] normalizeToLocal (int x, int y, int z)
 		{
 				int[] result = {x,y,z};
-				if (x >= regionX) {
-						result [0] = x - regionX;
+				if (x >= regionXZ) {
+						result [0] = x - regionXZ;
 				} else if (x < 0) {
-						result [0] = x + regionX;
+						result [0] = x + regionXZ;
 				}
 
-				if (z >= regionZ) {
-						result [2] = z - regionZ;
+				if (z >= regionXZ) {
+						result [2] = z - regionXZ;
 				} else if (z < 0) {
-						result [2] = z + regionZ;
+						result [2] = z + regionXZ;
 				}
 				if (y >= regionY) {
 						result [1] = regionY - 1;
@@ -238,7 +260,7 @@ public class Region : MonoBehaviour
 						result [1] = 0;
 				}
 
-				result [0] = result [0] % regionX;
+				result [0] = result [0] % regionXZ;
 				return result;
 		}
 
@@ -249,7 +271,7 @@ public class Region : MonoBehaviour
 				if (x < 0) {
 						result [0] = x - getBlockOffsetX ();
 				} else {
-						result [0] = x % regionX;
+						result [0] = x % regionXZ;
 				}
 
 				result [1] = y;
@@ -257,7 +279,7 @@ public class Region : MonoBehaviour
 				if (z < 0) {
 						result [2] = z - getBlockOffsetZ ();
 				} else {
-						result [2] = z % regionZ;
+						result [2] = z % regionXZ;
 				}
 				return result;
 		}
@@ -265,7 +287,7 @@ public class Region : MonoBehaviour
 		public void flagChunkForUpdate (int x, int y, int z)
 		{
 
-				int chunkDim = regionX / chunkSize;
+				int chunkDim = regionXZ / chunkSize;
 				if (x >= chunkDim) {
 						world.getRegionAtIndex (this.offsetX + 1, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
 				} else if (x < 0) {

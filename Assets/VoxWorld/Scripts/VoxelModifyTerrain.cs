@@ -27,12 +27,12 @@ public class VoxelModifyTerrain : MonoBehaviour
 		private void determinePlayerRegion (Vector3 playerPos)
 		{
 
-				if (playerPos.x >= myRegion.getBlockOffsetX () + myRegion.regionX && 
-						playerPos.z < myRegion.getBlockOffsetZ () + myRegion.regionZ) {
+				if (playerPos.x >= myRegion.getBlockOffsetX () + myRegion.regionXZ && 
+						playerPos.z < myRegion.getBlockOffsetZ () + myRegion.regionXZ) {
 						myRegion = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
 						world.changeFocusRegion (myRegion);
-				} else if (playerPos.z >= myRegion.getBlockOffsetZ () + myRegion.regionZ && 
-						playerPos.x < myRegion.getBlockOffsetX () + myRegion.regionX) {
+				} else if (playerPos.z >= myRegion.getBlockOffsetZ () + myRegion.regionXZ && 
+						playerPos.x < myRegion.getBlockOffsetX () + myRegion.regionXZ) {
 						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
 						world.changeFocusRegion (myRegion);
 				} else if (playerPos.x < myRegion.getBlockOffsetX () && 
@@ -84,8 +84,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 														continue;
 												}
 
-												int newX = region.regionX / region.chunkSize + x;
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newX = region.regionXZ / region.chunkSize + x;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												genRegionColumn (region, newX, newZ);
 										} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
 												//northeast
@@ -93,8 +93,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newX = x - region.regionX / region.chunkSize;
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newX = x - region.regionXZ / region.chunkSize;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												genRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
 												//southeast
@@ -102,8 +102,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newX = x - region.regionX / region.chunkSize;
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newX = x - region.regionXZ / region.chunkSize;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												genRegionColumn (region, newX, newZ);
 										} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
 												//northwest
@@ -111,8 +111,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newX = region.regionX / region.chunkSize + x;
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newX = region.regionXZ / region.chunkSize + x;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												genRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= 0) {
 												//south
@@ -120,7 +120,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												genRegionColumn (region, x, newZ);
 
 										} else if (x < 0 && z >= 0) {
@@ -129,7 +129,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newX = region.regionX / region.chunkSize + x;
+												int newX = region.regionXZ / region.chunkSize + x;
 												genRegionColumn (region, newX, z);
 										} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
 												//east
@@ -137,7 +137,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newX = x - region.regionX / region.chunkSize;
+												int newX = x - region.regionXZ / region.chunkSize;
 												genRegionColumn (region, newX, z);
 										} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
 												//north
@@ -145,7 +145,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 												if (region == null) {
 														continue;
 												}
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												genRegionColumn (region, x, newZ);
 
 
@@ -157,54 +157,54 @@ public class VoxelModifyTerrain : MonoBehaviour
 												//southwest
 												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ - 1);
 						
-												int newX = region.regionX / region.chunkSize + x;
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newX = region.regionXZ / region.chunkSize + x;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
 												//northeast
 												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ + 1);
 
-												int newX = x - region.regionX / region.chunkSize;
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newX = x - region.regionXZ / region.chunkSize;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
 												//southeast
 												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ - 1);
 
-												int newX = x - region.regionX / region.chunkSize;
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newX = x - region.regionXZ / region.chunkSize;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
 												//northwest
 												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ + 1);
 
-												int newX = region.regionX / region.chunkSize + x;
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newX = region.regionXZ / region.chunkSize + x;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												destroyRegionColumn (region, newX, newZ);
 										} else if (z < 0 && x >= 0) {
 												//south
 												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
 
-												int newZ = region.regionZ / region.chunkSize + z;
+												int newZ = region.regionXZ / region.chunkSize + z;
 												destroyRegionColumn (region, x, newZ);
 						
 										} else if (x < 0 && z >= 0) {
 												//west
 												Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
 
-												int newX = region.regionX / region.chunkSize + x;
+												int newX = region.regionXZ / region.chunkSize + x;
 												destroyRegionColumn (region, newX, z);
 										} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
 												//east
 												Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
 
-												int newX = x - region.regionX / region.chunkSize;
+												int newX = x - region.regionXZ / region.chunkSize;
 												destroyRegionColumn (region, newX, z);
 										} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
 												//north
 												Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
 
-												int newZ = z - region.regionZ / region.chunkSize;
+												int newZ = z - region.regionXZ / region.chunkSize;
 												destroyRegionColumn (region, x, newZ);
 										}
 								}

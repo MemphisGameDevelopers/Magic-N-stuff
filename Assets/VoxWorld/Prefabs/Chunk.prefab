@@ -83,6 +83,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   regionGO: {fileID: 0}
+  treeMesh: {fileID: 100000, guid: 8d302a31bd1113061100b7a844295342, type: 3}
   chunkSize: 16
   chunkX: 0
   chunkY: 0

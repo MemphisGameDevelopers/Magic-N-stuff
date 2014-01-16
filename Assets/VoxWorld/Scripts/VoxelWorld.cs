@@ -16,9 +16,8 @@ using System.Collections.Generic;
 public class VoxelWorld : MonoBehaviour
 {
 		public GameObject regionPrefab;
-		public int regionX = 32;
+		public int regionXZ = 32;
 		public int regionY = 32;
-		public int regionZ = 32;
 		public int distToLoad;
 		public int distToUnload;
 		private Dictionary<string, Region> regions;
@@ -74,14 +73,14 @@ public class VoxelWorld : MonoBehaviour
 		public Region getRegionAtCoords (int x, int z)
 		{
 				if (x < 0) {
-						x = x - regionX + 1;
+						x = x - regionXZ + 1;
 				}
 				if (z < 0) {
-						z = z - regionZ + 1;
+						z = z - regionXZ + 1;
 				}
 			
-				int regionsX = x / regionX;
-				int regionsZ = z / regionZ;
+				int regionsX = x / regionXZ;
+				int regionsZ = z / regionXZ;
 		
 				string key = regionsX + "x" + regionsZ;
 				if (regions.ContainsKey (key)) {
@@ -158,12 +157,12 @@ public class VoxelWorld : MonoBehaviour
 
 		private Region createRegion (int x, int z, bool isAsync)
 		{
-				GameObject regionGO = Instantiate (regionPrefab, new Vector3 (x * regionX, 0, z * regionX), new Quaternion (0, 0, 0, 0)) as GameObject;
+				GameObject regionGO = Instantiate (regionPrefab, new Vector3 (x * regionXZ, 0, z * regionXZ), new Quaternion (0, 0, 0, 0)) as GameObject;
 				regionGO.transform.parent = this.transform;
 				Region region = regionGO.GetComponent ("Region") as Region;
-				region.regionX = this.regionX;
+				region.regionXZ = this.regionXZ;
 				region.regionY = this.regionY;
-				region.regionZ = this.regionZ;
+				region.regionXZ = this.regionXZ;
 				region.offsetX = x;
 				region.offsetZ = z;
 				regions.Add (region.hashString (), region);

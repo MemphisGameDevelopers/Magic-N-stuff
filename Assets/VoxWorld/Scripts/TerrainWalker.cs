@@ -25,15 +25,12 @@ public class TerrainWalker
 				//Get the region.
 				blockX = x;
 				blockZ = z;
-				Debug.Log ("Going to "+x+","+z);
 				//Determine what height the point is
 				Region region = world.getRegionAtCoords (x, z);
 				int[] localCoords = region.convertWorldToLocal (x, 0, z);
-		Debug.Log ("Local coords "+localCoords[0]+","+localCoords[1]);
 				for (int y = region.regionY - 1; y >= 0; y--) {
-			if (region.Block (localCoords[0], y, localCoords[2]) != 0) {
+						if (region.Block (localCoords [0], y, localCoords [2]) != 0) {
 								blockY = y + 1;
-								Debug.Log ("terrain walker is at "+localCoords[0]+","+blockY+","+localCoords[2]);
 								break;
 						}
 

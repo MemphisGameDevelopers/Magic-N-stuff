@@ -20,15 +20,15 @@ public class TreePlanter
 		public static LinkedList<Vector3> generateTrees (VoxelWorld world, Region region)
 		{
 				//Create a plane with the same dimensions as the region.
-				int[,] treeplane = new int[region.regionX, region.regionX];
-				int treeCount = 40;
+				int[,] treeplane = new int[region.regionXZ, region.regionXZ];
+				int treeCount = 100;
 				System.Random rand = new System.Random ();
 				TerrainWalker walker = new TerrainWalker (world);
 				LinkedList<Vector3> treePositions = new LinkedList<Vector3> ();
 
 				for (int i = 0; i < treeCount; i++) {
-						int x_local = rand.Next (0, region.regionX);
-						int z_local = rand.Next (0, region.regionZ);
+						int x_local = rand.Next (0, region.regionXZ);
+						int z_local = rand.Next (0, region.regionXZ);
 						if (treeplane [x_local, z_local] != 1) {
 								int world_z = z_local + region.getBlockOffsetZ ();
 								int world_x = x_local + region.getBlockOffsetX ();

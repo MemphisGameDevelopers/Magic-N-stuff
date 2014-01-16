@@ -6,26 +6,26 @@ public class Chunk : MonoBehaviour
 {
 	
 		public GameObject regionGO;
+		public GameObject treeMesh;
 		public int chunkSize = 16;
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;
 		public bool update;
 
-	private Region region;
-	private List<Vector3> newVertices = new List<Vector3> ();
-	private List<int> newTriangles = new List<int> ();
-	private List<Vector2> newUV = new List<Vector2> ();
-	private float tUnit = 0.25f;
-	private Vector2 tStone = new Vector2 (0, 1);
-	private Vector2 tGrass = new Vector2 (1, 1);
-	private Vector2 tGrassTop = new Vector2 (1, 0);
-	private Mesh mesh;
-	private MeshCollider col;
-	private int faceCount;
-
-	private List<GameObject> staticItems;
-	private List<Item> lootItems;
+		private Region region;
+		public ItemChunk itemChunk;
+		private List<Vector3> newVertices = new List<Vector3> ();
+		private List<int> newTriangles = new List<int> ();
+		private List<Vector2> newUV = new List<Vector2> ();
+		private float tUnit = 0.25f;
+		private Vector2 tStone = new Vector2 (0, 1);
+		private Vector2 tGrass = new Vector2 (1, 1);
+		private Vector2 tGrassTop = new Vector2 (1, 0);
+		private Mesh mesh;
+		private MeshCollider col;
+		private int faceCount;
+	
 		// Use this for initialization
 		void Start ()
 		{
@@ -43,7 +43,6 @@ public class Chunk : MonoBehaviour
 		void LateUpdate ()
 		{
 				if (update) {
-			print ("Chunk update at "+transform.position+" at region "+region.hashString());
 						GenerateMesh ();
 						update = false;
 				}
@@ -99,6 +98,10 @@ public class Chunk : MonoBehaviour
 						}
 				}
    
+				//Generate items
+				if (itemChunk != null && itemChunk.update) {
+						itemChunk.renderItems (this, region, treeMesh);
+				}
 				UpdateMesh ();
 		}
   
