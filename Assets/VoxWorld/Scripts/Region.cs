@@ -18,7 +18,6 @@ public class Region : MonoBehaviour
 		public GameObject tree;
 		public Chunk[,,] chunks;
 		public ItemChunk[,,] itemChunks;
-		public int chunkSize = 16;
 		public byte[,,] data;
 		public  int regionXZ = 32;
 		public   int regionY = 32;
@@ -71,12 +70,12 @@ public class Region : MonoBehaviour
 		public void createRegionData ()
 		{
 				data = new byte[regionXZ, regionY, regionXZ];
-				chunks = new Chunk[Mathf.FloorToInt (regionXZ / chunkSize),
-		                  Mathf.FloorToInt (regionY / chunkSize),
-		                  Mathf.FloorToInt (regionXZ / chunkSize)];
-				itemChunks = new ItemChunk[Mathf.FloorToInt (regionXZ / chunkSize),
-		                   Mathf.FloorToInt (regionY / chunkSize),
-		                   Mathf.FloorToInt (regionXZ / chunkSize)];
+				chunks = new Chunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
+		                  Mathf.FloorToInt (regionY / Chunk.chunkSize),
+		                   Mathf.FloorToInt (regionXZ / Chunk.chunkSize)];
+				itemChunks = new ItemChunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
+		                           Mathf.FloorToInt (regionY / Chunk.chunkSize),
+		                           Mathf.FloorToInt (regionXZ / Chunk.chunkSize)];
 
 				
 				try {
@@ -124,9 +123,9 @@ public class Region : MonoBehaviour
 		{
 				LinkedList<Vector3> trees = TreePlanter.generateTrees (world, this);
 				foreach (Vector3 position in trees) {
-						int x = ((int)position.x / chunkSize);
-						int y = ((int)position.y / chunkSize);
-						int z = ((int)position.z / chunkSize);
+						int x = ((int)position.x / Chunk.chunkSize);
+						int y = ((int)position.y / Chunk.chunkSize);
+						int z = ((int)position.z / Chunk.chunkSize);
 					
 						if (itemChunks [x, y, z] == null) {
 								ItemChunk itemChunk = new ItemChunk ();
@@ -178,18 +177,17 @@ public class Region : MonoBehaviour
 			
 						//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
 						GameObject newChunk = Instantiate (chunk,
-			                                   new Vector3 (x * chunkSize - 0.5f + getBlockOffsetX (),
-			             y * chunkSize + 0.5f,
-			             z * chunkSize - 0.5f + getBlockOffsetZ ()),
+			                                   new Vector3 (x * Chunk.chunkSize - 0.5f + getBlockOffsetX (),
+			             y * Chunk.chunkSize + 0.5f,
+			             z * Chunk.chunkSize - 0.5f + getBlockOffsetZ ()),
 			                                   new Quaternion (0, 0, 0, 0)) as GameObject;
 				
 						newChunk.transform.parent = this.transform;
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
 						chunks [x, y, z].regionGO = gameObject;
-						chunks [x, y, z].chunkSize = chunkSize;
-						chunks [x, y, z].chunkX = x * chunkSize;
-						chunks [x, y, z].chunkY = y * chunkSize;
-						chunks [x, y, z].chunkZ = z * chunkSize;
+						chunks [x, y, z].chunkX = x * Chunk.chunkSize;
+						chunks [x, y, z].chunkY = y * Chunk.chunkSize;
+						chunks [x, y, z].chunkZ = z * Chunk.chunkSize;
 						if (itemChunks [x, y, z] != null) {
 								chunks [x, y, z].itemChunk = itemChunks [x, y, z];
 						}
@@ -287,7 +285,7 @@ public class Region : MonoBehaviour
 		public void flagChunkForUpdate (int x, int y, int z)
 		{
 
-				int chunkDim = regionXZ / chunkSize;
+				int chunkDim = regionXZ / Chunk.chunkSize;
 				if (x >= chunkDim) {
 						world.getRegionAtIndex (this.offsetX + 1, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
 				} else if (x < 0) {

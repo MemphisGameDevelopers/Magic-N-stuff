@@ -1288,11 +1288,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   regionPrefab: {fileID: 100000, guid: 40102c7221257264a917e3fcf5bc3573, type: 2}
-  regionX: 256
+  regionXZ: 512
   regionY: 64
-  regionZ: 256
-  distToLoad: 5
-  distToUnload: 10
 --- !u!4 &1047877762
 Transform:
   m_ObjectHideFlags: 0
@@ -1318,8 +1315,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 1047877761}
   myRegion: {fileID: 0}
-  distToLoad: 8
-  distToUnload: 12
+  distToLoad: 15
+  distToUnload: 25
   saveLevel: 0
 --- !u!1 &1068957106
 GameObject:
@@ -2316,6 +2313,26 @@ Prefab:
     - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
       propertyPath: regionY
       value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: regionXZ
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: distToLoad
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: distToUnload
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400004, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: distToUnload
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400004, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: distToLoad
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}

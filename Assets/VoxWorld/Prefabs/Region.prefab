@@ -40,15 +40,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunk: {fileID: 100000, guid: 30ad9a69b8c85ec41a50c7e7b9586cbf, type: 2}
   tree: {fileID: 100000, guid: 43202a31bd1113061100b7a844295342, type: 3}
-  chunkSize: 16
-  regionX: 32
+  regionXZ: 32
   regionY: 32
-  regionZ: 32
   offsetX: 0
   offsetZ: 0
   distToLoad: 2
   distToUnload: 4
-  loadedFromFile: 0
   isDirty: 0
 --- !u!1001 &100100000
 Prefab:

@@ -7,7 +7,7 @@ public class Chunk : MonoBehaviour
 	
 		public GameObject regionGO;
 		public GameObject treeMesh;
-		public int chunkSize = 16;
+		public static int chunkSize = 8;
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;

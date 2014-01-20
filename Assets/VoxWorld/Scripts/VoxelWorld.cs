@@ -18,8 +18,6 @@ public class VoxelWorld : MonoBehaviour
 		public GameObject regionPrefab;
 		public int regionXZ = 32;
 		public int regionY = 32;
-		public int distToLoad;
-		public int distToUnload;
 		private Dictionary<string, Region> regions;
 		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
