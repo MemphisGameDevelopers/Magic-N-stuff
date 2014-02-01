@@ -1,16 +1,17 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 // Dungeon class. Singleton.
-public class Dungeon
+public class Dungeon : MonoBehaviour, VoxelStream
 {
 	
 		// Dungeon Parameters
-		public int MAP_X = 128;
-		public int MAP_Y = 5;
-		public int MAP_Z = 128;
+		public int MAP_COLS = 128;
+		public int MAP_HEIGHT = 5;
+		public int MAP_ROWS = 128;
 	
 		// Room Parameters
 		public int ROOM_MAX_SIZE = 24;
@@ -18,6 +19,7 @@ public class Dungeon
 		public int ROOM_WALL_BORDER = 1;
 		public bool ROOM_UGLY_ENABLED = true;
 		public float ROOM_MAX_RATIO = 5.0f;
+		public int ROOM_TO_EXIT_LENGTH = 6;
 	
 		// Generation Parameters
 		public static int MAX_DEPTH = 10;
@@ -28,19 +30,8 @@ public class Dungeon
 		public int MAX_NUM_BARRIERS = 5;
 	
 		// Tilemap
-		public byte[,,] tiles;
-	
-		// Prefabs and Instance Management
-//		public GameObject containerRooms;
-//		public GameObject prefabWall01; 
-//		public GameObject prefabFloor01;
-//		public GameObject meshCombiner;
-//		public GameObject barrier;
-//		public GameObject exit;
-//		public GameObject key;
-	
-		// Player	
-//		public GameObject player;
+		private byte[,,] tiles;
+		private Vector3 tileBounds;
 	
 		// The Random Seed
 		public int seed = -1;
@@ -50,32 +41,49 @@ public class Dungeon
 	
 		// List of rooms
 		private List<Room_2D> rooms;
-	
-		//public List<GameObject> barriers;
-	
-//		public List<GameObject> keys; 
-	
-		// Auxiliar vars
-		//	private GameObject floor;
-//		private Texture2D dungeonTexture;
 
+		public byte GetBlockAtCoords (int x, int y, int z)
+		{
+				if (x >= MAP_COLS || x < 0 ||
+						y >= MAP_HEIGHT || y < 0 ||
+						z >= MAP_ROWS || z < 0) {
+						return (byte)0;
+				}
+				return tiles [z, y, x];
+		}
+		public Vector3 getBounds ()
+		{
+				return new Vector3 (tiles.GetLength (0), tiles.GetLength (1), tiles.GetLength (2));
+		}
+		public byte[,,] GetAllBlocks ()
+		{
+				Debug.Log ("dungeon returning all blocks");
+				return tiles;
+		}
+	
 		private void resetBlocks ()
 		{
-				tiles = new byte[MAP_X, MAP_Y, MAP_Z];
-				for (int x = 0; x < MAP_X; x++)
-						for (int y = 0; y < MAP_Y; y++)
-								for (int z = 0; z < MAP_Z; z++)
-										tiles [x, y, z] = 1;
+				tiles = new byte[MAP_ROWS, MAP_HEIGHT, MAP_COLS];
+				for (int x = 0; x < MAP_COLS; x++)
+						for (int y = 0; y < MAP_HEIGHT; y++)
+								for (int z = 0; z < MAP_ROWS; z++)
+										
+										//Draw the floor
+										if (y == 0) { 
+												tiles [z, y, x] = 1;
+										} else {
+												tiles [z, y, x] = 2;
+										}
 		}
 	
 		// On Awake
-		public Dungeon ()
+		public void create ()
 		{
 				// Initialize the tilemap
 				resetBlocks ();
 						
 				// Init QuadTree
-				quadTree = new QuadTreeMapLayer (new AABB (new XY (MAP_X / 2.0f, MAP_Z / 2.0f), new XY (MAP_X / 2.0f, MAP_Z / 2.0f)), this);
+				quadTree = new QuadTreeMapLayer (new AABB (new XY (MAP_COLS / 2.0f, MAP_ROWS / 2.0f), new XY (MAP_COLS / 2.0f, MAP_ROWS / 2.0f)), this);
 		
 				// List of rooms
 				rooms = new List<Room_2D> ();
@@ -83,7 +91,7 @@ public class Dungeon
 				//barriers = new List<GameObject> ();
 				
 				// Set the randome seed
-				Random.seed = seed;
+				//Random.seed = seed;
 				
 				// Generate Dungeon
 				Debug.Log ("Dungeon Generation Started");
@@ -91,182 +99,38 @@ public class Dungeon
 				GenerateDungeon (seed);
 		}
 	
-		// Clean everything
-//		public void ResetDungeon ()
-//		{
-//				// Disable player
-//				player.SetActive (false);
-//		
-//				resetBlocks ();
-//		
-//				// Reset QuadTree
-//				quadTree =
-//			new QuadTreeMapLayer (new AABB (new XY (MAP_X / 2.0f, MAP_Z / 2.0f), new XY (MAP_X / 2.0f, MAP_Z / 2.0f)));
-//		
-//				// Reset rooms
-//				rooms.Clear ();
-//		
-//				// Destroy tile GameObjects
-//				foreach (Transform t in containerRooms.transform)
-//						Destroy (t.gameObject);
-//		
-//				foreach (var b in barriers)
-//						Destroy (b);
-//				barriers.Clear ();
-//				foreach (var k in keys)
-//						Destroy (k);
-//				keys.Clear ();
-//		
-//				exit.SetActive (false);
-//		}
+		
 	
 		// Generate a new dungeon with the given seed
 		public void GenerateDungeon (int seed)
 		{
 				Debug.Log ("Generating QuadTreeMapLayer");
-		
-				// Clean
-				//ResetDungeon ();
-		
-				// Place a temporary floor to see progress
-				//		floor = GameObject.Instantiate(prefabFloor01,new Vector3(MAP_X/2,-0.5f,MAP_Z/2), Quaternion.identity) as GameObject;
-				//		floor.transform.localScale = new Vector3(MAP_X,1,MAP_Z);
-		
+
 				// Generate QuadTreeMapLayer
 				GenerateQuadTree (ref quadTree);
-		
-				// Export texture
-//				Texture2D quadTreeTexture = quadTree.QuadTreeToTexture ();
-//				//		floor.renderer.material.mainTexture = quadTree.QuadTreeToTexture();
-//				TextureToFile (quadTreeTexture, seed + "_quadTree");
 		
 				Debug.Log ("Generating Rooms");
 		
 				// Generate Rooms
 				GenerateRooms (ref rooms, quadTree);
 		
-				// Export texture
-//				dungeonTexture = DungeonToTexture ();
-//				//		floor.renderer.material.mainTexture = dungeonTexture;
-//				TextureToFile (dungeonTexture, seed + "_rooms");
-		
 				Debug.Log ("Generating Corridors");
 		
 				// Generate Corridors
 				GenerateCorridors ();
 		
-				// Export texture
-//				dungeonTexture = DungeonToTexture ();
-//				//		floor.renderer.material.mainTexture = dungeonTexture;
-//				TextureToFile (dungeonTexture, seed + "_corridors");
 		
+				Debug.Log ("Generating Exits");
+				DigExits ();
+				//GenerateWalls ();
 		
-				Debug.Log ("Generating Walls");
+				Debug.Log ("Finished generating Dungeon!");
 		
-				GenerateWalls ();
-		
-				// Export texture
-//				dungeonTexture = DungeonToTexture ();
-//				//		floor.renderer.material.mainTexture = dungeonTexture;
-//				TextureToFile (dungeonTexture, seed + "_walls");
-		
-				Debug.Log ("Generating GameObjects, this may take a while..");
-		
-				// Instantiate prefabs
-//				GenerateGameObjects (quadTree);
-		
-//				int r = Random.Range (0, rooms.Count - 1);
-//				Room room = rooms [r];
-//				exit.SetActive (true);
-//				exit.transform.position = new Vector3 (room.boundary.center.x, 1.0f, room.boundary.center.y);
-//				GameObject _barrier = Instantiate (barrier, new Vector3 (room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-//				_barrier.transform.localScale *= Random.Range (ROOM_MIN_SIZE, MAP_Z / 2);
-//				_barrier.renderer.material.color = Color.red;
-//				_barrier.name = "Barrier 0";
-//				barriers.Add (_barrier);
-//		
-//				for (int i = 1; i < MAX_NUM_BARRIERS; i++) {
-//						Color barrierType = new Color (Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f), Random.Range (0.0f, 1.0f));
-//						_barrier = Instantiate (barrier, new Vector3 (room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-//						_barrier.transform.localScale *= Random.Range (ROOM_MIN_SIZE, MAP_Z / 2);
-//						_barrier.renderer.material.color = barrierType;
-//						_barrier.name = "Barrier " + i;
-//						barriers.Add (_barrier);
-//			
-//				}
-		
-//				PlaceKeys ();
-		
-				//PlacePuzzles(barriers[0]);
-		
-//				PlacePlayer ();
-		
-		
-				//		GameObject.DestroyImmediate(floor);
+			
 		
 		}
 	
-//		private void PlaceKeys ()
-//		{
-//				for (int i = 0; i < MAX_NUM_BARRIERS; i++) {
-//						int r = Random.Range (0, rooms.Count - 1);
-//						Room room = rooms [r];
-//						if (!barriers [i].collider.bounds.Contains (new Vector3 (rooms [r].boundary.center.x, room.boundary.center.y))) {
-//								GameObject _key = Instantiate (key, new Vector3 (room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-//								keys.Add (_key);
-//								keys [i].name = "Key for " + barriers [i].name;
-//								keys [i].renderer.material.color = barriers [i].renderer.material.color;
-//						}
-//				}
-//		}
-	
-//		private void PlacePlayer ()
-//		{
-//				int r = Random.Range (0, rooms.Count - 1);
-//				Room room = rooms [r];
-//		
-//				foreach (var barrier in barriers) {
-//						if (barrier.collider.bounds.Contains (new Vector3 (rooms [r].boundary.center.x, room.boundary.center.y))) {
-//								PlacePlayer ();
-//						}
-//				}
-//				player.SetActive (true);
-//				player.transform.position = new Vector3 (room.boundary.center.x, 1.0f, room.boundary.center.y);
-//		}
-	
-		//private void PlacePuzzles(GameObject prevBarrier)
-		//{
-		//    int r = Random.Range(0, rooms.Count - 1);
-		//    Room room = rooms[r];
-		//    Color barrierType = new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
-		//    if (prevBarrier.collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
-		//    {
-		//        PlacePuzzles(prevBarrier);
-		//    }
-		//    GameObject _key = Instantiate(key, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-		//    _key.renderer.material.color = prevBarrier.renderer.material.color;
-		//    keys.Add(_key);
-		//    GameObject _barrier = Instantiate(barrier, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-		//    _barrier.transform.localScale *= Random.Range(ROOM_MIN_SIZE, MAP_Z / 2);
-		//    _barrier.renderer.material.color = barrierType;
-		//    barriers.Add(_barrier);
-		//    prevBarrier = _barrier;
-		//    if (barriers.Count == MAX_NUM_BARRIERS)
-		//    {
-		//        r = Random.Range(0, rooms.Count - 1);
-		//        room = rooms[r];
-		//        if (prevBarrier.collider.bounds.Contains(new Vector3(rooms[r].boundary.center.x, room.boundary.center.y)))
-		//        {
-		//            _key = Instantiate(key, new Vector3(room.boundary.center.x, 1.0f, room.boundary.center.y), Quaternion.identity) as GameObject;
-		//            _key.renderer.material.color = prevBarrier.renderer.material.color;
-		//            keys.Add(_key);
-		//        }
-		//        return;
-		//    }
-		//    PlacePuzzles(prevBarrier);
-	
-		//}
-	
+
 		// Generate the quadtree system
 		void GenerateQuadTree (ref QuadTreeMapLayer _quadTree)
 		{
@@ -347,21 +211,21 @@ public class Dungeon
 		public void GenerateWalls ()
 		{
 				// Place walls
-				for (int i = 0; i < MAP_Z; i++) {
-						for (int j = 0; j < MAP_X; j++) {
+				for (int i = 0; i < MAP_ROWS; i++) {
+						for (int j = 0; j < MAP_COLS; j++) {
 								bool room_near = false;
 								if (IsPassable (i, j))
 										continue;
 								if (i > 0)
 								if (IsPassable (i - 1, j))
 										room_near = true;
-								if (i < MAP_Z - 1)
+								if (i < MAP_ROWS - 1)
 								if (IsPassable (i + 1, j))
 										room_near = true;
 								if (j > 0)
 								if (IsPassable (i, j - 1))
 										room_near = true;
-								if (j < MAP_X - 1)
+								if (j < MAP_COLS - 1)
 								if (IsPassable (i, j + 1))
 										room_near = true;
 								if (room_near)
@@ -370,75 +234,15 @@ public class Dungeon
 				}
 		}
 	
-		// Read tilemap and instantiate GameObjects
-//		void GenerateGameObjects (QuadTreeMapLayer _quadtree)
-//		{
-//				// If it's an end quadtree, read every pos and make a chunk of combined meshes
-//				if (_quadtree.HasChildren () == false) {
-//						GameObject container = GameObject.Instantiate (meshCombiner) as GameObject;
-//						for (int row = _quadtree.boundary.BottomTile(); row <= _quadtree.boundary.TopTile()-1; row++) {
-//								for (int col = _quadtree.boundary.LeftTile(); col <= _quadtree.boundary.RightTile()-1; col++) {
-//										int id = tiles [row, col].id;
-//										if (id == Tile.TILE_ROOM || id == Tile.TILE_CORRIDOR) {
-//												GameObject floor = GameObject.Instantiate (prefabFloor01, new Vector3 (col, 0.0f, row), Quaternion.identity) as GameObject;
-//												floor.transform.parent = container.transform;
-//										} else if (id == Tile.TILE_WALL) {
-//												GameObject wall = GameObject.Instantiate (prefabWall01, new Vector3 (col, 1.5f, row), Quaternion.identity) as GameObject;
-//												wall.transform.parent = container.transform;
-//										}
-//								}
-//						}
-//						container.transform.parent = containerRooms.transform;
-//				} else {
-//						GenerateGameObjects (_quadtree.northWest);
-//						GenerateGameObjects (_quadtree.northEast);
-//						GenerateGameObjects (_quadtree.southWest);
-//						GenerateGameObjects (_quadtree.southEast);
-//				}
-//		
-//		}
-	
-//		void PaintDungeonTexture (ref Texture2D t)
-//		{
-//				for (int i = 0; i < MAP_X; i++)
-//						for (int j = 0; j < MAP_Z; j++) {
-//								switch (tiles [j, i].id) {
-//								case Tile.TILE_EMPTY:
-//										t.SetPixel (i, j, Color.black);
-//										break;
-//								case Tile.TILE_ROOM:
-//										t.SetPixel (i, j, Color.white);
-//										break;
-//								case Tile.TILE_CORRIDOR:
-//										t.SetPixel (i, j, Color.grey);
-//										break;
-//								case Tile.TILE_WALL:
-//										t.SetPixel (i, j, Color.blue);
-//										break;
-//								}
-//						}
-//		
-//		}
-	
-//		Texture2D DungeonToTexture ()
-//		{
-//				Texture2D texOutput = new Texture2D ((int)(MAP_X), (int)(MAP_Z), TextureFormat.ARGB32, false);
-//				PaintDungeonTexture (ref texOutput);
-//				texOutput.filterMode = FilterMode.Point;
-//				texOutput.wrapMode = TextureWrapMode.Clamp;
-//				texOutput.Apply ();
-//				return texOutput;
-//		}
-	
 		// Helper Methods
 		public bool IsEmpty (int row, int col)
 		{
-				return tiles [row, MAP_Y / 2, col] == 0;
+				return tiles [row, MAP_HEIGHT / 2, col] == 0;
 		}
 	
 		public bool IsPassable (int row, int col)
 		{
-				return tiles [row, MAP_Y / 2, col] == 0;
+				return tiles [row, MAP_HEIGHT / 2, col] == 0;
 		}
 	
 		public bool IsPassable (XY xy)
@@ -448,8 +252,8 @@ public class Dungeon
 	
 		public void SetWall (int row, int col)
 		{
-				for (int y = 0; y < MAP_Y; y++) {
-						tiles [row, y, col] = 0;
+				for (int y = 0; y < MAP_HEIGHT; y++) {
+						tiles [row, y, col] = 2;
 				}
 		}
 	
@@ -470,11 +274,11 @@ public class Dungeon
 						col_left = tmp;
 				}
 		
-				if (row_top > MAP_Z - 1)
+				if (row_top > MAP_ROWS - 1)
 						return;
 				if (row_bottom < 0)
 						return;
-				if (col_right > MAP_X - 1)
+				if (col_right > MAP_COLS - 1)
 						return;
 				if (col_left < 0)
 						return;
@@ -487,14 +291,14 @@ public class Dungeon
 	
 		public void DigRoom (int row, int col)
 		{
-				for (int y = 0; y < MAP_Y; y++) {
+				for (int y = 1; y < MAP_HEIGHT; y++) {
 						tiles [row, y, col] = 0;
 				}
 		}
 	
 		public void DigCorridor (int row, int col)
 		{
-				for (int y = 0; y < MAP_Y; y++) {
+				for (int y = 1; y < MAP_HEIGHT; y++) {
 						tiles [row, y, col] = 0;
 				}
 		}
@@ -509,36 +313,102 @@ public class Dungeon
 				DigCorridor (row1, col1, row2, col2);
 		}
 	
-		public void DigCorridor (int row1, int col1, int row2, int col2)
+		private void DigCorridor (int row1, int col1, int row2, int col2)
 		{		
+				
 				if (row1 <= row2) {
+						// source is below the dest
 						for (int col = col1; col < col1 + CORRIDOR_WIDTH; col++)
 								for (int row = row1; row <= row2; row++)
 										DigCorridor (row, col);
 				} else {
+						// source is above the dest
 						for (int col = col1; col < col1 + CORRIDOR_WIDTH; col++)
 								for (int row = row2; row <= row1; row++)
 										DigCorridor (row, col);
 				}
 		
 				if (col1 <= col2) {
+						// source is to the left of the dest.
 						for (int row = row2; row < row2 + CORRIDOR_WIDTH; row++)
-								for (int col = col1; col <= col2; col++)
+								for (int col = col1; col <= col2; col++) 
 										DigCorridor (row, col);
+
 				} else {
+						// source is to the right of the dest.
 						for (int row = row2; row < row2 + CORRIDOR_WIDTH; row++)
 								for (int col = col2; col <= col1; col++)
-										DigCorridor (row2, col);
+										DigCorridor (row, col);
+				}
+		}
+		
+		public void DigExits ()
+		{
+				//Find all the eligable exits
+				LinkedList<Room_2D> eligableRooms = new LinkedList<Room_2D> ();
+				foreach (Room_2D room in rooms) {
+						int col = Mathf.RoundToInt (room.boundary.center.x);
+						int row = Mathf.RoundToInt (room.boundary.center.y);
+						if (Mathf.Abs (MAP_ROWS - row) <= ROOM_TO_EXIT_LENGTH || 
+								row <= ROOM_TO_EXIT_LENGTH || 
+								Mathf.Abs (MAP_COLS - col) <= ROOM_TO_EXIT_LENGTH ||
+								col <= ROOM_TO_EXIT_LENGTH) {
+								eligableRooms.AddLast (room);
+						} 
+				}
+				
+				//Choose a random number of exits/entrances
+				int roomCount = eligableRooms.Count;
+				if (roomCount > 0) {
+						int index = Random.Range (0, roomCount);
+						Room_2D room = eligableRooms.ElementAt (index);
+						int col = Mathf.RoundToInt (room.boundary.center.x);
+						int row = Mathf.RoundToInt (room.boundary.center.y);
+						if (Mathf.Abs (MAP_ROWS - row) <= ROOM_TO_EXIT_LENGTH || 
+								row <= ROOM_TO_EXIT_LENGTH) {
+								if (row > MAP_ROWS / 2) {
+										DigExit (row, col, MAP_ROWS - 1, col); 
+								} else {
+										DigExit (row, col, 0, col); 
+								}
+						} else if (Mathf.Abs (MAP_COLS - col) <= ROOM_TO_EXIT_LENGTH || col <= ROOM_TO_EXIT_LENGTH) {
+								if (col > MAP_COLS / 2) {
+										DigExit (row, col, row, MAP_COLS - 1); 
+								} else {
+										DigExit (row, col, row, 0); 
+								}
+						}
 				}
 		}
 	
-		// Export a texture to a file
-//		public void TextureToFile (Texture2D t, string filename)
-//		{
-//				byte[] bytes = t.EncodeToPNG ();
-//				FileStream myFile = new FileStream (Application.dataPath + "/Resources/Generated/" + filename + ".png", FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite);
-//				myFile.Write (bytes, 0, bytes.Length);
-//				myFile.Close ();
-//		}
-	
+		private void DigExit (int row1, int col1, int row2, int col2)
+		{		
+				if (col1 == col2) {
+						if (row1 <= row2) {
+								// source is below the dest
+								for (int col = col1; col < col1 + CORRIDOR_WIDTH; col++)
+										for (int row = row1; row <= row2; row++)
+												DigCorridor (row, col);
+						} else {
+								// source is above the dest
+								for (int col = col1; col < col1 + CORRIDOR_WIDTH; col++)
+										for (int row = row2; row <= row1; row++)
+												DigCorridor (row, col);
+						}
+				} else {
+		
+						if (col1 <= col2) {
+								// source is to the left of the dest.
+								for (int row = row2; row < row2 + CORRIDOR_WIDTH; row++)
+										for (int col = col1; col <= col2; col++) 
+												DigCorridor (row, col);
+			
+						} else {
+								// source is to the right of the dest.
+								for (int row = row2; row < row2 + CORRIDOR_WIDTH; row++)
+										for (int col = col2; col <= col1; col++)
+												DigCorridor (row, col);
+						}
+				}
+		}
 }

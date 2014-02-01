@@ -29,16 +29,16 @@ public class ItemChunk
 				update = true;
 		}
 		
-		public void renderItems (Chunk parent, Region region, GameObject treeMesh)
-		{
-				foreach (Vector3 position in items) {
-						GameObject newItem = GameObject.Instantiate (treeMesh,
-			                                  new Vector3 (position.x + region.getBlockOffsetX (), 
-			                                  position.y, position.z + region.getBlockOffsetZ ()),
-			                                  new Quaternion (0, 180, 0, 0)) as GameObject;
-						newItem.transform.parent = parent.transform;
-				}
-		}
+//		public void renderItems (Chunk parent, Region region, GameObject treeMesh)
+//		{
+//				foreach (Vector3 position in items) {
+//						GameObject newItem = GameObject.Instantiate (treeMesh,
+//			                                  new Vector3 (position.x + region.getBlockOffsetX (), 
+//			                                  position.y, position.z + region.getBlockOffsetZ ()),
+//			                                  new Quaternion (0, 180, 0, 0)) as GameObject;
+//						newItem.transform.parent = parent.transform;
+//				}
+//		}
 }
 
 

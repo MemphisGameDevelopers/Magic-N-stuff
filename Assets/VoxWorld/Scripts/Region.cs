@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-public class Region : MonoBehaviour
+public class Region : MonoBehaviour, VoxelStream
 {
 		public GameObject chunk;
 		public GameObject tree;
@@ -67,7 +67,7 @@ public class Region : MonoBehaviour
 				}
 		}
 
-		public void createRegionData ()
+		public void create ()
 		{
 				data = new byte[regionXZ, regionY, regionXZ];
 				chunks = new Chunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
@@ -96,7 +96,13 @@ public class Region : MonoBehaviour
 						} else {
 								//create this region's terrain data.
 								createFlatBiome ();
-								//merge (dungeon.tiles, data);
+								//createPerlin ();
+								
+								//Create a dungeon and put it in the scene.
+								GameObject dungeonGO = Instantiate (Resources.Load ("Voxel Generators/Dungeon Generator")) as GameObject;
+								VoxelStream dungeon = dungeonGO.GetComponent (typeof(VoxelStream)) as VoxelStream;
+								dungeon.create ();
+								merge (dungeon, this);
 
 
 						}
@@ -108,13 +114,14 @@ public class Region : MonoBehaviour
 				createTrees ();
 		}
 
-		private void merge (int[,,] source, int[,,] destination)
+		private void merge (VoxelStream source, VoxelStream destination)
 		{
-		
-				for (int x = 0; x < source.GetLength(0); x++) {
-						for (int y = 0; y < source.GetLength(1); y++) {
-								for (int z = 0; z < source.GetLength(2); z++) {
-										destination [x, y, z] = source [x, y, z];
+				byte[,,] sourceData = source.GetAllBlocks ();
+				byte[,,] destData = destination.GetAllBlocks ();
+				for (int x = 0; x < sourceData.GetLength(0); x++) {
+						for (int y = 0; y < sourceData.GetLength(1); y++) {
+								for (int z = 0; z < sourceData.GetLength(2); z++) {
+										destData [x, 32 + y, z] = sourceData [x, y, z];
 								}
 						}
 				}
@@ -184,12 +191,14 @@ public class Region : MonoBehaviour
 				
 						newChunk.transform.parent = this.transform;
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
-						chunks [x, y, z].regionGO = gameObject;
+						chunks [x, y, z].voxels = this;
 						chunks [x, y, z].chunkX = x * Chunk.chunkSize;
 						chunks [x, y, z].chunkY = y * Chunk.chunkSize;
 						chunks [x, y, z].chunkZ = z * Chunk.chunkSize;
 						if (itemChunks [x, y, z] != null) {
-								chunks [x, y, z].itemChunk = itemChunks [x, y, z];
+								ItemChunk itemChunk = itemChunks [x, y, z];
+								//itemChunk.addItem (chunks[x,y,z], this, 
+								//TODO Re-enable rending item chunks.
 						}
 						
 			
@@ -217,7 +226,15 @@ public class Region : MonoBehaviour
 				return (int)rValue;
 		}
 
-		public byte Block (int x, int y, int z)
+		public Vector3 getBounds ()
+		{
+				return new Vector3 (data.GetLength (0), data.GetLength (1), data.GetLength (2));
+		}
+		public byte[,,] GetAllBlocks ()
+		{
+				return data;
+		}
+		public byte GetBlockAtCoords (int x, int y, int z)
 		{
 		
 				if (x >= regionXZ || x < 0 || y >= regionY || y < 0 || z >= regionXZ || z < 0) {
@@ -225,13 +242,13 @@ public class Region : MonoBehaviour
 						int worldZ = z + this.getBlockOffsetZ ();
 						Region neighbor = world.getRegionAtCoords (worldX, worldZ);
 						int[] normalizedCoords = normalizeToLocal (x, y, z);
-						return neighbor.Block (normalizedCoords);
+						return neighbor.GetBlockAtCoords (normalizedCoords);
 				} else {
 						return data [x, y, z];
 				}
 		}
 		
-		private byte Block (int[] normalizedCoords)
+		private byte GetBlockAtCoords (int[] normalizedCoords)
 		{
 				byte block = data [normalizedCoords [0], normalizedCoords [1], normalizedCoords [2]];
 				return block;

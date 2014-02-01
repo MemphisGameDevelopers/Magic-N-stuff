@@ -29,7 +29,7 @@ public class TerrainWalker
 				Region region = world.getRegionAtCoords (x, z);
 				int[] localCoords = region.convertWorldToLocal (x, 0, z);
 				for (int y = region.regionY - 1; y >= 0; y--) {
-						if (region.Block (localCoords [0], y, localCoords [2]) != 0) {
+						if (region.GetBlockAtCoords (localCoords [0], y, localCoords [2]) != 0) {
 								blockY = y + 1;
 								break;
 						}

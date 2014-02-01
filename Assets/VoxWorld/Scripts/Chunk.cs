@@ -5,16 +5,14 @@ using System.Collections.Generic;
 public class Chunk : MonoBehaviour
 {
 	
-		public GameObject regionGO;
-		public GameObject treeMesh;
+		
 		public static int chunkSize = 8;
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;
 		public bool update;
 
-		private Region region;
-		public ItemChunk itemChunk;
+		public VoxelStream voxels;
 		private List<Vector3> newVertices = new List<Vector3> ();
 		private List<int> newTriangles = new List<int> ();
 		private List<Vector2> newUV = new List<Vector2> ();
@@ -29,8 +27,9 @@ public class Chunk : MonoBehaviour
 		// Use this for initialization
 		void Start ()
 		{
-		
-				region = regionGO.GetComponent ("Region") as Region;
+				GameObject parent = this.transform.parent.gameObject;
+				voxels = parent.GetComponent (typeof(VoxelStream)) as VoxelStream;
+				
 				mesh = GetComponent<MeshFilter> ().mesh;
 				col = GetComponent<MeshCollider> ();
    
@@ -99,15 +98,12 @@ public class Chunk : MonoBehaviour
 				}
    
 				//Generate items
-				if (itemChunk != null && itemChunk.update) {
-						itemChunk.renderItems (this, region, treeMesh);
-				}
 				UpdateMesh ();
 		}
   
 		private byte Block (int x, int y, int z)
 		{
-				return region.Block (x + chunkX, y + chunkY, z + chunkZ);
+				return voxels.GetBlockAtCoords (x + chunkX, y + chunkY, z + chunkZ);
 		}
   
 		void CubeTop (int x, int y, int z, byte block)

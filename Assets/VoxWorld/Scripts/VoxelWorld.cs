@@ -21,6 +21,7 @@ public class VoxelWorld : MonoBehaviour
 		private Dictionary<string, Region> regions;
 		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
+		public bool useDisk = false;
 
 		void Start ()
 		{
@@ -165,10 +166,10 @@ public class VoxelWorld : MonoBehaviour
 				region.offsetZ = z;
 				regions.Add (region.hashString (), region);
 				if (isAsync) {
-						Thread oThread = new Thread (new ThreadStart (region.createRegionData));
+						Thread oThread = new Thread (new ThreadStart (region.create));
 						oThread.Start ();
 				} else {
-						region.createRegionData ();
+						region.create ();
 				}
 				
 				
@@ -177,14 +178,15 @@ public class VoxelWorld : MonoBehaviour
 
 		private void SaveToDiskEvent ()
 		{
-				foreach (KeyValuePair<string,Region> kvp in regions) {
-						//TODO: Possible ConcurrentModification here.
-						if (kvp.Value.isDirty) {
-								Thread oThread = new Thread (new ThreadStart (kvp.Value.saveRegion));
-								oThread.Start ();
+				if (useDisk) {
+						foreach (KeyValuePair<string,Region> kvp in regions) {
+								//TODO: Possible ConcurrentModification here.
+								if (kvp.Value.isDirty) {
+										Thread oThread = new Thread (new ThreadStart (kvp.Value.saveRegion));
+										oThread.Start ();
+								}
 						}
 				}
-
 			
 		}
 
