@@ -6,7 +6,7 @@ public class Chunk : MonoBehaviour
 {
 	
 		
-		public static int chunkSize = 8;
+		public static int chunkSize = 16;
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;
@@ -27,17 +27,17 @@ public class Chunk : MonoBehaviour
 		// Use this for initialization
 		void Start ()
 		{
-				GameObject parent = this.transform.parent.gameObject;
-				voxels = parent.GetComponent (typeof(VoxelStream)) as VoxelStream;
-				
 				mesh = GetComponent<MeshFilter> ().mesh;
 				col = GetComponent<MeshCollider> ();
-   
 				GenerateMesh ();
-   
-   
 		}
   
+		public void setVoxelsToRender (VoxelStream inVoxels)
+		{
+				voxels = inVoxels;
+				
+		}
+  		
 		// Update is called once per frame
 		void LateUpdate ()
 		{

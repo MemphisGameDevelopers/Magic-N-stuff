@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class VoxelModifyTerrain : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 				cameraGO = GameObject.FindGameObjectWithTag ("MainCamera");
 				player = GameObject.FindGameObjectWithTag ("Player");
 				lastPlayerPosition = player.transform.position;
+				
+				
 		}
 
 		public void setStartRegion (Region region)
@@ -230,17 +233,27 @@ public class VoxelModifyTerrain : MonoBehaviour
 				int z_start = playerChunkz - distToUnload - 2;
 				int z_finish = playerChunkz + distToUnload + 2;
 		
+				LinkedList<Vector2> chunksToLoad = new LinkedList<Vector2> ();
+				LinkedList<Vector2> chunksToUnload = new LinkedList<Vector2> ();
 				for (int x = x_start; x < x_finish; x++) {
 						for (int z = z_start; z < z_finish; z++) {
 								float dist = Vector2.Distance (new Vector2 (x, z), new Vector2 (playerChunkx, playerChunkz));
 				
 								if (dist <= distToLoad) {
-										loadChunkAt (x, z);
+										chunksToLoad.AddLast (new Vector2 (x, z));
 								} else if (dist > distToUnload) {
-										unLoadChunkAt (x, z);
+										chunksToUnload.AddLast (new Vector2 (x, z));
 								}
 						}
 				}
+				
+				foreach (Vector2 vector in chunksToLoad) {
+						loadChunkAt ((int)vector.x, (int)vector.y);
+				}
+				foreach (Vector2 vector in chunksToUnload) {
+						unLoadChunkAt ((int)vector.x, (int)vector.y);
+				}
+
 		}
 	
 		public void ReplaceBlockCenter (float range, byte block)
@@ -402,7 +415,9 @@ public class VoxelModifyTerrain : MonoBehaviour
 				if (myRegion != null) {
 						if (!chunksLoaded) {
 								LoadChunks (player.transform.position);
+								determinePlayerRegion (player.transform.position);
 								lastPlayerPosition = player.transform.position;
+								chunksLoaded = true;
 						} else if (Vector3.Distance (lastPlayerPosition, player.transform.position) > 0.1f) {
 								//Debug.Log (lastPlayerPosition + " , " + player.transform.position);
 								determinePlayerRegion (player.transform.position);

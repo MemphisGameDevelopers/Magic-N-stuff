@@ -25,15 +25,15 @@ public class VoxelWorld : MonoBehaviour
 
 		void Start ()
 		{
-				Debug.Log (Application.persistentDataPath);
+				//Start singleton managers
+				ChunkManager dontcare = ChunkManager.Instance;
+				WorldGeneration instance = WorldGeneration.Instance;
+				
 				Region.setWorld (this);
 				regions = new Dictionary<string, Region> ();
-				print ("Creating client region");
 				Region centerRegion = createRegion (0, 0, false);
-				print ("Loading client's neighbor regions.");
 				loadAllNeighbors (centerRegion, false);
 
-				print ("Creating client renderer");
 				clientRenderer = gameObject.GetComponent ("VoxelModifyTerrain") as VoxelModifyTerrain;
 				clientRenderer.setStartRegion (centerRegion);
 
@@ -95,7 +95,7 @@ public class VoxelWorld : MonoBehaviour
 
 		private void loadAllNeighbors (Region region, bool isAsync)
 		{
-
+				Debug.Log ("Loading a bunch of neighbors");
 				//North
 				Region neighbor = getRegionAtIndex (region.offsetX, region.offsetZ + 1);
 				if (neighbor == null) {

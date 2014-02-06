@@ -26,6 +26,7 @@ public class Region : MonoBehaviour, VoxelStream
 		public float distToLoad;
 		public float distToUnload;
 		public bool isDirty;
+		public ChunkManager chunkManager;
 		private static VoxelWorld world;
 
 		public static void setWorld (VoxelWorld w)
@@ -69,6 +70,7 @@ public class Region : MonoBehaviour, VoxelStream
 
 		public void create ()
 		{
+				chunkManager = ChunkManager.Instance;
 				data = new byte[regionXZ, regionY, regionXZ];
 				chunks = new Chunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
 		                  Mathf.FloorToInt (regionY / Chunk.chunkSize),
@@ -95,14 +97,15 @@ public class Region : MonoBehaviour, VoxelStream
 								reader.Close ();
 						} else {
 								//create this region's terrain data.
-								createFlatBiome ();
+								WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetZ ());
+								isDirty = true;
 								//createPerlin ();
 								
 								//Create a dungeon and put it in the scene.
-								GameObject dungeonGO = Instantiate (Resources.Load ("Voxel Generators/Dungeon Generator")) as GameObject;
-								VoxelStream dungeon = dungeonGO.GetComponent (typeof(VoxelStream)) as VoxelStream;
-								dungeon.create ();
-								merge (dungeon, this);
+//								GameObject dungeonGO = Instantiate (Resources.Load ("Voxel Generators/Dungeon Generator")) as GameObject;
+//								VoxelStream dungeon = dungeonGO.GetComponent (typeof(VoxelStream)) as VoxelStream;
+//								dungeon.create ();
+//								merge (dungeon, this);
 
 
 						}
@@ -145,56 +148,22 @@ public class Region : MonoBehaviour, VoxelStream
 
 		}
 	
-		private void createFlatBiome ()
-		{
-				for (int x=0; x<regionXZ; x++) {
-						for (int z=0; z<regionXZ; z++) {
-								for (int y=0; y<regionY; y++) {
-										if (y <= (regionY / 2)) {
-												data [x, y, z] = 1;
-										}
-								}
-						}
-				}	
-		}
-	
-		private void createPerlin ()
-		{
-				for (int x=0; x<regionXZ; x++) {
-						for (int z=0; z<regionXZ; z++) {
-								int stone = PerlinNoise (this.getBlockOffsetX () + x, 0, this.getBlockOffsetZ () + z, 100, 20, 1.2f);
-								stone += PerlinNoise (this.getBlockOffsetX () + x, 700, this.getBlockOffsetZ () + z, 20, 4, 0) + 10;
-								int dirt = PerlinNoise (this.getBlockOffsetX () + x, 100, this.getBlockOffsetZ () + z, 50, 2, 0);
-				
-								for (int y=0; y<regionY; y++) {
-										if (y <= stone) {
-												data [x, y, z] = 1;
-										} else if (y <= dirt + stone) { //Changed this line thanks to a comment
-												data [x, y, z] = 2;
-										}
-					
-								}
-						}
-				}
-		}
-	
 		public void GenColumn (int x, int z)
 		{
 				for (int y=0; y<chunks.GetLength(1); y++) {
 			
-						//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
-						GameObject newChunk = Instantiate (chunk,
-			                                   new Vector3 (x * Chunk.chunkSize - 0.5f + getBlockOffsetX (),
-			             y * Chunk.chunkSize + 0.5f,
-			             z * Chunk.chunkSize - 0.5f + getBlockOffsetZ ()),
-			                                   new Quaternion (0, 0, 0, 0)) as GameObject;
-				
+						GameObject newChunk = chunkManager.getChunk ();
+						
+						newChunk.transform.position = new Vector3 (x * Chunk.chunkSize - 0.5f + getBlockOffsetX (),
+										y * Chunk.chunkSize + 0.5f, z * Chunk.chunkSize - 0.5f + getBlockOffsetZ ());
 						newChunk.transform.parent = this.transform;
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
-						chunks [x, y, z].voxels = this;
+						chunks [x, y, z].setVoxelsToRender (this);
 						chunks [x, y, z].chunkX = x * Chunk.chunkSize;
 						chunks [x, y, z].chunkY = y * Chunk.chunkSize;
 						chunks [x, y, z].chunkZ = z * Chunk.chunkSize;
+						newChunk.SetActive (true);
+						chunks [x, y, z].update = true;
 						if (itemChunks [x, y, z] != null) {
 								ItemChunk itemChunk = itemChunks [x, y, z];
 								//itemChunk.addItem (chunks[x,y,z], this, 
@@ -208,22 +177,10 @@ public class Region : MonoBehaviour, VoxelStream
 		public void UnloadColumn (int x, int z)
 		{
 				for (int y=0; y<chunks.GetLength(1); y++) {
-						GameObject.Destroy (chunks [x, y, z].gameObject);
-			
+						//GameObject.Destroy (chunks [x, y, z].gameObject);
+						chunkManager.freeChunk (chunks [x, y, z].gameObject);
+						chunks [x, y, z] = null;
 				}
-		}
-	
-		int PerlinNoise (float x, int y, float z, float scale, float height, float power)
-		{
-				float rValue;
-				rValue = Noise.GetNoise (((double)x) / scale, ((double)y) / scale, ((double)z) / scale);
-				rValue *= height;
-		
-				if (power != 0) {
-						rValue = Mathf.Pow (rValue, power);
-				}
-		
-				return (int)rValue;
 		}
 
 		public Vector3 getBounds ()
