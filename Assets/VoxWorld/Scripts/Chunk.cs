@@ -29,7 +29,7 @@ public class Chunk : MonoBehaviour
 		{
 				mesh = GetComponent<MeshFilter> ().mesh;
 				col = GetComponent<MeshCollider> ();
-				GenerateMesh ();
+				//GenerateMesh ();
 		}
   
 		public void setVoxelsToRender (VoxelStream inVoxels)
@@ -38,14 +38,17 @@ public class Chunk : MonoBehaviour
 				
 		}
   		
-		// Update is called once per frame
-		void LateUpdate ()
-		{
-				if (update) {
-						GenerateMesh ();
-						update = false;
-				}
-		}
+//		// Update is called once per frame
+//		void LateUpdate ()
+//		{
+//				if (update) {
+//						float t1 = Time.realtimeSinceStartup;
+//						GenerateMesh ();
+//						update = false;
+//						float t2 = Time.realtimeSinceStartup;
+//						Debug.Log ("Chunk:GenerateMesh() took : " + (t2 - t1) + " sec.");
+//				}
+//		}
   
 		public void GenerateMesh ()
 		{

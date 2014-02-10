@@ -10,7 +10,7 @@ GameObject:
   - 4: {fileID: 400000}
   - 114: {fileID: 11400000}
   m_Layer: 0
-  m_Name: ItemChunk
+  m_Name: Chunk Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23,7 +23,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6887.23926, y: -1742.37842, z: -956.305359}
+  m_LocalPosition: {x: 217.603912, y: 111.830971, z: 374.11554}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -35,11 +35,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7475938ed516149805640563d62f3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 47c62c236886dd34f92874a7a75ecdd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  update: 0
-  mesh: {fileID: 100000, guid: 8d302a31bd1113061100b7a844295342, type: 3}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

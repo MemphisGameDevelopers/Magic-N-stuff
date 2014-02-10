@@ -26,7 +26,6 @@ public class VoxelWorld : MonoBehaviour
 		void Start ()
 		{
 				//Start singleton managers
-				ChunkManager dontcare = ChunkManager.Instance;
 				WorldGeneration instance = WorldGeneration.Instance;
 				
 				Region.setWorld (this);

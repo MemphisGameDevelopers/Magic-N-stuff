@@ -9,51 +9,100 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
-public class ChunkManager
+public class ChunkManager : MonoBehaviour
 {
-		private LinkedList<GameObject> chunkPool;
+
+		public float renderSpeed;
+		public float initialPoolSize = 2024;
+		private LinkedList<GameObject> inactiveChunkPool;
+		private LinkedList<Chunk> chunksToUpdate;
+		private bool coroutineStarted = false;
+		private bool firstRun = true;
 		
-		private static volatile ChunkManager instance;
-		
-		
-		private ChunkManager ()
+		void Start ()
 		{
-				chunkPool = new LinkedList<GameObject> ();
-				int chunkCount = 2024;
-				while (chunkPool.Count < chunkCount) {
-						GameObject newChunk = GameObject.Instantiate (Resources.Load ("Voxel Generators/Chunk")) as GameObject;
-						newChunk.SetActive (false);
-						newChunk.transform.rotation = new Quaternion (0, 0, 0, 0);
-						chunkPool.AddLast (newChunk);
-				}
-		}
-		public static ChunkManager Instance {
-				get {
-						if (instance == null) 
-								instance = new ChunkManager ();
-						return instance;
+				inactiveChunkPool = new LinkedList<GameObject> ();
+				chunksToUpdate = new LinkedList<Chunk> ();
+				int initialPoolSize = 2024;
+				while (inactiveChunkPool.Count < initialPoolSize) {
+						GameObject newChunk = createChunk ();
+						inactiveChunkPool.AddLast (newChunk);
 				}
 		}
 		
 		public GameObject getChunk ()
 		{
-				if (chunkPool.Count > 0) {
-						LinkedListNode<GameObject> chunkGO = chunkPool.First;
-						chunkPool.RemoveFirst ();
+				if (inactiveChunkPool.Count > 0) {
+						LinkedListNode<GameObject> chunkGO = inactiveChunkPool.First;
+						inactiveChunkPool.RemoveFirst ();
 						return chunkGO.Value;
 				} else {
-						return null;
+						//Need to create a new chunk
+						return createChunk ();
 				}
 		}
 		
 		public void freeChunk (GameObject chunk)
 		{
 				chunk.gameObject.SetActive (false);
-				chunkPool.AddLast (chunk);
+				inactiveChunkPool.AddLast (chunk);
 		}
 		
+		public void flagChunkForUpdate (Chunk chunk)
+		{
+				chunksToUpdate.AddLast (chunk);
+		}
+		
+		// Update is called once per frame
+		void Update ()
+		{
+
+				if (!coroutineStarted) {
+						coroutineStarted = true;
+						StartCoroutine ("UpdateChunks");
+				}
+		}
+		
+		private void popAndGenerate ()
+		{
+				//pop the chunk
+				Chunk chunk = chunksToUpdate.First.Value;
+				chunksToUpdate.RemoveFirst ();
+		
+				//render the chunk.
+				chunk.GenerateMesh ();
+		}
+
+		IEnumerator UpdateChunks ()
+		{
+				for (;;) {
+						
+						//Wait for the initial chunks to get loaded and load them all at once.
+						if (chunksToUpdate.Count > 0 && firstRun) {
+								Debug.Log ("only once");
+								while (chunksToUpdate.Count > 0) {
+										firstRun = false;
+										popAndGenerate ();
+								}
+						}
+						if (chunksToUpdate.Count > 0) {
+								popAndGenerate ();
+						}
+						yield return new WaitForSeconds (renderSpeed);
+				}
+		}
+
+		GameObject createChunk ()
+		{
+				GameObject newChunk = GameObject.Instantiate (Resources.Load ("Voxel Generators/Chunk")) as GameObject;
+				newChunk.SetActive (false);
+				newChunk.transform.parent = this.transform;
+				newChunk.transform.rotation = new Quaternion (0, 0, 0, 0);
+				return newChunk;
+		}
 }
 
 

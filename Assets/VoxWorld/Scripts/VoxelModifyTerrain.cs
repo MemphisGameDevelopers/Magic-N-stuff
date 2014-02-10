@@ -9,6 +9,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 		GameObject cameraGO;
 		
 		private GameObject player;
+		private ChunkManager chunkManager;
 		private Vector3 lastPlayerPosition;
 		
 		public VoxelWorld world;
@@ -23,7 +24,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 				cameraGO = GameObject.FindGameObjectWithTag ("MainCamera");
 				player = GameObject.FindGameObjectWithTag ("Player");
 				lastPlayerPosition = player.transform.position;
-				
+				GameObject chunkManagerGO = GameObject.Find ("Chunk Manager");
+				chunkManager = chunkManagerGO.GetComponent<ChunkManager> ();
 				
 		}
 
@@ -418,10 +420,10 @@ public class VoxelModifyTerrain : MonoBehaviour
 								determinePlayerRegion (player.transform.position);
 								lastPlayerPosition = player.transform.position;
 								chunksLoaded = true;
+
+								
 						} else if (Vector3.Distance (lastPlayerPosition, player.transform.position) > 0.1f) {
-								//Debug.Log (lastPlayerPosition + " , " + player.transform.position);
 								determinePlayerRegion (player.transform.position);
-								//MoveChunks (player.transform.position);
 								LoadChunks (player.transform.position);
 								lastPlayerPosition = player.transform.position;
 						}

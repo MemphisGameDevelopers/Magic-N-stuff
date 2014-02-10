@@ -17,7 +17,7 @@ public class Region : MonoBehaviour, VoxelStream
 		public GameObject chunk;
 		public GameObject tree;
 		public Chunk[,,] chunks;
-		public ItemChunk[,,] itemChunks;
+		//public ItemChunk[,,] itemChunks;
 		public byte[,,] data;
 		public  int regionXZ = 32;
 		public   int regionY = 32;
@@ -29,6 +29,12 @@ public class Region : MonoBehaviour, VoxelStream
 		public ChunkManager chunkManager;
 		private static VoxelWorld world;
 
+
+		void Start ()
+		{
+				GameObject chunkManagerGO = GameObject.Find ("Chunk Manager");
+				chunkManager = chunkManagerGO.GetComponent<ChunkManager> ();
+		}
 		public static void setWorld (VoxelWorld w)
 		{
 				world = w;
@@ -70,14 +76,15 @@ public class Region : MonoBehaviour, VoxelStream
 
 		public void create ()
 		{
-				chunkManager = ChunkManager.Instance;
+	
+				
 				data = new byte[regionXZ, regionY, regionXZ];
 				chunks = new Chunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
 		                  Mathf.FloorToInt (regionY / Chunk.chunkSize),
 		                   Mathf.FloorToInt (regionXZ / Chunk.chunkSize)];
-				itemChunks = new ItemChunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
-		                           Mathf.FloorToInt (regionY / Chunk.chunkSize),
-		                           Mathf.FloorToInt (regionXZ / Chunk.chunkSize)];
+//				itemChunks = new ItemChunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
+//		                           Mathf.FloorToInt (regionY / Chunk.chunkSize),
+//		                           Mathf.FloorToInt (regionXZ / Chunk.chunkSize)];
 
 				
 				try {
@@ -97,7 +104,8 @@ public class Region : MonoBehaviour, VoxelStream
 								reader.Close ();
 						} else {
 								//create this region's terrain data.
-								WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetZ ());
+								//WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetZ ());
+								WorldGeneration.Instance.createFlatBiome (data);
 								isDirty = true;
 								//createPerlin ();
 								
@@ -114,7 +122,7 @@ public class Region : MonoBehaviour, VoxelStream
 				}
 
 				//create Trees
-				createTrees ();
+				//createTrees ();
 		}
 
 		private void merge (VoxelStream source, VoxelStream destination)
@@ -129,24 +137,24 @@ public class Region : MonoBehaviour, VoxelStream
 						}
 				}
 		}
-		private void createTrees ()
-		{
-				LinkedList<Vector3> trees = TreePlanter.generateTrees (world, this);
-				foreach (Vector3 position in trees) {
-						int x = ((int)position.x / Chunk.chunkSize);
-						int y = ((int)position.y / Chunk.chunkSize);
-						int z = ((int)position.z / Chunk.chunkSize);
-					
-						if (itemChunks [x, y, z] == null) {
-								ItemChunk itemChunk = new ItemChunk ();
-								itemChunks [x, y, z] = itemChunk;
-						}
-						itemChunks [x, y, z].addItem (position);
-				}
-
-
-
-		}
+//		private void createTrees ()
+//		{
+//				LinkedList<Vector3> trees = TreePlanter.generateTrees (world, this);
+//				foreach (Vector3 position in trees) {
+//						int x = ((int)position.x / Chunk.chunkSize);
+//						int y = ((int)position.y / Chunk.chunkSize);
+//						int z = ((int)position.z / Chunk.chunkSize);
+//					
+//						if (itemChunks [x, y, z] == null) {
+//								ItemChunk itemChunk = new ItemChunk ();
+//								itemChunks [x, y, z] = itemChunk;
+//						}
+//						itemChunks [x, y, z].addItem (position);
+//				}
+//
+//
+//
+//		}
 	
 		public void GenColumn (int x, int z)
 		{
@@ -156,20 +164,21 @@ public class Region : MonoBehaviour, VoxelStream
 						
 						newChunk.transform.position = new Vector3 (x * Chunk.chunkSize - 0.5f + getBlockOffsetX (),
 										y * Chunk.chunkSize + 0.5f, z * Chunk.chunkSize - 0.5f + getBlockOffsetZ ());
-						newChunk.transform.parent = this.transform;
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
 						chunks [x, y, z].setVoxelsToRender (this);
 						chunks [x, y, z].chunkX = x * Chunk.chunkSize;
 						chunks [x, y, z].chunkY = y * Chunk.chunkSize;
 						chunks [x, y, z].chunkZ = z * Chunk.chunkSize;
 						newChunk.SetActive (true);
-						chunks [x, y, z].update = true;
-						if (itemChunks [x, y, z] != null) {
-								ItemChunk itemChunk = itemChunks [x, y, z];
-								//itemChunk.addItem (chunks[x,y,z], this, 
-								//TODO Re-enable rending item chunks.
-						}
+						//chunks [x, y, z].update = true;
+//						if (itemChunks [x, y, z] != null) {
+//								ItemChunk itemChunk = itemChunks [x, y, z];
+//								//itemChunk.addItem (chunks[x,y,z], this, 
+//								//TODO Re-enable rending item chunks.
+//						}
 						
+						//Chunk manager will handle updating the chunk
+						chunkManager.flagChunkForUpdate (chunks [x, y, z]);
 			
 				}
 		}
