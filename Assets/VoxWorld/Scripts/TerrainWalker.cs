@@ -22,19 +22,21 @@ public class TerrainWalker
 
 		public void gotoPosition (int x, int z)
 		{
-				//Get the region.
-				blockX = x;
-				blockZ = z;
-				//Determine what height the point is
-				Region region = world.getRegionAtCoords (x, z);
-				int[] localCoords = region.convertWorldToLocal (x, 0, z);
-				for (int y = region.regionY - 1; y >= 0; y--) {
-						if (region.GetBlockAtCoords (localCoords [0], y, localCoords [2]) != 0) {
-								blockY = y + 1;
-								break;
-						}
-
-				}
+//				//TODO:  Fix this method to work with 3d regions.
+////				//Get the region.
+//				blockX = x;
+//				blockZ = z;
+//				//Determine what height the point is
+//		for(int y = 0; y < world.currentHeight; y++){
+//				Region region = world.getRegionAtCoords (x, z);
+//				int[] localCoords = region.convertWorldToLocal (x, 0, z);
+//				for (int y = region.regionY - 1; y >= 0; y--) {
+//						if (region.GetBlockAtRelativeCoords (localCoords [0], y, localCoords [2]) != 0) {
+//								blockY = y + 1;
+//								break;
+//						}
+//
+//				}
 		}
 	
 }

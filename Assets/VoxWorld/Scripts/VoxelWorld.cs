@@ -22,16 +22,26 @@ public class VoxelWorld : MonoBehaviour
 		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
 		public bool useDisk = false;
-
+		public int currentHeight = 0;
+		public float marchHeight;
+		
 		void Start ()
 		{
+		
 				//Start singleton managers
 				WorldGeneration instance = WorldGeneration.Instance;
 				
+
+				
 				Region.setWorld (this);
 				regions = new Dictionary<string, Region> ();
-				Region centerRegion = createRegion (0, 0, false);
+				Region centerRegion = createRegion (0, 0, 0, false);
 				loadAllNeighbors (centerRegion, false);
+				
+				//Initialize Chunk Manager
+				GameObject chunkManagerGO = GameObject.Find ("Chunk Manager") as GameObject;
+				ChunkManager manager = chunkManagerGO.GetComponent<ChunkManager> ();
+				manager.createChunkPool ();
 
 				clientRenderer = gameObject.GetComponent ("VoxelModifyTerrain") as VoxelModifyTerrain;
 				clientRenderer.setStartRegion (centerRegion);
@@ -52,23 +62,22 @@ public class VoxelWorld : MonoBehaviour
 	 * Gets the region at the specified indices in the Dictionary
 	 * 
 	 **/
-		public Region getRegionAtIndex (int x, int z)
+		public Region getRegionAtIndex (int x, int y, int z)
 		{
-				string key = x + "x" + z;
+				string key = x + "x" + y + "x" + z;
 				if (regions.ContainsKey (key)) {
-						Region region = regions [key];
-						return region;
+						return regions [key];
 				} else {
-						return null;
+						return createRegion (x, y, z, false);
 				}
-
+		
 		}
-
+	
 		/**
 	 * Gets the region containing the specified world cordinates
 	 * 
 	 **/
-		public Region getRegionAtCoords (int x, int z)
+		public Region getRegionAtCoords (int x, int y, int z)
 		{
 				if (x < 0) {
 						x = x - regionXZ + 1;
@@ -76,72 +85,66 @@ public class VoxelWorld : MonoBehaviour
 				if (z < 0) {
 						z = z - regionXZ + 1;
 				}
+				//y will never be less than zero
 			
 				int regionsX = x / regionXZ;
+				int regionsY = y / regionY;
 				int regionsZ = z / regionXZ;
-		
-				string key = regionsX + "x" + regionsZ;
-				if (regions.ContainsKey (key)) {
-						Region region = regions [key];
-						return region;
-				} else {
-						Debug.LogError ("Region [" + key + "] not found in Dictionary!");
-						Application.Quit ();
-						return null;
-				}
-		
-		}
 
+				return getRegionAtIndex (regionsX, regionsY, regionsZ);
+	
+		}
+		
 		private void loadAllNeighbors (Region region, bool isAsync)
 		{
-				Debug.Log ("Loading a bunch of neighbors");
+
 				//North
-				Region neighbor = getRegionAtIndex (region.offsetX, region.offsetZ + 1);
+				Region neighbor = getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX, region.offsetZ + 1, isAsync);
+						neighbor = createRegion (region.offsetX, region.offsetY, region.offsetZ + 1, isAsync);
 				}
 
 
 				//South
-				neighbor = getRegionAtIndex (region.offsetX, region.offsetZ - 1);
+				neighbor = getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX, region.offsetZ - 1, isAsync);
+						neighbor = createRegion (region.offsetX, region.offsetY, region.offsetZ - 1, isAsync);
 				}
 
 				//East
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ);
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetZ, isAsync);
+						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ, isAsync);
 				}
 
 				//West
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ);
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetZ, isAsync);
+						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ, isAsync);
 				}
 
 				//NorthWest
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ + 1);
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetZ + 1, isAsync);
+						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ + 1, isAsync);
 				}
 
 				//SouthEast
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ - 1);
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetZ - 1, isAsync);
+						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ - 1, isAsync);
 				}
 
 				//NorthEast
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetZ + 1);
+				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetZ + 1, isAsync);
+						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ + 1, isAsync);
 				}
 
 				//SouthWest
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetZ - 1);
+				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetZ - 1, isAsync);
+						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ - 1, isAsync);
 				}
 
 		}
@@ -153,16 +156,24 @@ public class VoxelWorld : MonoBehaviour
 				}
 		}
 
-		private Region createRegion (int x, int z, bool isAsync)
+		private Region createRegion (int x, int y, int z, bool isAsync)
 		{
-				GameObject regionGO = Instantiate (regionPrefab, new Vector3 (x * regionXZ, 0, z * regionXZ), new Quaternion (0, 0, 0, 0)) as GameObject;
+				//Update height
+				if (y > currentHeight) {
+						currentHeight = y;
+				}
+				GameObject regionGO = Instantiate (regionPrefab, 
+					new Vector3 (x * regionXZ, y * regionY, z * regionXZ), 
+					new Quaternion (0, 0, 0, 0)) as GameObject;
 				regionGO.transform.parent = this.transform;
 				Region region = regionGO.GetComponent ("Region") as Region;
 				region.regionXZ = this.regionXZ;
 				region.regionY = this.regionY;
 				region.regionXZ = this.regionXZ;
 				region.offsetX = x;
+				region.offsetY = y;
 				region.offsetZ = z;
+				//Debug.Log ("Adding region " + region.hashString ());
 				regions.Add (region.hashString (), region);
 				if (isAsync) {
 						Thread oThread = new Thread (new ThreadStart (region.create));

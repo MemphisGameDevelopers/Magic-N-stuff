@@ -15,6 +15,8 @@ public class VoxelModifyTerrain : MonoBehaviour
 		public VoxelWorld world;
 		public Region myRegion = null;
 		public int distToLoad = 4;
+		public int heightToLoad = 4;
+		public int depthToLoad = 4;
 		public int distToUnload = 8;
 		public bool saveLevel = false;
 		
@@ -39,189 +41,239 @@ public class VoxelModifyTerrain : MonoBehaviour
 
 				if (playerPos.x >= myRegion.getBlockOffsetX () + myRegion.regionXZ && 
 						playerPos.z < myRegion.getBlockOffsetZ () + myRegion.regionXZ) {
-						myRegion = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
+						myRegion = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetY, myRegion.offsetZ);
 						world.changeFocusRegion (myRegion);
 				} else if (playerPos.z >= myRegion.getBlockOffsetZ () + myRegion.regionXZ && 
 						playerPos.x < myRegion.getBlockOffsetX () + myRegion.regionXZ) {
-						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
+						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetY, myRegion.offsetZ + 1);
 						world.changeFocusRegion (myRegion);
 				} else if (playerPos.x < myRegion.getBlockOffsetX () && 
 						playerPos.z >= myRegion.getBlockOffsetZ ()) {	
-						myRegion = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
+						myRegion = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetY, myRegion.offsetZ);
 						world.changeFocusRegion (myRegion);
 				} else if (playerPos.z < myRegion.getBlockOffsetZ () && 
 						playerPos.x >= myRegion.getBlockOffsetX ()) {		
-						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
+						myRegion = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetY, myRegion.offsetZ - 1);
 						world.changeFocusRegion (myRegion);
 				}
 		}
-
-		private void genRegionColumn (Region region, int x, int z)
+	
+		private void RenderColumn (Vector3 playerPos, Region region, int x, int z)
 		{
 				if (region.chunks [x, 0, z] == null) {
-						region.GenColumn (x, z);
-				}
-		}
+						//Generate 0 to height
+						int yi = 0;
+						int regionY = region.regionY / Chunk.chunkSize;
+						for (int y=0; y<heightToLoad; y++) {
 
-		private void destroyRegionColumn (Region region, int x, int z)
-		{
-				if (region.chunks [x, 0, z] != null) {
-						region.UnloadColumn (x, z);
+								if (y >= regionY) {
+										//Go to the next region north
+										region = world.getRegionAtIndex (region.offsetX, region.offsetY + 1, region.offsetZ);
+										regionY = region.getBlockOffsetY () / Chunk.chunkSize + region.regionY / Chunk.chunkSize;
+										yi = 0;
+								}
+						
+								//Debug.Log ("creating chunk at " + x + "," + yi + "," + z);
+								region.loadChunk (x, yi, z);
+								yi += 1;
+						}
 				}
 		}
 	
-		private void MoveChunks (Vector3 playerPos)
+		private void UnloadColumn (Vector3 playerPos, Region region, int x, int z)
 		{
-				int newChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
-				int newChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
 				
-				int oldChunkx = (Mathf.FloorToInt (lastPlayerPosition.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
-				int oldChunkz = (Mathf.FloorToInt (lastPlayerPosition.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
-
-				int chunkChangeX = newChunkx - oldChunkx;
-				int chunkChangeZ = newChunkz - oldChunkz;
-				
-				int x_start = 0;
-				int x_end = 0;
-				if (chunkChangeX == 0) {
-						x_start = newChunkx - distToLoad;
-						x_end = newChunkx + distToLoad;
-				} else if (chunkChangeX > 0) {
-						x_start = oldChunkx + distToLoad;
-						x_end = newChunkx + distToLoad;
-				} else {
-						x_start = newChunkx - distToLoad;
-						x_end = oldChunkx - distToLoad;
-				}
-				
-				int z_start = 0;
-				int z_end = 0;
-				if (chunkChangeZ == 0) {
-						z_start = newChunkz - distToLoad;
-						z_end = newChunkz + distToLoad;
-				} else if (chunkChangeZ > 0) {
-						z_start = oldChunkz + distToLoad;
-						z_end = newChunkz + distToLoad;
-				} else {
-						z_start = newChunkz - distToLoad;
-						z_end = oldChunkz - distToLoad;
-				}
-				
-				//Debug.Log ("x_start:" + x_start + ", x_end:" + x_end + ", z_start:" + z_start + ", z_end:" + z_end);
-				for (int x = x_start; x < x_start + chunkChangeX; x++) {
-						for (int z = z_start; z <= z_end; z++) {
-								loadChunkAt (x, z);
+				if (region.chunks [x, 0, z] != null) {
+						//Generate 0 to height
+						int yi = 0;
+						int regionY = region.regionY / Chunk.chunkSize;
+						for (int y=0; y<heightToLoad; y++) {
+								if (y >= regionY) {
+										//Go to the next region north
+										region = world.getRegionAtIndex (region.offsetX, region.offsetY + 1, region.offsetZ);
+										regionY = region.getBlockOffsetY () / Chunk.chunkSize + region.regionY / Chunk.chunkSize;
+										yi = 0;
+								}
+								region.unloadChunk (x, yi, z);
+								yi += 1;
 						}
-				}
-				for (int z = z_start; z < z_start + chunkChangeZ; z++) {
-						for (int x = x_start; x <= x_end; x++) {
-								loadChunkAt (x, z);
-						}
-				}
-				
-				
-				
-		}
-		
-		private void loadChunkAt (int x, int z)
-		{
-				if (x >= 0 && z >= 0 && x < myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
-						genRegionColumn (myRegion, x, z);
-				} else if (x < 0 && z < 0) {
-						//southwest
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ - 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						genRegionColumn (region, newX, newZ);
-				} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
-						//northeast
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ + 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						genRegionColumn (region, newX, newZ);
-				} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
-						//southeast
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ - 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						genRegionColumn (region, newX, newZ);
-				} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
-						//northwest
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ + 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						genRegionColumn (region, newX, newZ);
-				} else if (z < 0 && x >= 0) {
-						//south
-						Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						genRegionColumn (region, x, newZ);
-				} else if (x < 0 && z >= 0) {
-						//west
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						genRegionColumn (region, newX, z);
-				} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
-						//east
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						genRegionColumn (region, newX, z);
-				} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
-						//north
-						Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						genRegionColumn (region, x, newZ);
 				}
 		}
 		
-		private void unLoadChunkAt (int x, int z)
+//		private void genRegionColumn (Region region, int x, int z)
+//		{
+//				if (region.chunks [x, 0, z] == null) {
+//						region.GenColumn (x, z);
+//				}
+//		}
+//
+//		private void destroyRegionColumn (Region region, int x, int z)
+//		{
+//				if (region.chunks [x, 0, z] != null) {
+//						region.UnloadColumn (x, z);
+//				}
+//		}
+	
+//		private void MoveChunks (Vector3 playerPos)
+//		{
+//				int newChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
+//				int newChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
+//				
+//				int oldChunkx = (Mathf.FloorToInt (lastPlayerPosition.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
+//				int oldChunkz = (Mathf.FloorToInt (lastPlayerPosition.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
+//
+//				int chunkChangeX = newChunkx - oldChunkx;
+//				int chunkChangeZ = newChunkz - oldChunkz;
+//				
+//				int x_start = 0;
+//				int x_end = 0;
+//				if (chunkChangeX == 0) {
+//						x_start = newChunkx - distToLoad;
+//						x_end = newChunkx + distToLoad;
+//				} else if (chunkChangeX > 0) {
+//						x_start = oldChunkx + distToLoad;
+//						x_end = newChunkx + distToLoad;
+//				} else {
+//						x_start = newChunkx - distToLoad;
+//						x_end = oldChunkx - distToLoad;
+//				}
+//				
+//				int z_start = 0;
+//				int z_end = 0;
+//				if (chunkChangeZ == 0) {
+//						z_start = newChunkz - distToLoad;
+//						z_end = newChunkz + distToLoad;
+//				} else if (chunkChangeZ > 0) {
+//						z_start = oldChunkz + distToLoad;
+//						z_end = newChunkz + distToLoad;
+//				} else {
+//						z_start = newChunkz - distToLoad;
+//						z_end = oldChunkz - distToLoad;
+//				}
+//				
+//				//Debug.Log ("x_start:" + x_start + ", x_end:" + x_end + ", z_start:" + z_start + ", z_end:" + z_end);
+//				for (int x = x_start; x < x_start + chunkChangeX; x++) {
+//						for (int z = z_start; z <= z_end; z++) {
+//								loadChunkAt (x, z);
+//						}
+//				}
+//				for (int z = z_start; z < z_start + chunkChangeZ; z++) {
+//						for (int x = x_start; x <= x_end; x++) {
+//								loadChunkAt (x, z);
+//						}
+//				}
+//				
+//				
+//				
+//		}
+		
+		private void loadChunkAt (Region region, int x, int z)
 		{
-				if (x >= 0 && z >= 0 && x < myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
-						destroyRegionColumn (myRegion, x, z);
+				if (region == null) {
+						return;
+				}
+				if (x >= 0 && z >= 0 && x < region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
+						//genRegionColumn (region, x, z);
+						RenderColumn (lastPlayerPosition, region, x, z);
 				} else if (x < 0 && z < 0) {
 						//southwest
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ - 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
 						int newX = region.regionXZ / Chunk.chunkSize + x;
 						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						destroyRegionColumn (region, newX, newZ);
-				} else if (x >= myRegion.chunks.GetLength (0) && z >= myRegion.chunks.GetLength (2)) {
+						loadChunkAt (nextRegion, newX, newZ);
+				} else if (x >= region.chunks.GetLength (0) && z >= region.chunks.GetLength (2)) {
 						//northeast
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ + 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
 						int newX = x - region.regionXZ / Chunk.chunkSize;
 						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						destroyRegionColumn (region, newX, newZ);
-				} else if (z < 0 && x >= myRegion.chunks.GetLength (0)) {
+						loadChunkAt (nextRegion, newX, newZ);
+				} else if (z < 0 && x >= region.chunks.GetLength (0)) {
 						//southeast
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ - 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
 						int newX = x - region.regionXZ / Chunk.chunkSize;
 						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						destroyRegionColumn (region, newX, newZ);
-				} else if (z >= myRegion.chunks.GetLength (2) && x < 0) {
+						loadChunkAt (nextRegion, newX, newZ);
+				} else if (z >= region.chunks.GetLength (2) && x < 0) {
 						//northwest
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ + 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
 						int newX = region.regionXZ / Chunk.chunkSize + x;
 						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						destroyRegionColumn (region, newX, newZ);
+						loadChunkAt (nextRegion, newX, newZ);
 				} else if (z < 0 && x >= 0) {
 						//south
-						Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ - 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
 						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						destroyRegionColumn (region, x, newZ);
+						loadChunkAt (nextRegion, x, newZ);
 				} else if (x < 0 && z >= 0) {
 						//west
-						Region region = world.getRegionAtIndex (myRegion.offsetX - 1, myRegion.offsetZ);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
 						int newX = region.regionXZ / Chunk.chunkSize + x;
-						destroyRegionColumn (region, newX, z);
-				} else if (x >= myRegion.chunks.GetLength (0) && z < myRegion.chunks.GetLength (2)) {
+						loadChunkAt (nextRegion, newX, z);
+				} else if (x >= region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
 						//east
-						Region region = world.getRegionAtIndex (myRegion.offsetX + 1, myRegion.offsetZ);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
 						int newX = x - region.regionXZ / Chunk.chunkSize;
-						destroyRegionColumn (region, newX, z);
-				} else if (z >= myRegion.chunks.GetLength (2) && x >= 0) {
+						loadChunkAt (nextRegion, newX, z);
+				} else if (z >= region.chunks.GetLength (2) && x >= 0) {
 						//north
-						Region region = world.getRegionAtIndex (myRegion.offsetX, myRegion.offsetZ + 1);
+						Region nextRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
 						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						destroyRegionColumn (region, x, newZ);
+						loadChunkAt (nextRegion, x, newZ);
+				}
+		}
+		
+		private void unLoadChunkAt (Region region, int x, int z)
+		{
+				if (region == null) {
+						return;
+				}
+				if (x >= 0 && z >= 0 && x < region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
+						//destroyRegionColumn (region, x, z);
+						UnloadColumn (lastPlayerPosition, region, x, z);
+				} else if (x < 0 && z < 0) {
+						//southwest
+						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
+						int newX = region.regionXZ / Chunk.chunkSize + x;
+						int newZ = region.regionXZ / Chunk.chunkSize + z;
+						unLoadChunkAt (newRegion, newX, newZ);
+				} else if (x >= region.chunks.GetLength (0) && z >= region.chunks.GetLength (2)) {
+						//northeast
+						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
+						int newX = x - region.regionXZ / Chunk.chunkSize;
+						int newZ = z - region.regionXZ / Chunk.chunkSize;
+						unLoadChunkAt (newRegion, newX, newZ);
+				} else if (z < 0 && x >= region.chunks.GetLength (0)) {
+						//southeast
+						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
+						int newX = x - region.regionXZ / Chunk.chunkSize;
+						int newZ = region.regionXZ / Chunk.chunkSize + z;
+						unLoadChunkAt (newRegion, newX, newZ);
+				} else if (z >= region.chunks.GetLength (2) && x < 0) {
+						//northwest
+						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
+						int newX = region.regionXZ / Chunk.chunkSize + x;
+						int newZ = z - region.regionXZ / Chunk.chunkSize;
+						unLoadChunkAt (newRegion, newX, newZ);
+				} else if (z < 0 && x >= 0) {
+						//south
+						Region newRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
+						int newZ = region.regionXZ / Chunk.chunkSize + z;
+						unLoadChunkAt (newRegion, x, newZ);
+				} else if (x < 0 && z >= 0) {
+						//west
+						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
+						int newX = region.regionXZ / Chunk.chunkSize + x;
+						unLoadChunkAt (newRegion, newX, z);
+				} else if (x >= region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
+						//east
+						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
+						int newX = x - region.regionXZ / Chunk.chunkSize;
+						unLoadChunkAt (newRegion, newX, z);
+				} else if (z >= region.chunks.GetLength (2) && x >= 0) {
+						//north
+						Region newRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
+						int newZ = z - region.regionXZ / Chunk.chunkSize;
+						unLoadChunkAt (newRegion, x, newZ);
 				}
 		}
 		
@@ -250,10 +302,10 @@ public class VoxelModifyTerrain : MonoBehaviour
 				}
 				
 				foreach (Vector2 vector in chunksToLoad) {
-						loadChunkAt ((int)vector.x, (int)vector.y);
+						loadChunkAt (myRegion, (int)vector.x, (int)vector.y);
 				}
 				foreach (Vector2 vector in chunksToUnload) {
-						unLoadChunkAt ((int)vector.x, (int)vector.y);
+						unLoadChunkAt (myRegion, (int)vector.x, (int)vector.y);
 				}
 
 		}
@@ -359,14 +411,13 @@ public class VoxelModifyTerrain : MonoBehaviour
 				//Block could be part of the neighbor region.
 				//adds the specified block at these coordinates
 
-				Region modRegion = world.getRegionAtCoords (x, z);
+				Region modRegion = world.getRegionAtCoords (x, y, z);
 				int[] localCoords = modRegion.convertWorldToLocal (x, y, z);
 				//print ("Set block at world(" + x + "," + y + "," + z + ") local(" + localCoords [0] + "," + localCoords [1] + "," + localCoords [2] + ")");
 				modRegion.data [localCoords [0], localCoords [1], localCoords [2]] = block;
 				UpdateChunkAt (modRegion, localCoords [0], localCoords [1], localCoords [2]);
 		}
-	
-		//To do: add a way to just flag the chunk for update then it update it in lateupdate
+
 		private void UpdateChunkAt (Region region, int x, int y, int z)
 		{
 				//Updates the chunk containing this block
@@ -374,34 +425,40 @@ public class VoxelModifyTerrain : MonoBehaviour
 				int updateY = Mathf.FloorToInt (y / Chunk.chunkSize);
 				int updateZ = Mathf.FloorToInt (z / Chunk.chunkSize);
 		
-				//print ("Updating: " + updateX + "," + updateY + ", " + updateZ);
-		
 				//Update the chunk's mesh
-				region.chunks [updateX, updateY, updateZ].update = true;
+				chunkManager.flagChunkForUpdate (region.chunks [updateX, updateY, updateZ]);
+				//region.chunks [updateX, updateY, updateZ].update = true;
+				
+				//Region has changed state.
 				region.isDirty = true;
 		
-				//Update neighbor chunks as neccessary.
-				if (x - (Chunk.chunkSize * updateX) == 0) {
+				//Neighbor chunks also may need to be re-rendered since their mesh could have
+				//potentially changed.
+				int xEdge = x - (Chunk.chunkSize * updateX);
+				int yEdge = y - (Chunk.chunkSize * updateY);
+				int zEdge = z - (Chunk.chunkSize * updateZ);
+		
+				if (xEdge == 0) {
 						region.flagChunkForUpdate (updateX - 1, updateY, updateZ);
 				}
 		
-				if (x - (Chunk.chunkSize * updateX) == Chunk.chunkSize - 1) {
+				if (xEdge == Chunk.chunkSize - 1) {
 						region.flagChunkForUpdate (updateX + 1, updateY, updateZ);
 				}
 		
-				if (y - (Chunk.chunkSize * updateY) == 0) {
+				if (yEdge == 0) {
 						region.flagChunkForUpdate (updateX, updateY - 1, updateZ);
 				}
 		
-				if (y - (Chunk.chunkSize * updateY) == Chunk.chunkSize - 1) {
+				if (yEdge == Chunk.chunkSize - 1) {
 						region.flagChunkForUpdate (updateX, updateY + 1, updateZ);
 				}
 		
-				if (z - (Chunk.chunkSize * updateZ) == 0) {
+				if (zEdge == 0) {
 						region.flagChunkForUpdate (updateX, updateY, updateZ - 1);
 				}
 		
-				if (z - (Chunk.chunkSize * updateZ) == Chunk.chunkSize - 1) {
+				if (zEdge == Chunk.chunkSize - 1) {
 						region.flagChunkForUpdate (updateX, updateY, updateZ + 1);
 				}
 		
@@ -423,9 +480,10 @@ public class VoxelModifyTerrain : MonoBehaviour
 
 								
 						} else if (Vector3.Distance (lastPlayerPosition, player.transform.position) > 0.1f) {
+								lastPlayerPosition = player.transform.position;
 								determinePlayerRegion (player.transform.position);
 								LoadChunks (player.transform.position);
-								lastPlayerPosition = player.transform.position;
+							
 						}
 				}
 		}

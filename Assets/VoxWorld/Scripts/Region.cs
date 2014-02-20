@@ -22,18 +22,21 @@ public class Region : MonoBehaviour, VoxelStream
 		public  int regionXZ = 32;
 		public   int regionY = 32;
 		public int offsetX;
+		public int offsetY;
 		public int offsetZ;
-		public float distToLoad;
-		public float distToUnload;
 		public bool isDirty;
-		public ChunkManager chunkManager;
+		private bool isJustAir = true;
+		private bool isJustSolid = true;
+		public static ChunkManager chunkManager;
 		private static VoxelWorld world;
 
 
 		void Start ()
 		{
-				GameObject chunkManagerGO = GameObject.Find ("Chunk Manager");
-				chunkManager = chunkManagerGO.GetComponent<ChunkManager> ();
+				if (chunkManager == null) {
+						GameObject chunkManagerGO = GameObject.Find ("Chunk Manager");
+						chunkManager = chunkManagerGO.GetComponent<ChunkManager> ();
+				}
 		}
 		public static void setWorld (VoxelWorld w)
 		{
@@ -44,7 +47,11 @@ public class Region : MonoBehaviour, VoxelStream
 		{
 				return offsetX * regionXZ;
 		}
-
+		
+		public int getBlockOffsetY ()
+		{
+				return offsetY * regionY;
+		}
 		public int getBlockOffsetZ ()
 		{
 				return offsetZ * regionXZ;
@@ -77,7 +84,7 @@ public class Region : MonoBehaviour, VoxelStream
 		public void create ()
 		{
 	
-				
+				//Debug.Log ("Creating new region.");
 				data = new byte[regionXZ, regionY, regionXZ];
 				chunks = new Chunk[Mathf.FloorToInt (regionXZ / Chunk.chunkSize),
 		                  Mathf.FloorToInt (regionY / Chunk.chunkSize),
@@ -90,7 +97,7 @@ public class Region : MonoBehaviour, VoxelStream
 				try {
 						string fileNamePath = "C:/Data/" + this.hashString () + ".dat";
 
-						if (File.Exists (fileNamePath)) {
+						if (File.Exists (fileNamePath) && world.useDisk) {
 								//Load in data from file if found
 								FileStream fs = File.OpenRead (fileNamePath);
 								BinaryReader reader = new BinaryReader (fs);
@@ -104,8 +111,8 @@ public class Region : MonoBehaviour, VoxelStream
 								reader.Close ();
 						} else {
 								//create this region's terrain data.
-								//WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetZ ());
-								WorldGeneration.Instance.createFlatBiome (data);
+								WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetY (), getBlockOffsetZ ());
+								//WorldGeneration.Instance.createFlatBiome (data);
 								isDirty = true;
 								//createPerlin ();
 								
@@ -115,7 +122,18 @@ public class Region : MonoBehaviour, VoxelStream
 //								dungeon.create ();
 //								merge (dungeon, this);
 
-
+								//Aggregation flags
+								for (int x=0; x<regionXZ; x++) {
+										for (int z=0; z<regionXZ; z++) {
+												for (int y=0; y<regionY; y++) {
+														if (data [x, y, z] != 0) {
+																isJustAir = false;
+														} else {
+																isJustSolid = false;
+														}
+												}
+										}
+								}
 						}
 				} catch (Exception ex) {
 						Debug.Log (ex.ToString ());
@@ -137,6 +155,61 @@ public class Region : MonoBehaviour, VoxelStream
 						}
 				}
 		}
+
+		private bool isChunkJustAir (int xBlock, int yBlock, int zBlock)
+		{
+				if (data [xBlock, yBlock, zBlock] == 0) {
+						for (int xi = xBlock; xi < xBlock + Chunk.chunkSize; xi++) {
+								for (int yi = yBlock; yi < yBlock + Chunk.chunkSize; yi++) {
+										for (int zi = zBlock; zi < zBlock + Chunk.chunkSize; zi++) {
+												if (data [xi, yi, zi] != 0) {
+														return false;
+												}
+										}
+								}
+						}
+						return true;
+				} else {
+						return false;
+				}
+				
+		}
+		
+		//TODO This method only check region interrior chunks.	
+		private bool isSolidChunkAndEncased (int xBlock, int yBlock, int zBlock)
+		{
+				if (data [xBlock, yBlock, zBlock] == 1) {
+						int xStart = xBlock - 1;
+						int yStart = yBlock - 1;
+						int zStart = zBlock - 1;
+						int xFinish = xBlock + Chunk.chunkSize + 1;
+						int yFinish = yBlock + Chunk.chunkSize + 1;
+						int zFinish = zBlock + Chunk.chunkSize + 1;
+		
+						//Cant test boundry chunks yet
+						if (xStart < 0 || yStart < 0 || zStart < 0 || xFinish >= regionXZ || yFinish >= regionY || zFinish >= regionXZ) {
+								//Debug.Log ("Chunk is boundry. Creating");
+								return false;
+						}
+				
+				
+						for (int xi = xStart; xi < xFinish; xi++) {
+								for (int yi = yStart; yi < yFinish; yi++) {
+										for (int zi = zStart; zi < zFinish; zi++) {
+												if (data [xi, yi, zi] == 0) {
+														//Debug.Log ("Chunk has air. Creating");
+														return false;
+												}
+										}
+								}
+						}
+						return true;
+				} else {
+						return false;
+				}
+				
+		}
+
 //		private void createTrees ()
 //		{
 //				LinkedList<Vector3> trees = TreePlanter.generateTrees (world, this);
@@ -156,41 +229,104 @@ public class Region : MonoBehaviour, VoxelStream
 //
 //		}
 	
-		public void GenColumn (int x, int z)
+		public void loadChunk (int x, int y, int z)
 		{
-				for (int y=0; y<chunks.GetLength(1); y++) {
+				//print (x + "," + y + "," + z);
+				if (chunks [x, y, z] == null) {
+						int xBlock = x * Chunk.chunkSize;
+						int yBlock = y * Chunk.chunkSize;
+						int zBlock = z * Chunk.chunkSize;
+			
+						//Don't generate chunks of air or solid enclosed rock unless it's at y = 0.
+						if (isChunkJustAir (xBlock, yBlock, zBlock) ||
+								isSolidChunkAndEncased (xBlock, yBlock, zBlock)) {
+								if (y != 0)
+										return;
+						}
+			
 			
 						GameObject newChunk = chunkManager.getChunk ();
-						
-						newChunk.transform.position = new Vector3 (x * Chunk.chunkSize - 0.5f + getBlockOffsetX (),
-										y * Chunk.chunkSize + 0.5f, z * Chunk.chunkSize - 0.5f + getBlockOffsetZ ());
+			
+						newChunk.transform.position = new Vector3 (xBlock - 0.5f + getBlockOffsetX (),
+			                                           yBlock + 0.5f, zBlock - 0.5f + getBlockOffsetZ ());
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
+						newChunk.transform.parent = this.transform;
 						chunks [x, y, z].setVoxelsToRender (this);
-						chunks [x, y, z].chunkX = x * Chunk.chunkSize;
-						chunks [x, y, z].chunkY = y * Chunk.chunkSize;
-						chunks [x, y, z].chunkZ = z * Chunk.chunkSize;
-						newChunk.SetActive (true);
-						//chunks [x, y, z].update = true;
-//						if (itemChunks [x, y, z] != null) {
-//								ItemChunk itemChunk = itemChunks [x, y, z];
-//								//itemChunk.addItem (chunks[x,y,z], this, 
-//								//TODO Re-enable rending item chunks.
-//						}
-						
+						chunks [x, y, z].chunkX = xBlock;
+						chunks [x, y, z].chunkY = yBlock;
+						chunks [x, y, z].chunkZ = zBlock;
+
+						//						if (itemChunks [x, y, z] != null) {
+						//								ItemChunk itemChunk = itemChunks [x, y, z];
+						//								//itemChunk.addItem (chunks[x,y,z], this, 
+						//								//TODO Re-enable rending item chunks.
+						//						}
+			
 						//Chunk manager will handle updating the chunk
 						chunkManager.flagChunkForUpdate (chunks [x, y, z]);
-			
 				}
-		}
 	
-		public void UnloadColumn (int x, int z)
+		}
+		
+		public void unloadChunk (int x, int y, int z)
 		{
-				for (int y=0; y<chunks.GetLength(1); y++) {
-						//GameObject.Destroy (chunks [x, y, z].gameObject);
+				if (chunks [x, y, z] != null) {
+						//chunks [x, y, z].clearMesh ();
 						chunkManager.freeChunk (chunks [x, y, z].gameObject);
 						chunks [x, y, z] = null;
 				}
+		
 		}
+//		public void GenColumn (int x, int z)
+//		{
+//				for (int y=0; y<chunks.GetLength(1); y++) {
+//						if (chunks [x, y, z] == null) {
+//								int xBlock = x * Chunk.chunkSize;
+//								int yBlock = y * Chunk.chunkSize;
+//								int zBlock = z * Chunk.chunkSize;
+//			
+//								//Don't generate chunks of air.
+//								if (isChunkJustAir (xBlock, yBlock, zBlock) ||
+//										isSolidChunkAndEncased (xBlock, yBlock, zBlock)) {
+//										continue;
+//								}
+//								
+//								
+//								GameObject newChunk = chunkManager.getChunk ();
+//						
+//								newChunk.transform.position = new Vector3 (xBlock - 0.5f + getBlockOffsetX (),
+//										yBlock + 0.5f, zBlock - 0.5f + getBlockOffsetZ ());
+//								chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
+//								newChunk.transform.parent = this.transform;
+//								chunks [x, y, z].setVoxelsToRender (this);
+//								chunks [x, y, z].chunkX = xBlock;
+//								chunks [x, y, z].chunkY = yBlock;
+//								chunks [x, y, z].chunkZ = zBlock;
+//
+//								//chunks [x, y, z].update = true;
+////						if (itemChunks [x, y, z] != null) {
+////								ItemChunk itemChunk = itemChunks [x, y, z];
+////								//itemChunk.addItem (chunks[x,y,z], this, 
+////								//TODO Re-enable rending item chunks.
+////						}
+//						
+//								//Chunk manager will handle updating the chunk
+//								chunkManager.flagChunkForUpdate (chunks [x, y, z]);
+//						}
+//			
+//				}
+//		}
+//	
+//		public void UnloadColumn (int x, int z)
+//		{
+//				for (int y=0; y<chunks.GetLength(1); y++) {
+//						if (chunks [x, y, z] != null) {
+//								chunks [x, y, z].clearMesh ();
+//								chunkManager.freeChunk (chunks [x, y, z].gameObject);
+//								chunks [x, y, z] = null;
+//						}
+//				}
+//		}
 
 		public Vector3 getBounds ()
 		{
@@ -200,21 +336,27 @@ public class Region : MonoBehaviour, VoxelStream
 		{
 				return data;
 		}
-		public byte GetBlockAtCoords (int x, int y, int z)
+		public byte GetBlockAtRelativeCoords (int x, int y, int z)
 		{
 		
 				if (x >= regionXZ || x < 0 || y >= regionY || y < 0 || z >= regionXZ || z < 0) {
 						int worldX = x + this.getBlockOffsetX ();
+						int worldY = y + this.getBlockOffsetY ();
 						int worldZ = z + this.getBlockOffsetZ ();
-						Region neighbor = world.getRegionAtCoords (worldX, worldZ);
+						
+						//Disregard negative heights.  
+						if (worldY < 0) {
+								worldY = 0;
+						}
+						Region neighbor = world.getRegionAtCoords (worldX, worldY, worldZ);
 						int[] normalizedCoords = normalizeToLocal (x, y, z);
-						return neighbor.GetBlockAtCoords (normalizedCoords);
+						return neighbor.GetBlockAtRelativeCoords (normalizedCoords);
 				} else {
 						return data [x, y, z];
 				}
 		}
 		
-		private byte GetBlockAtCoords (int[] normalizedCoords)
+		private byte GetBlockAtRelativeCoords (int[] normalizedCoords)
 		{
 				byte block = data [normalizedCoords [0], normalizedCoords [1], normalizedCoords [2]];
 				return block;
@@ -229,17 +371,19 @@ public class Region : MonoBehaviour, VoxelStream
 				} else if (x < 0) {
 						result [0] = x + regionXZ;
 				}
-
+				
+				if (y >= regionY) {
+						result [1] = y - regionY;
+				} else if (y < 0) {
+						result [1] = y + regionY;
+				}
+				
 				if (z >= regionXZ) {
 						result [2] = z - regionXZ;
 				} else if (z < 0) {
 						result [2] = z + regionXZ;
 				}
-				if (y >= regionY) {
-						result [1] = regionY - 1;
-				} else if (y < 0) {
-						result [1] = 0;
-				}
+
 
 				result [0] = result [0] % regionXZ;
 				return result;
@@ -270,22 +414,22 @@ public class Region : MonoBehaviour, VoxelStream
 
 				int chunkDim = regionXZ / Chunk.chunkSize;
 				if (x >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX + 1, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
+						world.getRegionAtIndex (this.offsetX + 1, this.offsetY, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
 				} else if (x < 0) {
-						world.getRegionAtIndex (this.offsetX - 1, this.offsetZ).chunks [x + chunkDim, y, z].update = true;
+						world.getRegionAtIndex (this.offsetX - 1, this.offsetY, this.offsetZ).chunks [x + chunkDim, y, z].update = true;
 				} else if (z >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX, this.offsetZ + 1).chunks [x, y, z - chunkDim].update = true;
+						world.getRegionAtIndex (this.offsetX, this.offsetY, this.offsetZ + 1).chunks [x, y, z - chunkDim].update = true;
 				} else if (z < 0) {
-						world.getRegionAtIndex (this.offsetX, this.offsetZ - 1).chunks [x, y, z + chunkDim].update = true;
+						world.getRegionAtIndex (this.offsetX, this.offsetY, this.offsetZ - 1).chunks [x, y, z + chunkDim].update = true;
 				} else {
-						chunks [x, y, z].update = true;
+						chunkManager.flagChunkForUpdate (chunks [x, y, z]);
 				}
 
 		}
 
 		public string hashString ()
 		{
-				return this.offsetX + "x" + this.offsetZ;
+				return this.offsetX + "x" + this.offsetY + "x" + this.offsetZ;
 		}
 }
 

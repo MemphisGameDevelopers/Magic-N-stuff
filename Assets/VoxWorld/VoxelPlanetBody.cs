@@ -52,7 +52,7 @@ public class VoxelPlanetBody : MonoBehaviour, VoxelStream
 		}
 		
 
-		public byte GetBlockAtCoords (int x, int y, int z)
+		public byte GetBlockAtRelativeCoords (int x, int y, int z)
 		{
 				if (x > diameter || x < 0 || y > diameter || y < 0 || z > diameter || z < 0) {
 						return 0;

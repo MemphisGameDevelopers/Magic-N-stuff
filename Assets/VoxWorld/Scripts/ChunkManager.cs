@@ -16,9 +16,11 @@ public class ChunkManager : MonoBehaviour
 {
 
 		public float renderSpeed;
-		public float initialPoolSize = 2024;
+		public float initialPoolSize = 1000;
 		private LinkedList<GameObject> inactiveChunkPool;
 		private LinkedList<Chunk> chunksToUpdate;
+		private LinkedList<GameObject> chunkGOsToUpdate;
+		private LinkedList<GameObject> chunksToUnload;
 		private bool coroutineStarted = false;
 		private bool firstRun = true;
 		
@@ -26,13 +28,18 @@ public class ChunkManager : MonoBehaviour
 		{
 				inactiveChunkPool = new LinkedList<GameObject> ();
 				chunksToUpdate = new LinkedList<Chunk> ();
-				int initialPoolSize = 2024;
+				chunksToUnload = new LinkedList<GameObject> ();
+
+		}
+		
+		public void createChunkPool ()
+		{
 				while (inactiveChunkPool.Count < initialPoolSize) {
 						GameObject newChunk = createChunk ();
 						inactiveChunkPool.AddLast (newChunk);
 				}
+				Debug.Log ("Chunk pool creation completed.");
 		}
-		
 		public GameObject getChunk ()
 		{
 				if (inactiveChunkPool.Count > 0) {
@@ -47,10 +54,11 @@ public class ChunkManager : MonoBehaviour
 		
 		public void freeChunk (GameObject chunk)
 		{
-				chunk.gameObject.SetActive (false);
-				inactiveChunkPool.AddLast (chunk);
+				chunksToUnload.AddLast (chunk);
+				
 		}
 		
+		//Need both references here.
 		public void flagChunkForUpdate (Chunk chunk)
 		{
 				chunksToUpdate.AddLast (chunk);
@@ -70,10 +78,12 @@ public class ChunkManager : MonoBehaviour
 		{
 				//pop the chunk
 				Chunk chunk = chunksToUpdate.First.Value;
+				chunk.gameObject.SetActive (true);
+				chunk.GenerateMesh ();
+
 				chunksToUpdate.RemoveFirst ();
 		
-				//render the chunk.
-				chunk.GenerateMesh ();
+		
 		}
 
 		IEnumerator UpdateChunks ()
@@ -88,8 +98,16 @@ public class ChunkManager : MonoBehaviour
 										popAndGenerate ();
 								}
 						}
+						
 						if (chunksToUpdate.Count > 0) {
 								popAndGenerate ();
+						}
+						
+						if (chunksToUnload.Count > 0) {
+								GameObject chunkGO = chunksToUnload.First.Value;
+								chunkGO.SetActive (false);
+								chunksToUnload.RemoveFirst ();
+								inactiveChunkPool.AddLast (chunkGO);
 						}
 						yield return new WaitForSeconds (renderSpeed);
 				}

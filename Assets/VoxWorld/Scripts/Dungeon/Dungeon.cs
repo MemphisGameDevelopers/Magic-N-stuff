@@ -42,7 +42,7 @@ public class Dungeon : MonoBehaviour, VoxelStream
 		// List of rooms
 		private List<Room_2D> rooms;
 
-		public byte GetBlockAtCoords (int x, int y, int z)
+		public byte GetBlockAtRelativeCoords (int x, int y, int z)
 		{
 				if (x >= MAP_COLS || x < 0 ||
 						y >= MAP_HEIGHT || y < 0 ||

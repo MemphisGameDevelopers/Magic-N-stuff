@@ -14,6 +14,7 @@ public class WorldGeneration
 {
 		private static volatile WorldGeneration instance;
 	
+		
 	
 		private WorldGeneration ()
 		{
@@ -28,13 +29,15 @@ public class WorldGeneration
 		}
 		
 		
-		public void createPerlin (byte[,,] data, int regionX, int regionZ)
+		public void createPerlin (byte[,,] data, int regionX, int regionY, int regionZ)
 		{
 				for (int x=0; x<data.GetLength(0); x++) {
 						for (int z=0; z<data.GetLength(2); z++) {
-								int stone = PerlinNoise (regionX + x, 0, regionZ + z, 100, 20, 1.2f);
-								stone += PerlinNoise (regionX + x, 700, regionZ + z, 20, 4, 0) + 10;
-								int dirt = PerlinNoise (regionX + x, 100, regionZ + z, 50, 2, 0);
+								int xi = regionX + x;
+								int zi = regionZ + z;
+						
+								int stone = PerlinNoise (xi, 0, zi, 100, 2, 1.2f) + PerlinNoise (xi, 0, zi, 200, 10, 2.3f) + 10;
+								int dirt = PerlinNoise (xi, 0, zi, 500, 5, 1.3f);
 				
 								for (int y=0; y<data.GetLength(1); y++) {
 										if (y <= stone) {
