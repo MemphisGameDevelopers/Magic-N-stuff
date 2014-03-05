@@ -10,7 +10,6 @@ public class Chunk : MonoBehaviour
 		public int chunkX;
 		public int chunkY;
 		public int chunkZ;
-		public bool update;
 
 		public VoxelStream voxels;
 		private List<Vector3> newVertices = new List<Vector3> ();
@@ -32,6 +31,11 @@ public class Chunk : MonoBehaviour
 				//GenerateMesh ();
 		}
   
+		public void makeActive ()
+		{
+				gameObject.SetActive (true);
+				GenerateMesh ();
+		}
 		public void setVoxelsToRender (VoxelStream inVoxels)
 		{
 				voxels = inVoxels;
@@ -344,13 +348,4 @@ public class Chunk : MonoBehaviour
 				theMesh.tangents = tangents;
 		}
 		
-		public bool hasMesh ()
-		{
-				if (mesh == null) {
-						return false;
-				} else {
-						return true;
-				}
-				
-		}
 }

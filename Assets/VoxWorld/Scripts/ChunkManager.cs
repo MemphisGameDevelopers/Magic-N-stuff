@@ -17,18 +17,44 @@ public class ChunkManager : MonoBehaviour
 
 		public float renderSpeed;
 		public float initialPoolSize = 1000;
+		public int unloadBlockDistance = 10;
+		private GameObject player;
 		private LinkedList<GameObject> inactiveChunkPool;
 		private LinkedList<Chunk> chunksToUpdate;
 		private LinkedList<GameObject> chunkGOsToUpdate;
-		private LinkedList<GameObject> chunksToUnload;
+		private BinaryHeap<ChunkWatcher> unloaderQueue;
 		private bool coroutineStarted = false;
 		private bool firstRun = true;
+		
+		private class ChunkWatcher : IComparable<ChunkWatcher>
+		{
+				public float timeSinceActive;
+				public Region region;
+				public int x, y, z;
+				public Chunk chunk;
+				
+				public ChunkWatcher (Region inRegion, Chunk inChunk, int xi, int yi, int zi)
+				{
+						region = inRegion;
+						chunk = inChunk;
+						x = xi;
+						y = yi;
+						z = zi;
+						timeSinceActive = Time.realtimeSinceStartup;
+				}
+				
+				public int CompareTo (ChunkWatcher other)
+				{
+						return (int)(this.timeSinceActive - other.timeSinceActive);
+				}
+		}
 		
 		void Start ()
 		{
 				inactiveChunkPool = new LinkedList<GameObject> ();
 				chunksToUpdate = new LinkedList<Chunk> ();
-				chunksToUnload = new LinkedList<GameObject> ();
+				unloaderQueue = new BinaryHeap<ChunkWatcher> ();
+				player = GameObject.FindGameObjectWithTag ("Player");
 
 		}
 		
@@ -51,11 +77,11 @@ public class ChunkManager : MonoBehaviour
 						return createChunk ();
 				}
 		}
-		
-		public void freeChunk (GameObject chunk)
+
+		public void addToUnloadQueue (Region region, Chunk chunk, int x, int y, int z)
 		{
-				chunksToUnload.AddLast (chunk);
-				
+				ChunkWatcher watcher = new ChunkWatcher (region, chunk, x, y, z);
+				unloaderQueue.Add (watcher);
 		}
 		
 		//Need both references here.
@@ -78,12 +104,8 @@ public class ChunkManager : MonoBehaviour
 		{
 				//pop the chunk
 				Chunk chunk = chunksToUpdate.First.Value;
-				chunk.gameObject.SetActive (true);
-				chunk.GenerateMesh ();
-
 				chunksToUpdate.RemoveFirst ();
-		
-		
+				chunk.makeActive ();
 		}
 
 		IEnumerator UpdateChunks ()
@@ -103,17 +125,32 @@ public class ChunkManager : MonoBehaviour
 								popAndGenerate ();
 						}
 						
-						if (chunksToUnload.Count > 0) {
-								GameObject chunkGO = chunksToUnload.First.Value;
-								chunkGO.SetActive (false);
-								chunksToUnload.RemoveFirst ();
-								inactiveChunkPool.AddLast (chunkGO);
+						
+						//Might need to unload chunks that have been around for awhile
+						ChunkWatcher chunkWatcher = unloaderQueue.Peek ();
+						if (chunkWatcher != null) {
+
+								if (Time.realtimeSinceStartup - chunkWatcher.timeSinceActive > 30) {
+										unloaderQueue.Remove ();
+										float distance = Vector3.Distance (player.transform.position, chunkWatcher.chunk.gameObject.transform.position);
+										if (Math.Abs (distance) > unloadBlockDistance) {
+												chunkWatcher.chunk.gameObject.SetActive (false);
+												chunkWatcher.region.chunks [chunkWatcher.x, chunkWatcher.y, chunkWatcher.z] = null;
+												inactiveChunkPool.AddLast (chunkWatcher.chunk.gameObject);
+										} else {
+												//update time stamp and put back in queue.
+												chunkWatcher.timeSinceActive += 30;
+												unloaderQueue.Add (chunkWatcher);
+										}
+								}
 						}
+						
 						yield return new WaitForSeconds (renderSpeed);
 				}
 		}
 
-		GameObject createChunk ()
+
+		private GameObject createChunk ()
 		{
 				GameObject newChunk = GameObject.Instantiate (Resources.Load ("Voxel Generators/Chunk")) as GameObject;
 				newChunk.SetActive (false);

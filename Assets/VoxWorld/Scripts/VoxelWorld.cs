@@ -22,16 +22,12 @@ public class VoxelWorld : MonoBehaviour
 		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
 		public bool useDisk = false;
-		public int currentHeight = 0;
-		public float marchHeight;
 		
 		void Start ()
 		{
 		
 				//Start singleton managers
 				WorldGeneration instance = WorldGeneration.Instance;
-				
-
 				
 				Region.setWorld (this);
 				regions = new Dictionary<string, Region> ();
@@ -68,7 +64,10 @@ public class VoxelWorld : MonoBehaviour
 				if (regions.ContainsKey (key)) {
 						return regions [key];
 				} else {
-						return createRegion (x, y, z, false);
+						
+						Region region = createRegion (x, y, z, false);
+						//loadAllNeighbors (region, true);  
+						return region;
 				}
 		
 		}
@@ -90,6 +89,7 @@ public class VoxelWorld : MonoBehaviour
 				int regionsX = x / regionXZ;
 				int regionsY = y / regionY;
 				int regionsZ = z / regionXZ;
+
 
 				return getRegionAtIndex (regionsX, regionsY, regionsZ);
 	
@@ -158,15 +158,11 @@ public class VoxelWorld : MonoBehaviour
 
 		private Region createRegion (int x, int y, int z, bool isAsync)
 		{
-				//Update height
-				if (y > currentHeight) {
-						currentHeight = y;
-				}
-				GameObject regionGO = Instantiate (regionPrefab, 
-					new Vector3 (x * regionXZ, y * regionY, z * regionXZ), 
-					new Quaternion (0, 0, 0, 0)) as GameObject;
-				regionGO.transform.parent = this.transform;
-				Region region = regionGO.GetComponent ("Region") as Region;
+
+				Region region = new Region ();
+				//GameObject regionGO = regionPool.First.Value;
+				//regionPool.RemoveFirst ();
+				//Region region = regionGO.GetComponent ("Region") as Region;
 				region.regionXZ = this.regionXZ;
 				region.regionY = this.regionY;
 				region.regionXZ = this.regionXZ;

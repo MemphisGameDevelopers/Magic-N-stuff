@@ -57,257 +57,120 @@ public class VoxelModifyTerrain : MonoBehaviour
 						world.changeFocusRegion (myRegion);
 				}
 		}
-	
-		private void RenderColumn (Vector3 playerPos, Region region, int x, int z)
+		
+		private void MoveChunks (Vector3 playerPos)
 		{
-				if (region.chunks [x, 0, z] == null) {
-						//Generate 0 to height
-						int yi = 0;
-						int regionY = region.regionY / Chunk.chunkSize;
-						for (int y=0; y<heightToLoad; y++) {
+				int newChunkx = Mathf.FloorToInt (playerPos.x) / Chunk.chunkSize;
+				int newChunky = Mathf.FloorToInt (playerPos.y) / Chunk.chunkSize;
+				int newChunkz = Mathf.FloorToInt (playerPos.z) / Chunk.chunkSize;
+		
+				int oldChunkx = Mathf.FloorToInt (lastPlayerPosition.x) / Chunk.chunkSize;
+				int oldChunky = Mathf.FloorToInt (lastPlayerPosition.y) / Chunk.chunkSize;
+				int oldChunkz = Mathf.FloorToInt (lastPlayerPosition.z) / Chunk.chunkSize;
 
-								if (y >= regionY) {
-										//Go to the next region north
-										region = world.getRegionAtIndex (region.offsetX, region.offsetY + 1, region.offsetZ);
-										regionY = region.getBlockOffsetY () / Chunk.chunkSize + region.regionY / Chunk.chunkSize;
-										yi = 0;
-								}
-						
-								//Debug.Log ("creating chunk at " + x + "," + yi + "," + z);
-								region.loadChunk (x, yi, z);
-								yi += 1;
-						}
-				}
-		}
-	
-		private void UnloadColumn (Vector3 playerPos, Region region, int x, int z)
-		{
+				int chunkChangeX = newChunkx - oldChunkx;
+				int chunkChangeY = newChunky - oldChunky;
+				int chunkChangeZ = newChunkz - oldChunkz;
+		
+				if (chunkChangeX == 0 && chunkChangeY == 0 && chunkChangeZ == 0) {
+						return;
+				} 
 				
-				if (region.chunks [x, 0, z] != null) {
-						//Generate 0 to height
-						int yi = 0;
-						int regionY = region.regionY / Chunk.chunkSize;
-						for (int y=0; y<heightToLoad; y++) {
-								if (y >= regionY) {
-										//Go to the next region north
-										region = world.getRegionAtIndex (region.offsetX, region.offsetY + 1, region.offsetZ);
-										regionY = region.getBlockOffsetY () / Chunk.chunkSize + region.regionY / Chunk.chunkSize;
-										yi = 0;
+				int xLoadStart = 0;
+				int x_end = 0;
+				if (chunkChangeX == 0) {
+						xLoadStart = newChunkx - distToLoad;
+						x_end = newChunkx + distToLoad;
+				} else if (chunkChangeX > 0) {
+						xLoadStart = oldChunkx + distToLoad;
+						x_end = newChunkx + distToLoad;
+				} else {
+						xLoadStart = newChunkx - distToLoad;
+						x_end = oldChunkx - distToLoad;
+				}
+				
+				int yLoadStart = 0;
+				int y_end = 0;
+				if (chunkChangeY == 0) {
+						yLoadStart = newChunky - distToLoad;
+						y_end = newChunky + distToLoad;
+				} else if (chunkChangeY > 0) {
+						yLoadStart = oldChunky + distToLoad;
+						y_end = newChunky + distToLoad;
+				} else {
+						yLoadStart = newChunky - distToLoad;
+						y_end = oldChunky - distToLoad;
+				}
+				if (yLoadStart < 0) {
+						yLoadStart = 0;
+				}
+				if (y_end < 0) {
+						y_end = 0;
+				}
+				
+				int zLoadStart = 0;
+				int z_end = 0;
+				if (chunkChangeZ == 0) {
+						zLoadStart = newChunkz - distToLoad;
+						z_end = newChunkz + distToLoad;
+				} else if (chunkChangeZ > 0) {
+						zLoadStart = oldChunkz + distToLoad;
+						z_end = newChunkz + distToLoad;
+				} else {
+						zLoadStart = newChunkz - distToLoad;
+						z_end = oldChunkz - distToLoad;
+				}
+
+				for (int x = xLoadStart; x < x_end; x++) {
+						for (int z = zLoadStart; z < z_end; z++) {
+								for (int y = yLoadStart; y < y_end; y++) {
+										Region region = world.getRegionAtCoords (x * Chunk.chunkSize, y * Chunk.chunkSize, z * Chunk.chunkSize);
+										int[] localCoords = region.convertWorldChunksToLocal (x, y, z);
+										//Debug.Log ("new chunk at " + x + "," + y + "," + z);
+										region.loadChunk (localCoords [0], localCoords [1], localCoords [2]);
 								}
-								region.unloadChunk (x, yi, z);
-								yi += 1;
 						}
 				}
 		}
-		
-//		private void genRegionColumn (Region region, int x, int z)
-//		{
-//				if (region.chunks [x, 0, z] == null) {
-//						region.GenColumn (x, z);
-//				}
-//		}
-//
-//		private void destroyRegionColumn (Region region, int x, int z)
-//		{
-//				if (region.chunks [x, 0, z] != null) {
-//						region.UnloadColumn (x, z);
-//				}
-//		}
-	
-//		private void MoveChunks (Vector3 playerPos)
-//		{
-//				int newChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
-//				int newChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
-//				
-//				int oldChunkx = (Mathf.FloorToInt (lastPlayerPosition.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
-//				int oldChunkz = (Mathf.FloorToInt (lastPlayerPosition.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
-//
-//				int chunkChangeX = newChunkx - oldChunkx;
-//				int chunkChangeZ = newChunkz - oldChunkz;
-//				
-//				int x_start = 0;
-//				int x_end = 0;
-//				if (chunkChangeX == 0) {
-//						x_start = newChunkx - distToLoad;
-//						x_end = newChunkx + distToLoad;
-//				} else if (chunkChangeX > 0) {
-//						x_start = oldChunkx + distToLoad;
-//						x_end = newChunkx + distToLoad;
-//				} else {
-//						x_start = newChunkx - distToLoad;
-//						x_end = oldChunkx - distToLoad;
-//				}
-//				
-//				int z_start = 0;
-//				int z_end = 0;
-//				if (chunkChangeZ == 0) {
-//						z_start = newChunkz - distToLoad;
-//						z_end = newChunkz + distToLoad;
-//				} else if (chunkChangeZ > 0) {
-//						z_start = oldChunkz + distToLoad;
-//						z_end = newChunkz + distToLoad;
-//				} else {
-//						z_start = newChunkz - distToLoad;
-//						z_end = oldChunkz - distToLoad;
-//				}
-//				
-//				//Debug.Log ("x_start:" + x_start + ", x_end:" + x_end + ", z_start:" + z_start + ", z_end:" + z_end);
-//				for (int x = x_start; x < x_start + chunkChangeX; x++) {
-//						for (int z = z_start; z <= z_end; z++) {
-//								loadChunkAt (x, z);
-//						}
-//				}
-//				for (int z = z_start; z < z_start + chunkChangeZ; z++) {
-//						for (int x = x_start; x <= x_end; x++) {
-//								loadChunkAt (x, z);
-//						}
-//				}
-//				
-//				
-//				
-//		}
-		
-		private void loadChunkAt (Region region, int x, int z)
-		{
-				if (region == null) {
-						return;
-				}
-				if (x >= 0 && z >= 0 && x < region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
-						//genRegionColumn (region, x, z);
-						RenderColumn (lastPlayerPosition, region, x, z);
-				} else if (x < 0 && z < 0) {
-						//southwest
-						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						loadChunkAt (nextRegion, newX, newZ);
-				} else if (x >= region.chunks.GetLength (0) && z >= region.chunks.GetLength (2)) {
-						//northeast
-						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						loadChunkAt (nextRegion, newX, newZ);
-				} else if (z < 0 && x >= region.chunks.GetLength (0)) {
-						//southeast
-						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						loadChunkAt (nextRegion, newX, newZ);
-				} else if (z >= region.chunks.GetLength (2) && x < 0) {
-						//northwest
-						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						loadChunkAt (nextRegion, newX, newZ);
-				} else if (z < 0 && x >= 0) {
-						//south
-						Region nextRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						loadChunkAt (nextRegion, x, newZ);
-				} else if (x < 0 && z >= 0) {
-						//west
-						Region nextRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						loadChunkAt (nextRegion, newX, z);
-				} else if (x >= region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
-						//east
-						Region nextRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						loadChunkAt (nextRegion, newX, z);
-				} else if (z >= region.chunks.GetLength (2) && x >= 0) {
-						//north
-						Region nextRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						loadChunkAt (nextRegion, x, newZ);
-				}
-		}
-		
-		private void unLoadChunkAt (Region region, int x, int z)
-		{
-				if (region == null) {
-						return;
-				}
-				if (x >= 0 && z >= 0 && x < region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
-						//destroyRegionColumn (region, x, z);
-						UnloadColumn (lastPlayerPosition, region, x, z);
-				} else if (x < 0 && z < 0) {
-						//southwest
-						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						unLoadChunkAt (newRegion, newX, newZ);
-				} else if (x >= region.chunks.GetLength (0) && z >= region.chunks.GetLength (2)) {
-						//northeast
-						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						unLoadChunkAt (newRegion, newX, newZ);
-				} else if (z < 0 && x >= region.chunks.GetLength (0)) {
-						//southeast
-						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						unLoadChunkAt (newRegion, newX, newZ);
-				} else if (z >= region.chunks.GetLength (2) && x < 0) {
-						//northwest
-						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						unLoadChunkAt (newRegion, newX, newZ);
-				} else if (z < 0 && x >= 0) {
-						//south
-						Region newRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
-						int newZ = region.regionXZ / Chunk.chunkSize + z;
-						unLoadChunkAt (newRegion, x, newZ);
-				} else if (x < 0 && z >= 0) {
-						//west
-						Region newRegion = world.getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
-						int newX = region.regionXZ / Chunk.chunkSize + x;
-						unLoadChunkAt (newRegion, newX, z);
-				} else if (x >= region.chunks.GetLength (0) && z < region.chunks.GetLength (2)) {
-						//east
-						Region newRegion = world.getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
-						int newX = x - region.regionXZ / Chunk.chunkSize;
-						unLoadChunkAt (newRegion, newX, z);
-				} else if (z >= region.chunks.GetLength (2) && x >= 0) {
-						//north
-						Region newRegion = world.getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
-						int newZ = z - region.regionXZ / Chunk.chunkSize;
-						unLoadChunkAt (newRegion, x, newZ);
-				}
-		}
-		
 		private void LoadChunks (Vector3 playerPos)
 		{
 		
-				int playerChunkx = (Mathf.FloorToInt (playerPos.x) - myRegion.getBlockOffsetX ()) / Chunk.chunkSize;
-				int playerChunkz = (Mathf.FloorToInt (playerPos.z) - myRegion.getBlockOffsetZ ()) / Chunk.chunkSize;
-				int x_start = playerChunkx - distToUnload - 2;
-				int x_finish = playerChunkx + distToUnload + 2;
-				int z_start = playerChunkz - distToUnload - 2;
-				int z_finish = playerChunkz + distToUnload + 2;
-		
-				LinkedList<Vector2> chunksToLoad = new LinkedList<Vector2> ();
-				LinkedList<Vector2> chunksToUnload = new LinkedList<Vector2> ();
-				for (int x = x_start; x < x_finish; x++) {
-						for (int z = z_start; z < z_finish; z++) {
-								float dist = Vector2.Distance (new Vector2 (x, z), new Vector2 (playerChunkx, playerChunkz));
+				int playerChunkx = (Mathf.FloorToInt (playerPos.x)) / Chunk.chunkSize;
+				int playerChunky = (Mathf.FloorToInt (playerPos.y)) / Chunk.chunkSize;
+				int playerChunkz = (Mathf.FloorToInt (playerPos.z)) / Chunk.chunkSize;
 				
-								if (dist <= distToLoad) {
-										chunksToLoad.AddLast (new Vector2 (x, z));
-								} else if (dist > distToUnload) {
-										chunksToUnload.AddLast (new Vector2 (x, z));
+				int xLoadStart = playerChunkx - distToLoad;
+				int xLoadFinish = playerChunkx + distToLoad;
+				int yLoadStart = playerChunky - distToLoad;
+				int yLoadFinish = playerChunky + distToLoad;
+				int zLoadStart = playerChunkz - distToLoad;
+				int zLoadFinish = playerChunkz + distToLoad;
+				
+				int xUnloadStart = playerChunkx - distToUnload;
+				int xUnloadFinish = playerChunkx + distToUnload;
+				int yUnloadStart = playerChunky - distToUnload;
+				int yUnloadFinish = playerChunky + distToUnload;
+				int zUnloadStart = playerChunkz - distToUnload;
+				int zUnloadFinish = playerChunkz + distToUnload;
+
+
+				if (yLoadStart < 0) {
+						yLoadStart = 0;
+				}
+				if (yUnloadStart < 0) {
+						yUnloadStart = 0;
+				}
+				
+				for (int x = xLoadStart; x < xLoadFinish; x++) {
+						for (int z = zLoadStart; z < zLoadFinish; z++) {
+								for (int y = yLoadStart; y < yLoadFinish; y++) {
+										Region region = world.getRegionAtCoords (x * Chunk.chunkSize, y * Chunk.chunkSize, z * Chunk.chunkSize);
+										int[] localCoords = region.convertWorldChunksToLocal (x, y, z);
+										region.loadChunk (localCoords [0], localCoords [1], localCoords [2]);
+
 								}
 						}
 				}
-				
-				foreach (Vector2 vector in chunksToLoad) {
-						loadChunkAt (myRegion, (int)vector.x, (int)vector.y);
-				}
-				foreach (Vector2 vector in chunksToUnload) {
-						unLoadChunkAt (myRegion, (int)vector.x, (int)vector.y);
-				}
-
 		}
 	
 		public void ReplaceBlockCenter (float range, byte block)
@@ -431,35 +294,72 @@ public class VoxelModifyTerrain : MonoBehaviour
 				
 				//Region has changed state.
 				region.isDirty = true;
-		
+				int chunkDim = region.regionXZ / Chunk.chunkSize;
 				//Neighbor chunks also may need to be re-rendered since their mesh could have
 				//potentially changed.
 				int xEdge = x - (Chunk.chunkSize * updateX);
 				int yEdge = y - (Chunk.chunkSize * updateY);
 				int zEdge = z - (Chunk.chunkSize * updateZ);
-		
+
+
 				if (xEdge == 0) {
-						region.flagChunkForUpdate (updateX - 1, updateY, updateZ);
+						int neighborX = updateX - 1;
+						if (neighborX < 0) {
+								Region r = world.getRegionAtCoords (region.offsetX - 1, region.offsetY, region.offsetZ);
+								chunkManager.flagChunkForUpdate (r.chunks [neighborX + chunkDim, updateY, updateZ]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [neighborX, updateY, updateZ]);
+						}
 				}
 		
 				if (xEdge == Chunk.chunkSize - 1) {
-						region.flagChunkForUpdate (updateX + 1, updateY, updateZ);
+						int neighborX = updateX + 1;
+						if (neighborX >= chunkDim) {
+								Region r = world.getRegionAtCoords (region.offsetX + 1, region.offsetY, region.offsetZ);
+								chunkManager.flagChunkForUpdate (r.chunks [neighborX - chunkDim, updateY, updateZ]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [neighborX, updateY, updateZ]);
+						}
 				}
 		
 				if (yEdge == 0) {
-						region.flagChunkForUpdate (updateX, updateY - 1, updateZ);
+						int neighborY = updateY - 1;
+						if (neighborY < 0) {
+								Region r = world.getRegionAtCoords (region.offsetX, region.offsetY - 1, region.offsetZ);
+								chunkManager.flagChunkForUpdate (r.chunks [updateX, neighborY + chunkDim, updateZ]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [updateX, neighborY, updateZ]);
+						}
 				}
 		
 				if (yEdge == Chunk.chunkSize - 1) {
-						region.flagChunkForUpdate (updateX, updateY + 1, updateZ);
+						int neighborY = updateY + 1;
+						if (neighborY >= chunkDim) {
+								Region r = world.getRegionAtCoords (region.offsetX, region.offsetY + 1, region.offsetZ);
+								chunkManager.flagChunkForUpdate (r.chunks [updateX, neighborY - chunkDim, updateZ]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [updateX, neighborY, updateZ]);
+						}
 				}
-		
+				
 				if (zEdge == 0) {
-						region.flagChunkForUpdate (updateX, updateY, updateZ - 1);
+						int neighborZ = updateZ - 1;
+						if (neighborZ < 0) {
+								Region r = world.getRegionAtCoords (region.offsetX, region.offsetY, region.offsetZ - 1);
+								chunkManager.flagChunkForUpdate (r.chunks [updateX, updateY, neighborZ + chunkDim]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [updateX, updateY, neighborZ]);
+						}
 				}
 		
 				if (zEdge == Chunk.chunkSize - 1) {
-						region.flagChunkForUpdate (updateX, updateY, updateZ + 1);
+						int neighborZ = updateZ + 1;
+						if (neighborZ >= chunkDim) {
+								Region r = world.getRegionAtCoords (region.offsetX, region.offsetY, region.offsetZ + 1);
+								chunkManager.flagChunkForUpdate (r.chunks [updateX, updateY, neighborZ - chunkDim]);
+						} else {
+								chunkManager.flagChunkForUpdate (region.chunks [updateX, updateY, neighborZ]);
+						}
 				}
 		
 		}
@@ -477,12 +377,10 @@ public class VoxelModifyTerrain : MonoBehaviour
 								determinePlayerRegion (player.transform.position);
 								lastPlayerPosition = player.transform.position;
 								chunksLoaded = true;
-
-								
 						} else if (Vector3.Distance (lastPlayerPosition, player.transform.position) > 0.1f) {
-								lastPlayerPosition = player.transform.position;
 								determinePlayerRegion (player.transform.position);
-								LoadChunks (player.transform.position);
+								MoveChunks (player.transform.position);
+								lastPlayerPosition = player.transform.position;
 							
 						}
 				}

@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-public class Region : MonoBehaviour, VoxelStream
+public class Region : VoxelStream
 {
 		public GameObject chunk;
 		public GameObject tree;
@@ -31,7 +31,7 @@ public class Region : MonoBehaviour, VoxelStream
 		private static VoxelWorld world;
 
 
-		void Start ()
+		public Region ()
 		{
 				if (chunkManager == null) {
 						GameObject chunkManagerGO = GameObject.Find ("Chunk Manager");
@@ -64,7 +64,7 @@ public class Region : MonoBehaviour, VoxelStream
 								Directory.CreateDirectory ("C:/Data/");
 						}
 						string fileNamePath = "C:/Data/" + this.hashString () + ".dat";
-						print ("Saving to " + fileNamePath);
+						Debug.Log ("Saving to " + fileNamePath);
 						FileStream fs = File.Create (fileNamePath);
 						BinaryWriter writer = new BinaryWriter (fs);
 						for (int x=0; x<regionXZ; x++) {
@@ -248,9 +248,10 @@ public class Region : MonoBehaviour, VoxelStream
 						GameObject newChunk = chunkManager.getChunk ();
 			
 						newChunk.transform.position = new Vector3 (xBlock - 0.5f + getBlockOffsetX (),
-			                                           yBlock + 0.5f, zBlock - 0.5f + getBlockOffsetZ ());
+			                                           yBlock - 0.5f + getBlockOffsetY (), zBlock - 0.5f + getBlockOffsetZ ());
+
 						chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
-						newChunk.transform.parent = this.transform;
+						//newChunk.transform.parent = this.transform;
 						chunks [x, y, z].setVoxelsToRender (this);
 						chunks [x, y, z].chunkX = xBlock;
 						chunks [x, y, z].chunkY = yBlock;
@@ -264,69 +265,10 @@ public class Region : MonoBehaviour, VoxelStream
 			
 						//Chunk manager will handle updating the chunk
 						chunkManager.flagChunkForUpdate (chunks [x, y, z]);
+						chunkManager.addToUnloadQueue (this, chunks [x, y, z], x, y, z);
 				}
 	
 		}
-		
-		public void unloadChunk (int x, int y, int z)
-		{
-				if (chunks [x, y, z] != null) {
-						//chunks [x, y, z].clearMesh ();
-						chunkManager.freeChunk (chunks [x, y, z].gameObject);
-						chunks [x, y, z] = null;
-				}
-		
-		}
-//		public void GenColumn (int x, int z)
-//		{
-//				for (int y=0; y<chunks.GetLength(1); y++) {
-//						if (chunks [x, y, z] == null) {
-//								int xBlock = x * Chunk.chunkSize;
-//								int yBlock = y * Chunk.chunkSize;
-//								int zBlock = z * Chunk.chunkSize;
-//			
-//								//Don't generate chunks of air.
-//								if (isChunkJustAir (xBlock, yBlock, zBlock) ||
-//										isSolidChunkAndEncased (xBlock, yBlock, zBlock)) {
-//										continue;
-//								}
-//								
-//								
-//								GameObject newChunk = chunkManager.getChunk ();
-//						
-//								newChunk.transform.position = new Vector3 (xBlock - 0.5f + getBlockOffsetX (),
-//										yBlock + 0.5f, zBlock - 0.5f + getBlockOffsetZ ());
-//								chunks [x, y, z] = newChunk.GetComponent ("Chunk") as Chunk;
-//								newChunk.transform.parent = this.transform;
-//								chunks [x, y, z].setVoxelsToRender (this);
-//								chunks [x, y, z].chunkX = xBlock;
-//								chunks [x, y, z].chunkY = yBlock;
-//								chunks [x, y, z].chunkZ = zBlock;
-//
-//								//chunks [x, y, z].update = true;
-////						if (itemChunks [x, y, z] != null) {
-////								ItemChunk itemChunk = itemChunks [x, y, z];
-////								//itemChunk.addItem (chunks[x,y,z], this, 
-////								//TODO Re-enable rending item chunks.
-////						}
-//						
-//								//Chunk manager will handle updating the chunk
-//								chunkManager.flagChunkForUpdate (chunks [x, y, z]);
-//						}
-//			
-//				}
-//		}
-//	
-//		public void UnloadColumn (int x, int z)
-//		{
-//				for (int y=0; y<chunks.GetLength(1); y++) {
-//						if (chunks [x, y, z] != null) {
-//								chunks [x, y, z].clearMesh ();
-//								chunkManager.freeChunk (chunks [x, y, z].gameObject);
-//								chunks [x, y, z] = null;
-//						}
-//				}
-//		}
 
 		public Vector3 getBounds ()
 		{
@@ -399,7 +341,7 @@ public class Region : MonoBehaviour, VoxelStream
 						result [0] = x % regionXZ;
 				}
 
-				result [1] = y;
+				result [1] = y % regionY;
 
 				if (z < 0) {
 						result [2] = z - getBlockOffsetZ ();
@@ -408,23 +350,25 @@ public class Region : MonoBehaviour, VoxelStream
 				}
 				return result;
 		}
-
-		public void flagChunkForUpdate (int x, int y, int z)
+		
+		public  int[] convertWorldChunksToLocal (int x, int y, int z)
 		{
-
-				int chunkDim = regionXZ / Chunk.chunkSize;
-				if (x >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX + 1, this.offsetY, this.offsetZ).chunks [x - chunkDim, y, z].update = true;
-				} else if (x < 0) {
-						world.getRegionAtIndex (this.offsetX - 1, this.offsetY, this.offsetZ).chunks [x + chunkDim, y, z].update = true;
-				} else if (z >= chunkDim) {
-						world.getRegionAtIndex (this.offsetX, this.offsetY, this.offsetZ + 1).chunks [x, y, z - chunkDim].update = true;
-				} else if (z < 0) {
-						world.getRegionAtIndex (this.offsetX, this.offsetY, this.offsetZ - 1).chunks [x, y, z + chunkDim].update = true;
+				int[] result = {x,y,z};
+		
+				if (x < 0) {
+						result [0] = x - (getBlockOffsetX () / Chunk.chunkSize);
 				} else {
-						chunkManager.flagChunkForUpdate (chunks [x, y, z]);
+						result [0] = x % (regionXZ / Chunk.chunkSize);
 				}
-
+		
+				result [1] = y % (regionY / Chunk.chunkSize);
+		
+				if (z < 0) {
+						result [2] = z - (getBlockOffsetZ () / Chunk.chunkSize);
+				} else {
+						result [2] = z % (regionXZ / Chunk.chunkSize);
+				}
+				return result;
 		}
 
 		public string hashString ()

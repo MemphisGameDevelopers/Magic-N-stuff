@@ -36,14 +36,17 @@ public class WorldGeneration
 								int xi = regionX + x;
 								int zi = regionZ + z;
 						
-								int stone = PerlinNoise (xi, 0, zi, 100, 2, 1.2f) + PerlinNoise (xi, 0, zi, 200, 10, 2.3f) + 10;
-								int dirt = PerlinNoise (xi, 0, zi, 500, 5, 1.3f);
-				
+
+								int stone = PerlinNoise (xi, 751, zi, 550, 7f, 3f);
+								//int lowHills = PerlinNoise (xi, 127, zi, 20, 1.5f, 1.8f) + 10;
+								int dirt = 32;
+								int val = 0;
+								val = Math.Max (stone, dirt);
+								//val = Math.Max (lowHills, val);
 								for (int y=0; y<data.GetLength(1); y++) {
-										if (y <= stone) {
+										int yi = regionY + y;
+										if (yi <= val) {
 												data [x, y, z] = 1;
-										} else if (y <= dirt + stone) { 
-												data [x, y, z] = 2;
 										}
 					
 								}
