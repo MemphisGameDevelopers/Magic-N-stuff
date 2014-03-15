@@ -86,9 +86,9 @@ public class CameraController : MonoBehaviour
 				}
 
 				//Spin Camera on middle mouse drag
-				if (Input.GetButtonDown ("Fire3")) {
+				if (Input.GetButtonDown ("Fire2")) {
 						mousePosMark = Input.mousePosition;
-				} else if (Input.GetButton ("Fire3")) {
+				} else if (Input.GetButton ("Fire2")) {
 						float dif = Input.mousePosition.x - mousePosMark.x; 
 						if (Mathf.Abs (dif) > threshold) {
 								isDragging = true;
@@ -97,11 +97,11 @@ public class CameraController : MonoBehaviour
 						}
 				}
 
-			//Reset camera
-			if(Input.GetKeyDown("z")){
-				angle = 10.21f;
-				moveCamera ();
-			}
+				//Reset camera
+				if (Input.GetKeyDown ("z")) {
+						angle = 10.21f;
+						moveCamera ();
+				}
 		}
 	
 		public void changeFocus (GameObject o)

@@ -15,9 +15,7 @@ public class VoxelModifyTerrain : MonoBehaviour
 		public VoxelWorld world;
 		public Region myRegion = null;
 		public int distToLoad = 4;
-		public int heightToLoad = 4;
-		public int depthToLoad = 4;
-		public int distToUnload = 8;
+		public int initialDistToLoad = 8;
 		public bool saveLevel = false;
 		
 		private bool chunksLoaded = false;
@@ -120,16 +118,23 @@ public class VoxelModifyTerrain : MonoBehaviour
 						zLoadStart = newChunkz - distToLoad;
 						z_end = oldChunkz - distToLoad;
 				}
-
+				LinkedList<Region> loadedRegions = new LinkedList<Region> ();
 				for (int x = xLoadStart; x < x_end; x++) {
 						for (int z = zLoadStart; z < z_end; z++) {
 								for (int y = yLoadStart; y < y_end; y++) {
 										Region region = world.getRegionAtCoords (x * Chunk.chunkSize, y * Chunk.chunkSize, z * Chunk.chunkSize);
 										int[] localCoords = region.convertWorldChunksToLocal (x, y, z);
-										//Debug.Log ("new chunk at " + x + "," + y + "," + z);
 										region.loadChunk (localCoords [0], localCoords [1], localCoords [2]);
+										
+										if (!loadedRegions.Contains (region)) {
+												loadedRegions.AddLast (region);
+										}
 								}
 						}
+				}
+				
+				foreach (Region region in loadedRegions) {
+						world.loadAllNeighbors (region, true);
 				}
 		}
 		private void LoadChunks (Vector3 playerPos)
@@ -139,32 +144,27 @@ public class VoxelModifyTerrain : MonoBehaviour
 				int playerChunky = (Mathf.FloorToInt (playerPos.y)) / Chunk.chunkSize;
 				int playerChunkz = (Mathf.FloorToInt (playerPos.z)) / Chunk.chunkSize;
 				
-				int xLoadStart = playerChunkx - distToLoad;
-				int xLoadFinish = playerChunkx + distToLoad;
-				int yLoadStart = playerChunky - distToLoad;
-				int yLoadFinish = playerChunky + distToLoad;
-				int zLoadStart = playerChunkz - distToLoad;
-				int zLoadFinish = playerChunkz + distToLoad;
-				
-				int xUnloadStart = playerChunkx - distToUnload;
-				int xUnloadFinish = playerChunkx + distToUnload;
-				int yUnloadStart = playerChunky - distToUnload;
-				int yUnloadFinish = playerChunky + distToUnload;
-				int zUnloadStart = playerChunkz - distToUnload;
-				int zUnloadFinish = playerChunkz + distToUnload;
+				int xLoadStart = playerChunkx - initialDistToLoad;
+				int xLoadFinish = playerChunkx + initialDistToLoad;
+				int yLoadStart = playerChunky - initialDistToLoad;
+				int yLoadFinish = playerChunky + initialDistToLoad;
+				int zLoadStart = playerChunkz - initialDistToLoad;
+				int zLoadFinish = playerChunkz + initialDistToLoad;
 
 
 				if (yLoadStart < 0) {
 						yLoadStart = 0;
-				}
-				if (yUnloadStart < 0) {
-						yUnloadStart = 0;
 				}
 				
 				for (int x = xLoadStart; x < xLoadFinish; x++) {
 						for (int z = zLoadStart; z < zLoadFinish; z++) {
 								for (int y = yLoadStart; y < yLoadFinish; y++) {
 										Region region = world.getRegionAtCoords (x * Chunk.chunkSize, y * Chunk.chunkSize, z * Chunk.chunkSize);
+										if (region == null) {
+												XYZ coords = world.getIndexFromCoords (x * Chunk.chunkSize, y * Chunk.chunkSize, z * Chunk.chunkSize);
+												region = world.createRegion (coords.x, coords.y, coords.z, false);
+												world.loadAllNeighbors (region, true);
+										}
 										int[] localCoords = region.convertWorldChunksToLocal (x, y, z);
 										region.loadChunk (localCoords [0], localCoords [1], localCoords [2]);
 

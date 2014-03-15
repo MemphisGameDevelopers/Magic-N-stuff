@@ -25,11 +25,12 @@ public class MouseController : MonoBehaviour
 						terrain.ReplaceBlockCursor (0);
 						Debug.Log ("Fire1");
 						//effectFactory.createProjectileTowardsMouse (leftClickAction);
-				} else if (Input.GetButtonDown ("Fire2")) {
-						Debug.Log ("Fire2");
-						terrain.AddBlockCursor (1);
-						//effectFactory.createEffectAtMousePositionGround (rightClickAction);
 				}
+//				} else if (Input.GetButtonDown ("Fire2")) {
+//						Debug.Log ("Fire2");
+//						terrain.AddBlockCursor (1);
+//						//effectFactory.createEffectAtMousePositionGround (rightClickAction);
+//				}
 		}
 }
 

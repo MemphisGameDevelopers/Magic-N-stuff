@@ -18,6 +18,7 @@ public class VoxelWorld : MonoBehaviour
 		public GameObject regionPrefab;
 		public int regionXZ = 32;
 		public int regionY = 32;
+		public int initialRegions = 5;
 		private Dictionary<string, Region> regions;
 		private LinkedList<Region> dirtyRegions;
 		private VoxelModifyTerrain clientRenderer;
@@ -31,6 +32,14 @@ public class VoxelWorld : MonoBehaviour
 				
 				Region.setWorld (this);
 				regions = new Dictionary<string, Region> ();
+//				for (int x = 0; x < initialRegions; x++) {
+//						for (int y =0; y < initialRegions; y++) {
+//								for (int z = 0; z < initialRegions; z++) {
+//										createRegion (x, y, z, false);
+//								}
+//						}
+//				}
+				//Region centerRegion = getRegionAtIndex (1, 0, 1);
 				Region centerRegion = createRegion (0, 0, 0, false);
 				loadAllNeighbors (centerRegion, false);
 				
@@ -49,7 +58,7 @@ public class VoxelWorld : MonoBehaviour
 		public void changeFocusRegion (Region newRegion)
 		{
 				//Load up region neighbors. Create a new regions as needed.
-				loadAllNeighbors (newRegion, true);  
+				//loadAllNeighbors (newRegion, true);  
 
 
 		}
@@ -64,10 +73,7 @@ public class VoxelWorld : MonoBehaviour
 				if (regions.ContainsKey (key)) {
 						return regions [key];
 				} else {
-						
-						Region region = createRegion (x, y, z, false);
-						//loadAllNeighbors (region, true);  
-						return region;
+						return null;
 				}
 		
 		}
@@ -78,6 +84,17 @@ public class VoxelWorld : MonoBehaviour
 	 **/
 		public Region getRegionAtCoords (int x, int y, int z)
 		{
+				XYZ coords = getIndexFromCoords (x, y, z);
+				Region region = getRegionAtIndex (coords.x, coords.y, coords.z);
+				if (region == null) {
+						region = createRegion (coords.x, coords.y, coords.z, false);
+				}
+				return region;
+				
+		}
+		
+		public XYZ getIndexFromCoords (int x, int y, int z)
+		{
 				if (x < 0) {
 						x = x - regionXZ + 1;
 				}
@@ -85,67 +102,57 @@ public class VoxelWorld : MonoBehaviour
 						z = z - regionXZ + 1;
 				}
 				//y will never be less than zero
-			
+		
 				int regionsX = x / regionXZ;
 				int regionsY = y / regionY;
 				int regionsZ = z / regionXZ;
-
-
-				return getRegionAtIndex (regionsX, regionsY, regionsZ);
-	
+				
+				XYZ xyz = new XYZ ();
+				xyz.x = regionsX;
+				xyz.y = regionsY;
+				xyz.z = regionsZ;
+				return xyz;
 		}
-		
-		private void loadAllNeighbors (Region region, bool isAsync)
+		private void loadNeighbor (Region region, bool isAsync, int x, int y, int z)
 		{
-
-				//North
-				Region neighbor = getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ + 1);
+				Region neighbor = getRegionAtIndex (region.offsetX + x, region.offsetY + y, region.offsetZ + z);
 				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX, region.offsetY, region.offsetZ + 1, isAsync);
+						Debug.Log ("Creating neighbor at " + (region.offsetX + x) + "," + (region.offsetY + y) + "," + (region.offsetZ + z));
+						neighbor = createRegion (region.offsetX + x, region.offsetY + y, region.offsetZ + z, isAsync);
 				}
+		
+		}
+		public void loadAllNeighbors (Region region, bool isAsync)
+		{
+				
 
+				loadNeighbor (region, isAsync, 0, 0, 1);
+				loadNeighbor (region, isAsync, 0, 0, -1);
+				loadNeighbor (region, isAsync, 1, 0, 0);
+				loadNeighbor (region, isAsync, -1, 0, 0);
+				loadNeighbor (region, isAsync, -1, 0, 1);
+				loadNeighbor (region, isAsync, 1, 0, -1);
+				loadNeighbor (region, isAsync, 1, 0, 1);
+				loadNeighbor (region, isAsync, -1, 0, -1);
+				
+				loadNeighbor (region, isAsync, 0, 1, 1);
+				loadNeighbor (region, isAsync, 0, 1, -1);
+				loadNeighbor (region, isAsync, 1, 1, 0);
+				loadNeighbor (region, isAsync, -1, 1, 0);
+				loadNeighbor (region, isAsync, -1, 1, 1);
+				loadNeighbor (region, isAsync, 1, 1, -1);
+				loadNeighbor (region, isAsync, 1, 1, 1);
+				loadNeighbor (region, isAsync, -1, 1, -1);
+		
+				loadNeighbor (region, isAsync, 0, -1, 1);
+				loadNeighbor (region, isAsync, 0, -1, -1);
+				loadNeighbor (region, isAsync, 1, -1, 0);
+				loadNeighbor (region, isAsync, -1, -1, 0);
+				loadNeighbor (region, isAsync, -1, -1, 1);
+				loadNeighbor (region, isAsync, 1, -1, -1);
+				loadNeighbor (region, isAsync, 1, -1, 1);
+				loadNeighbor (region, isAsync, -1, -1, -1);
 
-				//South
-				neighbor = getRegionAtIndex (region.offsetX, region.offsetY, region.offsetZ - 1);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX, region.offsetY, region.offsetZ - 1, isAsync);
-				}
-
-				//East
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ, isAsync);
-				}
-
-				//West
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ, isAsync);
-				}
-
-				//NorthWest
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ + 1);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ + 1, isAsync);
-				}
-
-				//SouthEast
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ - 1);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ - 1, isAsync);
-				}
-
-				//NorthEast
-				neighbor = getRegionAtIndex (region.offsetX + 1, region.offsetY, region.offsetZ + 1);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX + 1, region.offsetY, region.offsetZ + 1, isAsync);
-				}
-
-				//SouthWest
-				neighbor = getRegionAtIndex (region.offsetX - 1, region.offsetY, region.offsetZ - 1);
-				if (neighbor == null) {
-						neighbor = createRegion (region.offsetX - 1, region.offsetY, region.offsetZ - 1, isAsync);
-				}
 
 		}
 
@@ -156,25 +163,22 @@ public class VoxelWorld : MonoBehaviour
 				}
 		}
 
-		private Region createRegion (int x, int y, int z, bool isAsync)
+		public Region createRegion (int x, int y, int z, bool isAsync)
 		{
 
 				Region region = new Region ();
-				//GameObject regionGO = regionPool.First.Value;
-				//regionPool.RemoveFirst ();
-				//Region region = regionGO.GetComponent ("Region") as Region;
 				region.regionXZ = this.regionXZ;
 				region.regionY = this.regionY;
 				region.regionXZ = this.regionXZ;
 				region.offsetX = x;
 				region.offsetY = y;
 				region.offsetZ = z;
-				//Debug.Log ("Adding region " + region.hashString ());
 				regions.Add (region.hashString (), region);
 				if (isAsync) {
 						Thread oThread = new Thread (new ThreadStart (region.create));
 						oThread.Start ();
 				} else {
+						Debug.LogWarning ("**Non-async region create called**");
 						region.create ();
 				}
 				

@@ -15,29 +15,30 @@ public class TerrainWalker
 		public VoxelWorld world;
 		public int blockX, blockY, blockZ;		//These are world coords.
 
-		public TerrainWalker (VoxelWorld inWorld)
+		public TerrainWalker ()
 		{
-				world = inWorld;
+
 		}
 
-		public void gotoPosition (int x, int z)
+		public  int dropFromSky (int x, int z, int startingHeight)
 		{
-//				//TODO:  Fix this method to work with 3d regions.
-////				//Get the region.
-//				blockX = x;
-//				blockZ = z;
-//				//Determine what height the point is
-//		for(int y = 0; y < world.currentHeight; y++){
-//				Region region = world.getRegionAtCoords (x, z);
-//				int[] localCoords = region.convertWorldToLocal (x, 0, z);
-//				for (int y = region.regionY - 1; y >= 0; y--) {
-//						if (region.GetBlockAtRelativeCoords (localCoords [0], y, localCoords [2]) != 0) {
-//								blockY = y + 1;
-//								break;
-//						}
-//
-//				}
+				//TODO:  Fix this method to work with 3d regions.
+//				//Get the region.
+				blockX = x;
+				blockZ = z;
+				//Drop the walker from the given starting height.
+				for (int y = startingHeight; y > WorldGeneration.groundHeight; y--) {
+						Region region = world.getRegionAtCoords (x, y, z);
+						int[] localCoords = region.convertWorldToLocal (x, y, z);
+						for (int yi = region.regionY - 1; yi >= 0; yi--) {
+								if (region.GetBlockAtRelativeCoords (localCoords [0], yi, localCoords [2]) != 0) {
+										return blockY = yi + 1;
+								}
+
+						}
+				}
+				return 0;  //return bedrock bottom :/
 		}
-	
+		
 }
 

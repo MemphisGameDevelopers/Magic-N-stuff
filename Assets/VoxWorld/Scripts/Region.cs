@@ -25,8 +25,7 @@ public class Region : VoxelStream
 		public int offsetY;
 		public int offsetZ;
 		public bool isDirty;
-		private bool isJustAir = true;
-		private bool isJustSolid = true;
+		public RegionFlags flags;
 		public static ChunkManager chunkManager;
 		private static VoxelWorld world;
 
@@ -111,10 +110,10 @@ public class Region : VoxelStream
 								reader.Close ();
 						} else {
 								//create this region's terrain data.
-								WorldGeneration.Instance.createPerlin (data, getBlockOffsetX (), getBlockOffsetY (), getBlockOffsetZ ());
-								//WorldGeneration.Instance.createFlatBiome (data);
+								WorldGeneration.Instance.generateRegion (this);
+								
 								isDirty = true;
-								//createPerlin ();
+
 								
 								//Create a dungeon and put it in the scene.
 //								GameObject dungeonGO = Instantiate (Resources.Load ("Voxel Generators/Dungeon Generator")) as GameObject;
@@ -122,18 +121,6 @@ public class Region : VoxelStream
 //								dungeon.create ();
 //								merge (dungeon, this);
 
-								//Aggregation flags
-								for (int x=0; x<regionXZ; x++) {
-										for (int z=0; z<regionXZ; z++) {
-												for (int y=0; y<regionY; y++) {
-														if (data [x, y, z] != 0) {
-																isJustAir = false;
-														} else {
-																isJustSolid = false;
-														}
-												}
-										}
-								}
 						}
 				} catch (Exception ex) {
 						Debug.Log (ex.ToString ());
@@ -175,7 +162,7 @@ public class Region : VoxelStream
 				
 		}
 		
-		//TODO This method only check region interrior chunks.	
+		//TODO This method only check region interrior chunks.	RLE would speed up tremendously.
 		private bool isSolidChunkAndEncased (int xBlock, int yBlock, int zBlock)
 		{
 				if (data [xBlock, yBlock, zBlock] == 1) {

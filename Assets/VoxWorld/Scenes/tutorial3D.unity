@@ -1136,7 +1136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderSpeed: .00100000005
   initialPoolSize: 500
-  unloadBlockDistance: 200
+  unloadBlockDistance: 600
 --- !u!4 &855260800
 Transform:
   m_ObjectHideFlags: 0
@@ -1422,6 +1422,7 @@ MonoBehaviour:
   regionPrefab: {fileID: 100000, guid: 40102c7221257264a917e3fcf5bc3573, type: 2}
   regionXZ: 128
   regionY: 128
+  initialRegions: 5
   useDisk: 0
 --- !u!4 &1047877762
 Transform:
@@ -1447,10 +1448,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   world: {fileID: 1047877761}
-  distToLoad: 5
-  heightToLoad: 1
-  depthToLoad: 4
-  distToUnload: 10
+  distToLoad: 7
+  initialDistToLoad: 8
   saveLevel: 0
 --- !u!1 &1068957106
 GameObject:
@@ -2002,7 +2001,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 6a3dd3a7f5b471841bea5fcc9f094a8a, type: 2}
       propertyPath: unloadBlockDistance
-      value: 200
+      value: 600
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6a3dd3a7f5b471841bea5fcc9f094a8a, type: 2}
@@ -2522,7 +2521,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400004, guid: 1f109cb425383b34290119f7c420721b, type: 2}
       propertyPath: distToLoad
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 1f109cb425383b34290119f7c420721b, type: 2}
       propertyPath: useDisk
@@ -2531,6 +2530,10 @@ Prefab:
     - target: {fileID: 11400004, guid: 1f109cb425383b34290119f7c420721b, type: 2}
       propertyPath: heightToLoad
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400004, guid: 1f109cb425383b34290119f7c420721b, type: 2}
+      propertyPath: initialDistToLoad
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
@@ -2563,8 +2566,8 @@ Transform:
   m_PrefabInternal: {fileID: 2133351750}
   m_GameObject: {fileID: 1992113623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -80, y: 70, z: 16}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: -80, y: 100, z: 16}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children:
   - {fileID: 371743455}
   - {fileID: 1213304170}
@@ -2661,7 +2664,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400108, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 70
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 400108, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalPosition.z
@@ -2685,15 +2688,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400108, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400108, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400108, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: m_LocalScale.z
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 11400012, guid: 9026b47b07525cc4084e73bc61c116bd, type: 2}
       propertyPath: jumpHeight

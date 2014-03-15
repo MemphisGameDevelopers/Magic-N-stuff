@@ -267,7 +267,7 @@ public class Chunk : MonoBehaviour
 				mesh.triangles = newTriangles.ToArray ();
 				mesh.Optimize ();
 				mesh.RecalculateNormals ();
-				TangentSolver (mesh);
+				//TangentSolver (mesh);
    
 				col.sharedMesh = null;
 				col.sharedMesh = mesh;
