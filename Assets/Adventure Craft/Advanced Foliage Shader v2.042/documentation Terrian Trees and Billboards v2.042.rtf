@@ -1,0 +1,709 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset0 Monaco;}
+{\colortbl;\red255\green255\blue255;\red255\green39\blue18;\red255\green83\blue8;\red204\green0\blue203;
+\red217\green11\blue0;\red0\green0\blue255;\red133\green0\blue175;\red0\green128\blue0;\red63\green105\blue30;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14540\viewh13540\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Advanced Foliage Shader v2 \'96 Terrain Trees and improved Billboards
+\b0\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version > 2.04 comes with a bunch of "tree" shaders and scripts which will allow you to use foliage as trees within the terrain engine or improve the fading between of regular mesh trees and billboards, adds real time shadows to billboards or let you place terrain trees on top of manually added geometry.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs36 \cf0 Table of Content\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 1. Place foliage as "tree" within the terrain engine\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 1.1. Usage\
+1.2. Pros\
+1.3. Cons\
+1.4. Recommended use cases
+\b \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 2. Enhance the look of "regular" trees\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 2.1. Base Features\
+2.2. Advanced Features using the "ShadowFade" Versions of the Shaders\
+2.3. Usage\
+	2.3.1.  Assign the shaders manually\
+	2.3.2.  Assign the shaders globally\
+2.4. Requirements\
+2.5. Billboards\
+\pard\pardeftab720
+\cf0 2.6. Real time "shaded" billboards\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 	Thanks\
+	2.6.0. What it does\
+	2.6.1. Script Parameters\
+	2.6.2. Adding or deleting trees\
+	2.6.3. Adjust the billboard shading\
+	2.6.4. Using lightmaps\
+2.7. Billboards casting real time shadows\
+2.8. Troubleshooting\
+2.9. Improve Transitions\
+2.10. Limits of the shaders and the script\
+\
+\pard\pardeftab720
+
+\b \cf0 3. Repositioned terrain trees
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 3.1. Setting up the script\
+\pard\pardeftab720
+\cf0 3.2. Adding trees on top of your geometry\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs48 \cf0 1. Place foliage as "simple tree" within the terrain engine
+\b0\fs24 \
+\
+Some of your foliage prepared to work with the advanced foliage shaders might be rather big and should be visible over a very long viewing distance \'96\'a0just like our banana.\
+So in order to reduce rendering costs on plants which are far away in the background but still visible you might either use the built in LOD system or the new "AFS Simple Terrain Tree" shader.\
+This shader lets you place any model prepared for the usage with the advanced foliage shaders (double sided geometry, correctly set up vertex colors) as "tree" within the terrain engine so rendering will be speeded up by the internal billboard system of the terrain system.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  You may even use this shader on rather small or special "trees".\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 A lot of packages on the asset store ship with rather small plants modeled using the tree creator like bushes or even small trees.\
+Using the original shaders will force 2 draw calls per instance (6 when using real time shadows) whereas when using the "Simple Terrain Tree" shader it is only 1 (3) draw call. Using the "foliage" shaders in conjunction with the combine children AFS script will give you even less.\
+So if you do not need full control on primary and secondary bending explicitly \'96 and i think it is absolutely ok to make no difference on rather small plants  \'96 converting those models and using the advanced foliage shaders will safe you a lot of draw calls.\
+And of course: you can apply touch bending to those...\
+\
+See: "documentation AfsFoliageTool" for further details.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 1.1. Usage
+\b0\fs24 \
+- Create a new prefab and assign your mesh/model to it.\
+- Create a new material and choose the "AFS Simple Terrain Tree" shader.\
+- Assign the new material.\
+- Assign a capsule collider to the prefab\
+- Add the prefab as "tree" to your terrain.\
+- Now you can simply paint your plant as trees onto the terrain.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  The shader supports and needs unity built in wind zones.\
+The wind settings from the "setupAdvancedFoliageShader" script will be ignored.\
+The "_ShadowFade" version of this shader needs shader model 3.0.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  Trees using this shader have to be placed using the terrain engine. Otherwise there will be no bending.\
+If you want to use those trees as manually placed game objects simply switch back to the regular foliage shader.\cf3 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 1.2. Pros
+\b0\fs24 \
+- The shader causes just 1 draw call per mesh tree instead of 2, or 3 draw calls instead of 6 when using realtime shadows compared to the built in tree creator shaders. So it is much cheaper to render.\
+- Set up bending using the AFS Foliage tools and get rid of floating leaf planes.\
+- The shader supports a nicer transition between mesh tree and billboard compared to the built in tree creator shaders.\
+- The "_ShadowFade" version of the shader supports even nicer transitions and real time "shaded" billboards (see: 2.6).\
+\
+
+\b\fs28 1.3. Cons
+\f1\b0\fs24 \cf4 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0 \cf0 - Wrapped around diffuse lighting even on the bark which will make all edges and bump mapping "smoother".\
+- Both primary and secondary bending are just controlled by one input value (vertex color blue) \'96 so bending will look differently compared to that of the original tree creator shaders.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 1.4. Recommended use cases
+\f1\b0\fs24 \cf4 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0 \cf0 Use this shader on large bushes or smaller trees (this limitation is caused by the "inferior bending") which should be visible over a very long viewing distance.\
+Doing so will really speed up rendering compared to "regular" trees and cut the number of draw calls into half.\
+\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs48 \cf0 2. Enhance the fading between "regular" mesh trees and billboards\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 \
+If you use trees within the terrain engine which are created with the tree creator using the built in "tree creator" shaders, you might have noticed that the transition from mesh tree to billboard often does not look very smooth and even depends on your wind strength.\
+\
+The "AfsTreeCreatorBarkOptimized" and "AfsTreeCreatorLeavesOptimized" shader will enhance the transition and give you much more variety in bending at absolutely no costs.\
+See: "01 foliage shader demoscene" and have a look at the pine trees.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.1. Base Features\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 Next to more variety in bending between adjacent trees these shaders enhance fading between billboard and mesh tree due to the fact that they reduce wind force when rendering trees near the fade distance: No more sudden "popping".\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.2. Advanced Features using the "ShadowFade" Versions of the Shaders
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 These shaders will give you the best transition by also fading in real time shadows (received by the trees), point and spot lights and \'96 in case you use the "ShadedBillboardsAFS" script \'96 billboard shadows.\
+\
+You may even use fading in shadows casted by trees in case your "Shadow Distance" (Quality settings) is set to a higher value than the "Billboard Distance" (Terrain settings). In order to do so you will have to check "Enable Dissolve Shadows for Trees" in the "setupAdvancedFoliageShader" script.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  W\cf5 hen using the "AfsTreeCreatorBarkOptimized_ShadowFade" shader even the bark is rendered using the forward rendering path, no matter if your camera is set to use deferred lighting or not. We have to render it using forward lighting because otherwise we could not fade in real time shadows and point and spot lights. This is mostly important for broad leave trees which usually have a lot of branches. When rendering trees like palms or pines yo might also mix the "AfsTreeCreatorLeafsOptimized_ShadowFade" shader with the "regular" "AfsTreeCreatorBarkOptimized" shader as long as you do not want to use "shaded" billboards. \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.3. Usage\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+2.3.1.  Assign the shaders manually
+\b0 \
+- Create 2 new materials and using the "AfsTreeCreatorBarkOptimized(_ShadowFade)" respectively the "AfsTreeCreatorLeavesOptimized(_ShadowFade)" shader.\
+- Find and assign the textures of your tree which are generated by the tree creator.\
+- Find the prefab of your tree, click on the root node and replace "Optimized Bark Material" and "Optimized Leaves Material" with the new materials.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  You can tweak the contrast of the generated billboard texture not only globally using the "setupFilageShader" script but also per material/prefab. Use the "BillboardContrast" parameter of the "AfsTreeCreatorLeafsOptimized (_ShadowFade)" shaders to do so.\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 2.3.2.  Assign the shaders globally\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 In case you do not want to edit each tree prefab manually you can assign the shaders globally \'96 but only either the "regular" or the "_ShadowFade" version\'85\
+Do so by editing the shader you want to replace the default "tree creator shader":\
+- Open the shader in Mono and rename it by editing the first line, e. g.:\
+\pard\pardeftab720
+
+\f1 \cf6 	Shader\cf0  \cf4 "AFS_v2/AFS Tree Creator Bark Optimized ShadowFade"\cf0  \{\
+\pard\pardeftab720
+
+\f0 \cf0 rename it to:\
+	
+\f1 \cf6 Shader\cf0  \cf4 "Hidden/Nature/Tree Creator Bark Optimized"\cf0  \{
+\f0 \
+\
+Doing so you will simply overwrite the built in shaders and all models will automatically use the tweaked shaders.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  Renaming the shaders like this will make them disappear from the dropdown menu in the material inspector: "Hidden\'85".\
+But you can still assign them to a custom material by dragging them in the project tab onto your material.\cf0 \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.4. Requirements
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 The shaders support and need unity built in wind zones.\
+Wind settings from the "setupAdvancedFoliageShader" script will be ignored.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 The shaders only work with trees which use the "Tree Creator Bark" and "Tree Creator Leafs" shaders.\
+The "Tree Creator Fast" Shaders are not supported.\
+\
+When using the "_ShadowFade" versions of the shader, you have to specify "Grass, Tree and Billboard Settings" --> "Billboard Start" and "Fade Length" in the "setupAdvancedFoliageShader" script according to the corresponding terrain settings. Otherwise you won\'92t get correct fading of real time shadows and additional lights. You may also check "Automatically synch with Terrain" \'96 if you have a terrain attached to the script.\cf5 \
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.5. Billboards
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 Both shaders mentioned above relay on the "AfsBillboardTree" shader. This shader renders the billboards and overwrites the built in one.\
+It is needed to support "shaded billboards" and will give you perspectively aligned billboards instead of the "classic always upright oriented" ones (unless you deactivate this feature).\
+The shader will also fade out all billboards towards the "Tree distance" specified in the terrain settings.\
+See "documentation SetupFoliageShader" --> "1.4.2. Tree and Billboard Render Settings" to find out more.\
+Use "Billboard Fadeout Length" to specify the length of the fading.\
+\
+\pard\pardeftab720
+
+\b \cf2 Important: 
+\b0 You will not see the advanced billboards within the "scene view" but only in the "game view".\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf2 Make sure that your camera is tagged as "MainCamera".\cf7 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\
+\pard\pardeftab720
+
+\b\fs36 \cf0 2.6. Real time "shaded" billboards\
+\pard\pardeftab720
+
+\fs24 \cf0 \
+Thanks\
+\pard\pardeftab720
+
+\b0 \cf0 The real time "shaded" billboards technique has been developed during the collaboration on the Relief Terrain Pack 3.0 demo by tomaszek, becoming and me. Thank you guys for your great help!
+\b\fs36 \
+\pard\pardeftab720
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs28 \cf0 \
+2.6.0. What it does
+\fs24 \
+\pard\pardeftab720
+\cf0 \
+\pard\pardeftab720
+
+\b0 \cf0 Especially when working with just real time lit environments you might have noticed that some of your billboarded trees are rendered far too bright and should be shaded either by the terrain or any other geometry.\
+You could already fix this by baking lightmaps. But not when using real time lighting only.\
+The "ShadedBillboardsAFS" script in conjunction with the "AfsTreeCreatorBarkOptimized_ShadowFade" and the "AfsTreeCreatorLeavesOptimized_ShadowFade" shader fixes this gap and calculates whether a tree should be shaded or not and updates the trees frame by frame by doing some raycasts against all colliders specified in the script setup.\
+\
+To make it work you have to add the script to your terrain.\
+\pard\pardeftab720
+
+\b \cf2 Important: 
+\b0 Make sure that all trees use the appropriate shaders, you have added the "setupAdvancedFoliageShader" to your scene and set up the "Terrain Billboard Start" and "Terrain Billboard Fade Length" parameter according to your settings within the terrain engine.\cf0 \
+\
+Next you will have to setup the script itself:\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 \
+2.6.1. Script Parameters\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf8 Assigned light source
+\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Light Reference\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Add the light source that should drop shadows onto the trees. Assign your sun to this slot and make sure that it casts real time shadows.\
+Please note: Only directional lights will drop correct shadows.
+\b\fs28 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf8 Assigned shadow casters\cf9 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 Here you can set up a list of game objects that will be tested if they drop any shadows onto the trees. Usually you will add the terrain itself and some pretty large objects like manually placed mesh modeled rocks or buildings.
+\fs28 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Add Shadow caster\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Simply drop your game object into this slot, then hit "Add" to add the object to the list.\
+Make sure that the game object has a collider attached which is needed to perform the calculation.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf8 Processing and rendering settings\cf9 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Trees per Frame\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 This number determines how many trees per frame are "raycasted" against the given shadow casters at runtime.\
+More trees per frame will give you a better response to any change of your light reference and the shadow casters but cost more processing time.
+\fs12 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Change Shading Speed\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Determines how fast a tree changes its state from "shadowed" to "unshadowed" and vice versa.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Sample Y-Offset\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Usually the ray that is casted to check whether the tree should be shaded or not is casted from the tree\'92s pivot.\
+Use this parameter top raise the origin of the ray on the y-axis. Doing so might give you better results under certain circumstances \'96 especially if the sun is rather high.\
+Use "Show rays" to see how the rays are casted.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Shade Billboards only within real time shadow distance\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 If check only tree that are within the range of the given real time shadow distance (taken from "quality settings" and calculated viewed from the main camera) are shaded.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf8 Debugging\cf9 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Show Rays\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Check this an hit "play" to see the casted rays in the scene view: Red = shadowed, green = not shadowed.
+\b \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf8 Functions\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Update Trees\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Force the script to recalculate and bake the shadow states for all trees immediately.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Reset raycasted shadows\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Use this button to reset the baked shadow states.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Reset lightmapped shadows\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Use this button to reset the tree shadows which were added by unity\'92s lightmapper.
+\b \
+\
+
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.6.2. Adding or deleting trees
+\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 When adding or deleting trees it is alway a good idea to hit "Update Trees" afterwards.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.6.3. Adjust the billboard shading
+\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Billboard shading is done by multiplying a "shadow color" on top of the rendered billboard texture.\
+So the final result depends heavily on this "shadow color".\
+As the "shadow color" might also be needed if not using the "ShadedBillboardsAFS" script it is calculated in the "setupAdvancedFoliageShader" script. So you will have to set it up there.\
+See "documentation SetupFoliageShader" --> "1.4.4. Shaded Billboard Settings" for further details.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs28 \cf0 2.6.4. Using lightmaps
+\b0\fs24 \
+\
+When using lightmaps unity will automatically calculate shadows on trees.\
+Those will get added on top of any shadows that might be added by the script so trees might look too dark.\
+Clear the script calculated shadows using the "Reset raycasted shadows" button.\
+\
+In case you are not confident with the shadows calculated by the lightmapper you can remove those using the "Reset lightmapped shadows" button.\
+Then simply hit "Update trees" and let the script add shadows to your trees.
+\f1 \cf4 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf2 Please note: 
+\b0 If you have a static lighting situation you do not have to activate the script as it would just waste cpu power.\
+But you can still use "Update trees" to bake shadows into the trees and their billboards. Just make sure you have set it up properly.\cf0 \
+\
+\
+\
+\pard\pardeftab720
+
+\b\fs36 \cf0 2.7. Billboards casting real time shadows\
+\pard\pardeftab720
+
+\b0\fs24 \cf0 When making use of the "_ShadowFade" tree and the advanced Billboard shaders you may use an extremely low "billboard distance" in order to safe draw calls as billboards do not have to be hidden in the background any more ;-)\
+But even if billboards now look rather nice they do not cast real time shadows by default \'96 no matter if they are within the real time shadow distance or not. So using a short "billboard distance" will noticeably lower the visual quality of your scene. \
+\
+In order to work against this you now can enable real time shadows casted by billboards.\
+I have to admit that this feature is quite experimental and will not always give you the most convincing results as billboards are just not meant to cast shadows...\
+However i think that i have found a pretty cheap (means: fast) and quite stable solution that suits at least for a first person perspective. And 100 or even 200 billboards casting real time shadows will give you only 1 or 2 additional draw calls.\
+\
+\pard\pardeftab720
+
+\b\fs28 \cf0 2.7.1. Usage
+\b0\fs24 \
+Simply activate "real time shadows casted by billboards" using the "setupFoliageShader" script and make sure that all trees use the "_ShadowFade" shaders in order to get smooth transitions.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf7 Unity 3: 
+\b0 Please have a look at: "documentation SetupFoliageShader" in order to find out how to enable/disable real time shadows casted by billboards.\cf0 \
+\pard\pardeftab720
+\cf0 \
+\pard\pardeftab720
+
+\b\fs28 \cf0 2.7.2. Limits
+\b0\fs24 \
+\
+\pard\pardeftab720
+
+\b \cf0 2.7.2.1 Texture stretches
+\b0 \
+When rendering billboards all we have is a simple quad and the billboard texture fitting the current camera angle \'96 which in most cases has nothing to to with the angle the billboard is lit by the sun. So the shader might have to extremely stretch the provided billboard texture to generate a proper shadow caster.\
+This stretching might become very noticeable \'96 especially under steep viewing angles.\
+\
+
+\b 2.7.2.2. Popping shadows\
+\pard\pardeftab720
+
+\b0 \cf0 We can not fade between billboards and mesh trees as unity\'92s terrain engine simply either renders the billboard or the corresponding mesh tree. So shadows will tend to pop.\
+When billboards "leave" the screen they will be immediately culled \'96 although they still should cast shadows into the viewport. So in order to reduce that kind of popping you can enable "shadow edgefade on billboards" which will fade out real time shadows casted by billboards towards the edges of the viewport before billboards get culled.\
+However unity might suddenly render a tree as mesh tree again in the shadow caster pass although it is offscreen and has left the screen as billboard so it will cast shadows again. Unfortunately there is no way to predict when this will happen and i haven\'92t found any way to get this ironed out so far.\
+\pard\pardeftab720
+
+\b\fs36 \cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 2.8. Troubleshooting\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+No shadows on billboards \'96 what is wrong?
+\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 - Make sure you have added at least 1 shadow caster (probably the terrain) to the script. All shadow casters do have to have a collider to be attached.\
+- Hit "Update Trees".\
+- Make sure you are using the right shaders.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 The transition between billboards and mesh trees does not look smooth at all. What do i miss?\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Make sure your trees use the right shaders: "AfsTreeCreatorBarkOptimized_ShadowFade" and "AfsTreeCreatorLeavesOptimized_ShadowFade".\
+- Make sure you have set "Billboard Start" and "Fade Length" in the "setupAdvancedFoliageShader" script according to your terrain settings.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Billboards are not lit correctly when i rotate the sun. What is wrong?
+\b0 \
+Unity does not update the rendered billboard textures (which also contain the lighting) until the camera rotates.\
+Unfortunately there is not much we can do about this \'96 apart from calling:"Terrain.activeTerrain.terrainData.RefreshPrototypes();" which will give you a small hickup. But as soon as the camera rotates just a little bit (which should be the case in most use cases) the billboard textures will be updated automatically and should fit the given lighting situation.\
+\
+
+\b My trees do not receive real time shadows, What is wrong?
+\b0 \
+Please check the "Billboard Start" and "Fade Length" setting in the "setupAdvancedFoliageShader" script and make them fit your terrain settings.\
+Those parameters determine when real time shadows get faded in on trees.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs48 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 2.9. Improve Transitions\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 The quality of the transition between billboard and mesh tree mainly depends on the quality of the rendered billboard texture which is not always top notch\'85\
+Usually billboard textures have less contrast and a too bright backlight contribution (translucency) compared to the mesh tree so i have added some features which let you control the generated billboard texture or the way it is rendered.\
+\
+Edit the "setupAdvancedFoliageShader" script and find:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Translucency Factor\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Usually this would be "2.0". But you can simply check different settings. You may have to refresh the trees to see the changes.\
+\pard\tx512\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Leaf Lighting Factor\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 If the overall lighting on the leafs of your billboards appear to be too dark or to bright you might tweak this parameter.\
+Regular value would be "2.0".
+\fs12 \
+\pard\tx512\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs24 \cf0 Leafs Contrast\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 I have noticed that the contrast of the rendered billboard texture especially on leaves often is a little bit too less compared to the according mesh tree.
+\b  
+\b0 Use this parameter to raise the contrast of the leafs.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Further Tips\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Tweaking the parameter mentioned above always changes the rendering of billboards for all trees.\
+But you might also want to make changes per tree prefab. In this case:\
+- Use the "BillboardContrast" parameter of the "AfsTreeCreatorLeafsOptimized (_ShadowFade) shaders to adjust the contrast per material/prefab\
+- Try to lower the brightness of the translucency color.\
+- Add some kind of "Ambient Occlusion" to the translucency map so that the inner parts of the leaves planes get only a few backlight.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Important: 
+\b0 Always test billboards form both sides: sun and shadow!\
+And always test all your trees as the results might differ from tree to tree.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs36 \cf0 2.10. Limits of the shaders and the scripts\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 - If the number of "max mesh trees" is lower than the number of mesh trees that should be rendered according to the distance settings the shaders will not be able to fade in real time shadows correctly. So please make sure that your settings within the terrain engine fit your needs.\
+\
+- When trees are shadowed by trees, shadows will probably suddenly pop in. Unfortunately there is not much we can do about this apart from using the "Tree Shadow Dissolve" feature of the "_ShadowFade" shaders.\
+\
+- The tree bark of shaded trees will always get too dark on billboards and during transition (especially in unity < 4.1) as we simply have to multiply the shadow color on top of the whole billboard texture. This looks quite well on leafs \'96 which are mostly the most important part of the tree \'96  but make barks just a bit too dark. Nevertheless you will get a nice fading from the dark to the real lit bark ;-)\
+\
+\
+\pard\pardeftab720
+
+\b\fs48 \cf0 3. Repositioned terrain trees\
+\pard\pardeftab720
+
+\fs24 \cf0 \
+\pard\pardeftab720
+
+\b0 \cf0 If you add large rocks or cliffs to your scene you usually won\'92t be able to place trees on top of those \'96 at least not trees placed within the terrain engine which benefit from billboarding.\
+But instead of adding manually placed trees which do not get billboarded and might produce a lot of overhead as each tree would be a single game object you can use the "Reposition trees AFS" script to make your trees added to the terrain appear on top of your manually added geometry.
+\b\fs48 \
+\pard\pardeftab720
+
+\fs36 \cf0 \
+3.1. Setting up the script
+\fs24 \
+\pard\pardeftab720
+
+\b0 \cf0 Add the "Reposition trees AFS" script to your terrain and set it up.\
+\pard\pardeftab720
+
+\b \cf0 \
+Additional Colliders\
+\pard\pardeftab720
+
+\b0 \cf0 Add all objects which you want to place terrain trees on top to this list by dragging them onto the slot "Add new colllider". Then hit "Add".
+\b \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf2 Please note: 
+\b0 All game objects added must have a collider attached to (best is a mesh collider). Otherwise the script can not calculate where to place the terrain tree.\
+\
+\pard\pardeftab720
+
+\b \cf0 Exclude Tree Prototypes from Repositioning\
+\pard\pardeftab720
+
+\b0 \cf0 In case you have overlapping geometry like an overhang you might want to place some trees on top of the overhang and others below the overhang on top of the terrain. Usually the script would simply place all trees on top of the overhang but you can exclude some tree prefabs from being repositioned by checking their checkbox so they will always stuck to the terrain.\
+In case you just have one tree you would have to add this prefab twice to the terrain: first one will be repositioned, second one not in case you check it checkbox.\
+\
+\pard\pardeftab720
+
+\b \cf0 Reposition Trees
+\b0 \
+Hit to make it happen.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note: 
+\b0 Whenever you make any changes to the heightmap of the terrain unity will automatically reposition all terrain trees.\
+\pard\pardeftab720
+\cf2 You have to hit "Reposition Trees" again to make the tree appear on top of the geometry again.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note: 
+\b0 When using this feature together with shaded billboards you might have to raise the "Sample Y-Offset" in the Shaded Billboards AFS script to get correctly shades billboards.\
+\
+\pard\pardeftab720
+
+\b\fs36 \cf0 3.2. Adding trees on top of your geometry\
+\pard\pardeftab720
+
+\b0\fs24 \cf0 The script does not ship with its own tree placement tool. Instead it just uses the built it one. So if you want to place a tree on top of any geometry simply select the "Terrain" --> "Place Trees" Tool, select the tree prefab you would like to add and switch to the scene view.\
+You will see the blue circle which is your top down projected cursor. So navigate to the area you would like to place your trees, make sure that you see the blue circle at exact the position on top of your geometry where you would like to place the tree and click the left mouse button.\
+This will add a tree at the given position \'96 but the tree will be placed on top of the terrain and not the geometry. All you have to do is to hit "Reposition trees" to make the tree(s) being placed on top of your geometry.\
+\
+}

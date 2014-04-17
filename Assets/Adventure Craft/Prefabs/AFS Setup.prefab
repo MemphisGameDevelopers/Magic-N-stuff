@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 400000}
+  - 114: {fileID: 11400000}
+  m_Layer: 0
+  m_Name: AFS Setup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &400000
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 522.230225, y: .738251448, z: 484.740784}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef7a1da6494b345b39b0ba05ca532c80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  newEditor: 1
+  FoldWind: 0
+  FoldRain: 0
+  FoldGrass: 0
+  FoldVegTerrain: 0
+  FoldBillboard: 0
+  FoldCulling: 1
+  FoldRender: 0
+  Wind: {x: .850000024, y: .075000003, z: .400000006, w: 2}
+  WindFrequency: .649999976
+  WaveSizeFoliageShader: 10
+  WindMultiplierForGrassshader: 1
+  WaveSizeForGrassshader: 10
+  RainAmount: 0
+  SpecPower: 1
+  VertexLitAlphaCutOff: .300000012
+  VertexLitTranslucencyColor: {r: .730000019, g: .850000024, b: .400000006, a: 1}
+  VertexLitTranslucencyViewDependency: .699999988
+  VertexLitShadowStrength: .800000012
+  VertexLitShininess: .200000003
+  AutoSyncToTerrain: 0
+  SyncedTerrain: {fileID: 0}
+  AutoSyncInPlaymode: 0
+  DetailDistanceForGrassShader: 80
+  BillboardStart: 50
+  BillboardFadeLenght: 5
+  GrassAnimateNormal: 0
+  GrassWavingTint: {r: 0, g: 0, b: 0, a: 0}
+  TreeShadowDissolve: 0
+  TreeBillboardShadows: 0
+  TreeBillboardLOD: 200
+  TreeShadowEdgeFade: 0
+  BillboardShadowEdgeFade: 0
+  BillboardShadowEdgeFadeThreshold: .100000001
+  BillboardFadeOutLength: 60
+  BillboardAdjustToCamera: 1
+  BillboardAngleLimit: 30
+  AfsTreeBillboardShadowShader: {fileID: 4800000, guid: 3024187e9dd1d4837a414b005387d444,
+    type: 3}
+  BillboardTranslucencyFactor: 1.79999995
+  BillboardLeafsLightingFactor: 2.13000011
+  BillboardLeafsContrast: 1.04999995
+  BillboardLightReference: {fileID: 0}
+  BillboardShadowColor: {r: .274509817, g: .274509817, b: .274509817, a: 1}
+  BillboardAmbientLightFactor: 1
+  BillboardAmbientLightDesaturationFactor: .699999988
+  EnableCameraLayerCulling: 1
+  SmallDetailsDistance: 70
+  MediumDetailsDistance: 200
+  AllGrassObjectsCombined: 0
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 100000}
+  m_IsPrefabParent: 1
+  m_IsExploded: 1

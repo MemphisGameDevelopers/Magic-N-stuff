@@ -1,0 +1,127 @@
+// use this script if you use static batching on the vegetation
+using UnityEngine;
+using System.Collections;
+
+public class touchBendingCollisionStatic: MonoBehaviour {
+	
+	public Material simpleBendingMaterial;
+	public Material touchBendingMaterial;
+	
+	public float stiffness = 10.0f;
+	public float disturbance = 0.3f;
+	public float duration = 5.0f;
+	
+	// Use component caching
+	private Transform myTransform;
+	private Renderer myRenderer;
+	
+	private Matrix4x4 myMatrix;
+	private Vector3 axis;	
+	
+	private bool touched = false;
+	private bool left = false;
+	private bool finished = true;
+	
+	private float intialTouchForce = 0.0f;
+	private float touchBending = 0.0f;
+	private float targetTouchBending = 0.0f;
+	private float easingControl = 0.0f;
+
+	//private Collider obstacle;
+	private touchBendingPlayerListener PlayerVars;
+	private Vector3 Player_Direction;
+	private float Player_Speed;
+	
+	private float timer = 0.0f;
+	
+	// Init component caching
+	void Awake () {
+		myTransform = transform;
+		myRenderer = renderer;
+	}
+	
+	void Start () {
+		myRenderer.sharedMaterial = simpleBendingMaterial;
+	}
+	
+	void OnTriggerEnter(Collider other) {
+		// register touch only if collider has the touchBendingPlayerListener script attached / enabled && new tough force will be higher than the current one
+		touchBendingPlayerListener tempPlayerVars = other.GetComponent<touchBendingPlayerListener>();
+		if( tempPlayerVars != null && tempPlayerVars.enabled  && tempPlayerVars.Player_Speed > Player_Speed * easingControl) {
+			//obstacle = other;
+			Destroy(myRenderer.material);
+			
+			PlayerVars = tempPlayerVars;
+			Player_Direction = PlayerVars.Player_Direction;
+			Player_Speed = PlayerVars.Player_Speed;
+			intialTouchForce = Player_Speed;
+			
+			// instantiate mat
+			myRenderer.material = touchBendingMaterial;
+			myRenderer.material.SetVector("_TouchBendingPosition", new Vector4(myTransform.position.x, myTransform.position.y, myTransform.position.z, 0f) );
+			myRenderer.material.SetVector("_TouchBendingForce", new Vector4(Player_Direction.x, Player_Direction.y, Player_Direction.z, Player_Speed * easingControl * disturbance) );
+	
+			axis = PlayerVars.Player_Direction;
+			// rotate by 90
+			axis = Quaternion.Euler(0,90,0) * axis;
+			
+			timer = 0.0f;
+			touched = true;
+			left = false;
+			targetTouchBending = 1.0f;
+			touchBending = targetTouchBending;
+			finished = false;
+		}
+	}
+	void OnTriggerExit(Collider other) {
+		left = true;
+		targetTouchBending = 0.0f;
+	}
+	
+	void Update () {	
+		if (touched) {
+			// update speed
+			Player_Speed = PlayerVars.Player_Speed;
+		
+			touchBending = Mathf.Lerp (touchBending, targetTouchBending, (timer) / duration );
+			easingControl = Bounce( timer);
+				
+			if (finished && targetTouchBending == 0.0f) {	
+				ResetTouchBending ();	
+			}
+			else {
+				// Calculate rotation matrix
+				Quaternion rotation = Quaternion.Euler (axis * (intialTouchForce * stiffness) * easingControl );
+				myMatrix.SetTRS( Vector3.zero, rotation, new Vector3(1,1,1) );
+				myRenderer.material.SetMatrix ("_RotMatrix", myMatrix);
+				
+				// set extra force
+				myRenderer.material.SetVector("_TouchBendingForce", new Vector4(Player_Direction.x, Player_Direction.y, Player_Direction.z, Player_Speed * easingControl * disturbance) );
+		
+				if (left) {
+					timer += Time.deltaTime;
+				}
+				else {
+					timer += Time.deltaTime * Player_Speed;	
+				}
+			}
+		}
+	}
+	
+	public float Bounce(float x) {
+		
+		if ( ( x / duration ) >= 1f ) {
+			if (easingControl == 0.0f && left == true) {
+				finished = true;
+			}
+			return targetTouchBending;
+		}
+		return Mathf.Lerp( Mathf.Sin(x * 10.0f / duration) / (x + 1.25f) * 8.0f, touchBending, Mathf.Sqrt(x / duration) );
+	}
+		
+	public void ResetTouchBending () {
+		DestroyImmediate(renderer.material);
+		myRenderer.sharedMaterial = simpleBendingMaterial;
+		touched = false;
+	}
+}

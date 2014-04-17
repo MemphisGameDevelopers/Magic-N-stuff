@@ -1,0 +1,602 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 Monaco;
+}
+{\colortbl;\red255\green255\blue255;\red255\green39\blue18;\red255\green83\blue8;\red254\green254\blue254;
+\red217\green11\blue0;\red164\green8\blue0;\red14\green14\blue14;\red0\green0\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14840\viewh15280\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Getting started\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b0 \cf0 Over the time the advanced foliage shader package has grown from just a bunch of shaders to a bundle of shaders, scripts and custom editors.\
+So it might be a bit difficult to get along with all its components and even with its documentation as i have splitted it up into several parts:\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 afs_documentation_v2.pdf
+\b0 \
+This will give you a brief overview on how the shaders work and how to prepare your models and create a texture atlas fitting the needs of the shaders.\
+You will also find information about how to set up your scene or add plants to the terrain engine using the advanced foliage shader.\
+\
+
+\b documentation SetupFoliageShader v2.042.rtf\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0 \cf0 It contains all information about setting up the "setupAdvancedFoliageShader" script which is need in every scene to make the shaders work correctly.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b \cf0 documentation GroundLighting v2.042.rtf
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0 \cf0 Here you will find all information that is related to ground lighting provided by the "Advanced Grass Shader (noTrans)" and the "Advanced Foliage Shader Groundlighting (Atlas)".\
+It also contains information about the "CombineChildrenAFS" script that will allow you to combine your plants placed as single game objects to speed up and even enhance rendering.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 documentation TouchBending v2.04.rtf\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0 \cf0 As one might think this is the place to look for anything related to touch bending.\
+It also contains basic information about setting up the "setupAdvancedFoliageShader" script.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b \cf0 documentation Terrain Trees and Billboards v2.042.rtf\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0 \cf0 Find out how to set up and use the advanced tree shaders giving you e. g. much nicer transitions between mesh trees and real time "shaded" billboards. Learn how to make billboards cast real time shadows.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b \cf0 documentation AfsFoliageTool v2.042.rtf\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0 \cf0 Here you find all information on how to adjust bending right within unity or how to convert a tree mage with the tree creator to be compatible with the "Foliage" shaders or the "Simple Terrain Tree" shader.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+But the best way to start is just to have a look at the included demo scenes!\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf2 Please note: 
+\b0 The package comes with an enhanced grass shader for the terrain engine: "atsVXX.WavingGrass vertexAlpha.shader".\
+In case you do not need or want it, simply rename it to "atsVXX.WavingGrass vertexAlpha.__shader". But that is not recommended by the way\'85\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf3 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs48 \cf0 Unity > 4.2 \'96 forward rendering and shadows\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0\fs24 \cf0 Unfortunately Unity's new shadow collector and shadow caster batching system introduced in version 4.2. does not work pretty well when rendering vertex animated objects using the forward rendering pass with your camera.\
+So when using forward rendering with your camera you might get 
+\b some shadow artifacts on objects which are NEITHER statically batched NOR combined BUT dynamically batched.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b0 \cf2 If you do not know anything about dynamic batching please have a look here:\
+http://docs.unity3d.com/Documentation/Manual/DrawCallBatching.html\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1 \cf0 \
+See: "01 foliage shader demoscene", switch to "forward rendering" and look for the ferns behind the white cube parented under the "TestCombinedFern" Game Object. Deactivate the "Combine Children AFS" Script and hit "Play".\
+Doing so you will see that the the shadows do not fit the model.\
+\
+In order to get mostly rid of those you can:\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 A)
+\b0  Prevent all plants using the advanced foliage shader from being dynamically batched by either using the combine children afs script or marking them as "static".\
+\
+Using the combine children afs script works in both Unity Pro and Indie but won\'92t let you use touch bending.\
+So if you use touch bending you will have to mark the plants as "static" (Unity Pro only).\
+If you use Unity Indie (or can\'92t afford to mark the plants as "static") and want to use touch bending you will have to choose from one of the following solutions.\
+\
+
+\b B)
+\b0  Use touch bending only with models that do not get batched dynamically (more than 225 vertices) or disable dynamic batching \'96 what you probably do not want as it will raise the number of draw calls.\
+\
+
+\b D)
+\b0  Recompile the shaders for forward rendering\
+This will reduce those artifacts to a minimum.\
+Do so by proceeding the following steps:\
+- find: "Shaders" --> "Includes" --> "CustomBending"\
+- rename it to: "CustomBending_deferred"\
+- find: "Shaders" --> "Includes" --> "CustomBending_forward"\
+- rename it to: "CustomBending"\
+\
+- find: "Shaders" --> "Includes" --> "TouchBending"\
+- rename it to: "TouchBending_localSpace"\
+- find: "Shaders" --> "Includes" --> "TouchBending_globalSpace"\
+- rename it to: "TouchBending"\
+\
+Then recompile all shaders.\
+Do not forget to recompile also the shaders located in "Ressources" --> "ShadersBuiltin"\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf2 Important:
+\b0  As Touchbending will be computed in worldSpace you will have to use the "touchBendingCollisionStatic" instead of the "touchBendingCollision" script.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+\cf0 \
+Unfortunately this does not eliminate all artifacts in forward rendering and especially if you use image effects such as ssao, very strong wind settings and pretty much edge fluttering you will still give you those artifacts especially on strongly scaled objects.\
+So the best would be to keep all objects which have to be batched dynamically at a scale around (1,1,1).\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note: 
+\b0 In case you want to switch back to deferred lighting you will have to restore the original names and recompile all shaders again.\cf0 \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Useful ressources\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1 \cf0 \cb4 Simply paint your plants on top of the terrain or any arbitrary geometry
+\b0 \
+\pard\pardeftab720
+\cf0 Make sure you get the free "Geometry Brush AFS" tool: a very nice and handy tool that will help you to manually place any game object onto any terrain or geometry \'96 originally posted by Matt McDonald, Owner, Chief Creative Officer and President of Heavy Water, {\field{\*\fldinst{HYPERLINK "http://www.heavyh2o.com/"}}{\fldrslt www.heavyh2o.com}}, but optimized for the use with the advanced terrain shaders.\
+\pard\pardeftab720
+{\field{\*\fldinst{HYPERLINK "https://dl.dropboxusercontent.com/u/2322017/GeometryBrushAFS.v1.unitypackage"}}{\fldrslt \cf0 https://dl.dropboxusercontent.com/u/...1.unitypackage}}\cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b \cf0 Select parent script\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0 \cf0 especially when using the "combineChildrenAFS" script this should be something you really will love:\
+http://forum.unity3d.com/threads/94683-Select-Parent-tools\
+Simply hit "p" and the parent object will be selected.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Some notes about lighting features
+\f1\b0\fs24 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 Real time shadows
+\b0 \
+The advanced foliage shaders support all lighting features supported by the given rendering path which always is forward rendering \'96 no matter if your camera is set up to use deferred rendering.\
+So real time shadows are supported but fully (casting and collecting shadows) only for one directional light.\
+When lit by point lights or spot lights only casting shadows is supported.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Using the advanced foliage shader and appropriate models as tree within the terrain engine\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1\b0\fs24 \cf0 \
+As the "advancedFoliageShader for Terrainengine v2" shader which replaces the built in "vertex lit" shader does not support shadow casting or adding objects including their colliders you might want to add those as trees.\
+The "advancedFoliageShader SimpleTerrainTree v2.04" shader allows exactly this. It supports all lighting features including shadow casting and billboarding. And you have never seen a smoother transition between billboard and mesh tree even at strong wind settings ;-)\
+\
+If you want to add a collider please make sure that you attached a capsule collider for this is the only one supported by the terrain engine.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b \cf2 Please note:
+\b0  When using this shader within the terrain engine you have to add a regular unity built in wind zone and set it up so it matches the wind settings you have made in the "setupAdvancedFoliageShader" script.\cf3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1 \cf0 \
+Models using this shader will render faster than trees created with the built in tree creator as they only use one material (which gives you 3 instead of 6 draw calls).\
+And you will benefit from extremely fast rendered billboards.\
+\
+However \'96 if you want to add smaller plants which should cast shadows and might be culled at rather near distances due to their size adding those as single game objects and using the "combine children afs" script will probably still be the fastest way to render.\
+\
+See: documentation Terrian Trees and Billboards v2.042.rtf for further details.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Changelog Advanced Foliage Shader v2.042\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.042\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 Reposition Trees AFS
+\f1\b0 \
+- This script lets you place terrain trees on top of any other geometry while you will still benefit from billboarding\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Advanced Billboard Shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b0 \cf0 - Billboards can cast real time shadows\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b \cf0 Advanced Tree Creator Shaders
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0 \cf0 - Adjust the contrast of the generated billboard textures globally and/or per leaf material using the "BillboardContrast" parameter of the "AfsTreeCreatorLeafsOptimized (_ShadowFade) shaders\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b \cf0 Advanced Grass Shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b0 \cf0 - Choose between the classical color animation (waving tint: terrain engine) and lighting effected by the bending factor\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 SetupAdvancedFoliageShader script
+\f1\b0 \
+- Refactored and converted to c#\
+\
+
+\f0\b Foliage Tool
+\f1\b0 \
+- Lets you easily merge meshes of Tree Creator Trees to make them fit the needs of the foliage shaders or simple terrain tree shader
+\f0\b\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\fs24 \cf0 \
+Shaded Billboards AFS\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Better memory management, less garbage collector calls\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf0 setupAdvancedFoliageShader script
+\f1\b0 \
+- refactored and converted to c#\
+- new features included
+\f0\b\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.041\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+setupAdvancedFoliageShader script
+\f1\b0 \
+- Custom editor for the script added\
+- new billboard functions included
+\f0\b \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1 \cf0 Tree Shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Camera aligned Billboards added\
+- Dissolve Shadows added
+\f0\b\fs36 \
+\
+\
+Version 2.04\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1 \cf0 Advanced Foliage Shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Enhanced support for shadow caster and shadow collector batching (unity > 4.2)\
+- Shadow acne reduced \'96 at the expense of correct bending though (see: "Tweaking the shaders -> 
+\f0 Self shadowing artifacts vs. correct bending")\
+
+\f1 - Secondary bending (in vertical direction) lowered.\
+- 
+\f0 "WaveSizeFoliageShader" and "WaveSizeGrassShader" influence changed. See: "documentation SetupFoliageShader" -> "1.2. Wind settings"\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b \cf2 Please note: 
+\b0 Use rather high values (e. g. 10.0) in oder to reduce the amount of distortion within a single model. Open the "01 foliage shader demoscene", have a look at the bananas and test some different values.\cf0 \
+- "Advanced foliage shader noBending" fixed.\
+- Wrong lighting of all foliage shaders fixed if no texture is assigned.\
+- "advancedFoliageShader for Terrainengine": early exit defined, so if there is no bending to calculate (e.g. if vertex color blue + green = 0 like at lower vertices or on static geometry like stones) it will be completely skipped.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Advanced Grass Shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - noTrans Version: Grass fades out before "Detail Distance For Grass Shader".\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Advanced Tree Shaders
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0 \cf0 - "Afs SimpleTerrainTree" added \'96 use your foliage as trees within the terrain engine and benefit from capsule colliders, casted shadows and pretty much the most smoothly blending billboards ;-)\
+- "Afs Tree Creator Bark Optimized" and "Afs Tree Creator Leafs Optimized" shaders added \'96 use these with your trees within the terrain engine and benefit from pretty much the most smoothly blending billboards ;-)
+\f1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf0 Combine Children AFS
+\f1\b0 \
+- Material leak warning fixed.\
+- Script refactored. Unfortunately this will break all connections and you have to reassign the script manually.\
+- "Bake scale" fixed.\
+\
+
+\f0\b atsV3.4.WavingGrass vertexAlpha shader
+\f1\b0 \
+- Shader ignores wind settings made to the terrain engine but takes those made in the "setupAdvancedFoliageShader" script, so grass placed within the terrain engine is always in synch with manually placed grass \'96 and bends much nicer!\cf5 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note: 
+\b0 You may have to adjust the alpha values of the "dry" and "healthy" colors to make the amount of bending fit again.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 - Grass fades out before "DetailDistance".\cf3 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf0 setupAdvancedFoliageShader script
+\f1\b0 \
+- Wind animation tweaked: Wind will keep its initial direction as the sin function is brought to 0.25 \'96 1.125 range.\
+- Wave Size parameters reworked.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note: 
+\b0 Use rather high values (e. g. 10.0) in oder to reduce the amount of distortion within a single model. Open the "01 foliage shader demoscene", have a look at the bananas and test some different values.\cf0 \
+- Camera Layer Culling will effect all active cameras.\
+- Script cleaned up and refactored.\
+- Grass Windanimation improved.\
+- "Detail Distance For Grass Shader" added.\
+- New settings for Afs Tree shaders added.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 AFS foliage tool\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Support for meshes using 2 different materials added (e.g. trees).\cf5 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b\fs36 \cf0 \
+Version 2.032\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\fs24 \cf0 \
+Advanced Foliage shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b0 \cf0 - Vertex Lighting fixed: Now all foliage shaders work in deferred lighting, forward lighting and vertex lit.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b\fs36 \cf0 \
+Version 2.031
+\fs24 \
+\
+Advanced Grass shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - "no Translucency" version needs only single sided geometry as culling is disabled in the shader\
+- lighting fixed which replaces the hot fix from the forum\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 Advanced Foliage shader groundlighting\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b0 \cf0 - Groundlighting affects directional lights only
+\b \
+
+\b0 - "Groundlighting Attunation" added\
+- non atlas version added\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 CombineChildrenAFS Script\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b0 \cf0 - script will automatically detect materials, so you can have meshes with different materials (grass, ground lighting, regular foliage) under the same parent object
+\b\fs36 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+Version 2.03
+\fs24 \
+\
+setupAdvancedFoliageShader script\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Enhanced wind animation: 2 sin waves that do not affect the y axis any more.\
+- "WindMultiplierForGrassshader" and "WaveSizeForGrassshader" added
+\f2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf0 \
+Combine Children AFS script\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Advanced foliage shader
+\b \
+
+\b0 - - Bake random bending values (main and secondary bending, edge fluttering and pulse)\
+- - Bake scale so smaller instances will get less bending\
+Advanced Grass shader\
+- - healthy and dry colors for objects using the advanced grass shaders added\
+- enhanced ground normal sampling function which will give you much better results on terrains\
+- incorrect normals will be displayed yellow\
+- you can simply realign your models with a single click\
+- custom editor added
+\b \cf6 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+Advanced Grass shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Corrupted preview in deferred lighting mode fixed\
+- "no Transluceny" version added: faster and perfectly fits the terrain engine grass\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Advanced Foliage Shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Primary bending along the wind axis will never go down to 0 if there is a windforce > 0. You might have to lower the general wind force a little bit (Setup script).\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 AFS Foliage Tool\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Completely redefine primary and secondary bending just using this tool. You do not have to do this using an external tool anymore.
+\b \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.02\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+Improved Touch bending\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Touch bending now handles up to 2 overlaying animations giving you much nicer transitions if a plant is touched 
+\f1 \cf7 \cb4 while still being in the touch bending animation of the first touch.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\b \cf0 \cb1 \
+Advanced Grass shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Advanced Grass shader added which lets you \cf7 \cb4 add grass like objects anywhere to your scene \'96 not only on top of terrains \'96 and supports procedural wind animation, translucency, real time shadows and ground based lighting.\
+\
+\pard\pardeftab720
+
+\b \cf7 Advanced Foliage Shader supporting ground based lighting
+\b0 \
+Use this shader to enhance the lighting of smaller plants placed on steep slopes.
+\b \cf0 \cb1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.01\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 \
+New: Wind Variation\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 "Time" and "WaveSize" have been added\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 Fixed: Specular Power\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 "Specular Power" now also works on plants placed within the terrain engine
+\b\fs48 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.0
+\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 Fixed: Minor tweaks and fixes to the shader\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 - Primary bending is now much more accurately applied to the plants. This might lead to a different behaviour as far as wind bending is concerned. If so use the "AfsFoliageTool" script to adjust your models.\
+- Values for "translucency color", "translucency view dependency" and "specularity" which are set up for the terrain engine using the script do not effect manually placed objects any more.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 New: Touch bending or interactive foliage added\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 See the following topics to find out more.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 New: AFS Foliage Tool added\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Let your plants react to any game object\'92s movement! See the following topics to find out more.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 New: Specular power added\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Lets you create a wet look on all plants using the advanced foliage shaders.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs48 \cf0 Tweaking the shaders\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 \
+Self shadowing artifacts vs. correct bending
+\fs48 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\fs24 \cf2 Please note: 
+\b0 The following notes are only relevant if you are using the deferred lighting path.\
+If you are using forward rendering and the related 
+\f0 "CustomBending_forward.cginc" 
+\f1 just ignore these.
+\f0\b\fs28 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 \
+In previous version of the shader you might have noticed that under certain circumstances there are some self shadowing artifacts \'96 especially on big leave planes like those from the banana. To my surprise i had to notice that those artifacts are caused by the fact that the shaders rotate the wind direction into local space in order to make even single objects which are not batched \'96 neither statically nor dynamically \'96 and are not combined bend along the right direction. So i have skipped this.\
+\
+But if you do prefer to have correct bending above less shadow acne you might want to edit the shaders.\
+Do so by editing the file: "CustomBening.cginc" or "CustomBening_deferred.cginc" if you have renamed it.\
+Find line "//
+\f2 _Wind.xyz = \cf8 mul\cf0 (UNITY_MATRIX_IT_MV, _Wind).xyz;
+\f0 " and simply uncomment it.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b \cf2 Important: 
+\b0 If you edit the 
+\f0 "CustomBening.cginc"  you have to make sure that you also edit "TouchBending.cginc" and apply the same changes.\cf3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f1 \cf0 Finally you have to recompile all shaders.\
+Do not forget to recompile also the shaders located in "Resources" --> "ShadersBuiltin"
+\f2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+
+\f0 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs48 \cf0 Questions or suggestions?\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 Please contact me at larsberram69@gmail.com or have a look at the official thread:\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \ul \ulc0 http://forum.unity3d.com/threads/133398-Advanced-foliage-shader-released\ulnone \
+\
+}

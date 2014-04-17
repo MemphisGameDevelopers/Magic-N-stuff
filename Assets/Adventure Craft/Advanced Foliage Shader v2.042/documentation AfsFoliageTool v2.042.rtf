@@ -1,0 +1,326 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 Menlo-Regular;
+}
+{\colortbl;\red255\green255\blue255;\red255\green83\blue8;\red14\green14\blue14;\red254\green254\blue254;
+\red217\green11\blue0;\red68\green68\blue68;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww13960\viewh13820\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\f0\b\fs48 \cf0 Afs Foliage Tool Version 2.04
+\fs36 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 \
+The Afs Foliage Tool lets you manipulate the vertex colors of your plant meshes directly within unity. So adjusting your bending animation has become much easier.
+\fs24 \
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs36 \cf0 Table of Content\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\fs24 \cf0 \
+1. Changelog\
+
+\fs12 \
+
+\fs24 2. Setting up a test scene\
+
+\fs12 \
+
+\fs24 3. Using the script\
+
+\fs12 \
+
+\fs24 4. Converting "tree creator" trees\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 4.1. Why should i use the advanced foliage or simple tree shader?\
+4.2. How to convert a tree
+\b \
+
+\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs48 \cf0 1. Changelog\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.042\
+\pard\pardeftab720
+
+\fs24 \cf0 \
+Merge Submeshes
+\fs36 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b0\fs24 \cf0 Lets you easily merge meshes of Tree Creator Trees to make them fit the needs of the foliage shaders or simple terrain tree shader
+\f0\b\fs48 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.04
+\fs24 \
+\
+\pard\pardeftab720
+\cf0 Adjust vertex colors\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f1\b0 \cf0 Support for meshes using 2 materials added (like trees).
+\f0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs36 \cf0 Version 2.031
+\fs24 \
+\
+\pard\pardeftab720
+\cf0 Adjust vertex colors\
+\pard\pardeftab720
+
+\b0 \cf0 Fixed: hitting "apply" will actually change the current mesh\'85\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs48 \cf0 2. Setting up a test scene\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 In order to adjust vertex colors i recommend to create a little test scene which should contain almost all of your plant models as it is very important to judge the bending of a certain plant relatively to all others.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf2 Important:
+\b0  You have to add the "setupAdvancedFoliageShader" script too. Otherwise you won\'92t see any bending at all. Set up the wind so that it will fit your general settings.\cf0 \
+\pard\pardeftab720
+\cf3 \cb4 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs48 \cf0 \cb1 3. Using the script\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 Select the plant you would like to edit and choose "Component" --> "Mesh" --> "AFS Foliage Tool".\
+A custom editor will become visible in the inspector.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 Set bending\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Check this if you want to completely redefine primary and secondary bending (both stored in vertex.color.blue).\
+\pard\tx512\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 	Along Y-Axis\
+\pard\tx556\pardirnatural
+
+\b0 \cf0 	Lets you add shades of blue to each vertex according to its position along the Y-Axis relative to its pivot.\
+	This should always be the first step.\
+
+\fs12 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 	Along XZ-Axis\
+\pard\tx556\pardirnatural
+
+\b0 \cf0 	Use this if you want to add stronger bending to the outer parts of your plant.\
+	It will add shades of blue according to the vertex position along the XZ-axis relative to its pivot.\
+
+\fs12 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 	Apply\
+\pard\tx556\pardirnatural
+
+\b0 \cf0 	Hit "Apply" to bake the new values to the temporary mesh.\
+
+\fs12 \
+
+\fs24 	
+\b Test\
+\pard\tx556\pardeftab720\pardirnatural
+
+\b0 \cf0 	Hit "Test" to see how wind will bend the temporary mesh in play mode.\
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs24 \cf0 	
+\b \cf2 Important:
+\b0  Do not forget to save the modified mesh when you are done!\cf0 \
+\pard\tx556\pardirnatural
+\cf0 \
+
+\fs12 \
+\pard\pardeftab720
+
+\b\fs24 \cf0 Adjust vertex colors\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 Check this if you just want to adjust already existing vertex colors.
+\fs12 \
+\pard\tx512\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 	Apply\
+\pard\tx556\pardeftab720\pardirnatural
+
+\b0 \cf0 	Hit "Apply" to bake the new values to the temporary mesh.\
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs24 \cf0 	
+\b Test\
+
+\b0 	Hit "Test" to see how wind will bend the temporary mesh in play mode.
+\fs12 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\fs24 \cf0 	
+\b \cf2 Important:
+\b0  Do not forget to save the modified mesh when you are done!\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li575\fi-576\pardirnatural
+\cf2 	Whenever you hit "Apply" all changes are done relatively to the temporary mesh. In case you want to return to the original mesh you will have to reassign it manually first, then save a new mesh.\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\sl264\slmult1\pardirnatural
+
+\b\fs48 \cf0 4. Converting "tree creator" trees\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0\fs24 \cf0 In case you want to use the advanced foliage or simple tree shader on models created with the built in tree creator you might use the foliage tool to make those models fit the needs of those shaders.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs36 \cf0 4.1. Why should i use the advanced foliage or simple tree shader?
+\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 A lot of packages on the asset store ship with rather small plants modeled using the tree creator like bushes or even small trees.\
+Using the original shaders will force 2 draw calls per instance (6 when using real time shadows) whereas when using the "Simple Terrain Tree" shader it is only 1 (3) draw call. Using the "foliage" shaders in conjunction with the combine children AFS script will give you even less.\
+So if you do not need full control on primary and secondary bending explicitly \'96 and i think it is absolutely ok to make no difference on rather small plants  \'96 converting those models and using the advanced foliage shaders will safe you a lot of draw calls.\
+And of course: you can apply touch bending to those...\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b\fs36 \cf0 4.2. How to convert a tree
+\fs24 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b0 \cf0 First of all you should duplicate the tree\'92s prefab in the project tab.\
+Then drag the copy into your scene and apply the foliage tool to it.\
+As the script will detect that your mesh consists of 2 submeshes (for the 2 materials: leafs and bark) it will prompt a proper message.\
+Next to that you will get some new inputs:\
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 Merge Submeshes\
+\pard\tx556\pardeftab720\pardirnatural
+
+\b0 \cf0 Check this if you want to merge the submeshes into one. Required if you want to use the foliage shaders.\
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720
+
+\b\fs24 \cf0 Delete 2nd UV Set\
+\pard\tx556\pardeftab720\pardirnatural
+
+\b0 \cf0 Tree creator trees come with a 2nd uv set which is not needed by the foliage shaders. So in order to reduce the amount of vertex data you should check this.\
+\
+So simply check both, then hit "Save Mesh".\
+The script will merge the submeshes, copy the vertex colors, delete the 2nd UV and assign the new mesh to the prefab.\
+However primary and secondary bending is not set up automatically.\
+\
+\pard\pardeftab720
+
+\b \cf0 Merge Tree Creator Textures\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+
+\b0 \cf0 The textures needed by the foliage shaders look a bit different to those needed by the tree creator shaders.\
+So the script lets you simply combine the original textures into one that fits our needs.
+\fs12 \
+\pard\tx512\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+\cf0 \
+\pard\tx556\pardeftab720\li553\fi-554
+
+\b\fs24 \cf0 	normal_specular\
+\pard\tx556\pardeftab720\li553\fi-554\pardirnatural
+
+\b0 \cf0 	Assign the "normal_specular" texture originally created by the tree creator.\
+
+\fs12 \
+
+\fs24 	
+\b translucency_gloss\
+
+\b0 	Assign the "translucency_gloss" texture originally created by the tree creator.\
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs12 \cf0 \
+\pard\tx556\pardeftab720\pardirnatural
+
+\fs24 \cf0 	
+\b Texture split\
+\pard\tx556\pardeftab720\li564\fi-565\pardirnatural
+
+\b0 \cf0 	If your tree uses one of the most common texture setups the script can automatically fill the proper parts of the translucency map with black so the bark will be completely opaque.\
+\pard\tx556\pardeftab720\li559\fi-560\pardirnatural
+\cf0 	Otherwise you will have to edit the generated texture manually and fill those parts of the \cf5 red\cf0  color channel with black where the tree should be fully opaque.\
+\pard\tx562\tx1118\pardeftab720\li1141\fi-1142\pardirnatural
+\cf0 		
+\b One by One
+\b0 \
+		bark on the left half / leafs on the right half\
+		
+\b Two by One
+\b0 \
+		bark fills 2/3 of the texture atlas  / leafs the third on the right side of the texture atlas\
+
+\b 		Other
+\b0 \
+		If selected the script will not make any changes to the translucency channel (red). You will have to edit it manually and fill those parts where there shall not be any translucency with black.
+\f2 \cf6 \
+\pard\tx556\pardeftab720\pardirnatural
+
+\f0 \cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  If the original bark texture contains any alpha channel which is not purely white (which would be fully opaque) the bark will not show up correctly as it will be rendered using alpha cutoff.\
+Fix this by duplicating the original "diffuse" texture created by the tree creator and editing its alpha channel: Please set all parts where the is the bark texture to pure "white".\cf0 \
+\pard\tx556\pardeftab720\pardirnatural
+\cf0 \
+To set up primary and secondary bending manually you will first have to create a new material. Chose the "Advanced Foliage Shader" as shader \'96 no matter if you would like to use the prefab as "simple terrain tree" or not.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\b \cf2 Please note:
+\b0  The "Simple Terrain Tree" shader only works correctly on prefabs placed as trees within the terrain engine. So you will not see any bending when working on the prefab.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 Assign the original "diffuse" texture created by the tree creator to the upper texture slot of the material and the merged "normal_specular translucency_gloss" texture to the 2nd slot. Then assign the material to your prefab.\cf2 \
+\pard\tx556\pardeftab720\pardirnatural
+\cf0 On assigning the new material you will see, that it still has 2 materials. Simply get rid of the 2nd one by setting "Material" -> "Size" to "1" in the "Mesh Renderer" component.\
+\
+Switch back to the foliage tool and chose "Set bending" to setup bending on the prefab like described above: 2. Using the script.\
+When done remove the original "tree" script from the prefab.\
+\
+}
